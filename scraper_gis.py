@@ -3,6 +3,8 @@ import urllib3 as urls
 from urllib.parse import unquote, quote
 
 
+
+
 class Gis_page():
 	def __init__(self, sity:str='', search_word:str=''):
 		self.sity = sity;
@@ -55,5 +57,6 @@ class Gis_page():
 	def save_files(self): # save the search's result into the file
 		Gis_page.__scrap_gi(self)
 		with open( file=f"test_file.txt", encoding="utf-8",  mode="w") as f:
+
 			f.write(str(self.object_soup))
 			f.close()
