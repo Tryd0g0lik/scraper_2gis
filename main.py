@@ -15,7 +15,7 @@ from scraper_gis import Gis_page as Gp
 # if __name__ == '__main__':
 
 if __name__ == "__main__":
-    map = Gp(sity="novosibirsk", search_word="церкви")
-    map.scrap_gi()
+    map = Gp(sity="moscow", search_word="церкви")
+    map.save_files()
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
