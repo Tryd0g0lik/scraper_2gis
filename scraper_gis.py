@@ -57,6 +57,6 @@ class Gis_page():
 	def save_files(self): # save the search's result into the file
 		Gis_page.__scrap_gi(self)
 		with open( file=f"test_file.txt", encoding="utf-8",  mode="w") as f:
-
+			print(str(self.object_soup))
 			f.write(str(self.object_soup))
 			f.close()

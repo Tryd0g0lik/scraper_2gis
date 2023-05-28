@@ -1,3 +1,5 @@
 venv
 **/__pycache__
+files_common
 код.txt
+test_file.txt
