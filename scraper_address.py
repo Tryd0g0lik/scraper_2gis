@@ -1,4 +1,5 @@
 from scraper_gis import Gis_page
+from threading import Timer
 import re
 class ScraperEachAddress(Gis_page):
 	"""
@@ -17,11 +18,12 @@ class ScraperEachAddress(Gis_page):
 	def __init__(self, sity:str='', search_word:str = ''):
 		super().__init__(sity, search_word)
 		ScraperEachAddress.start_working(self)
-		self.name :str = ''
+		self.name :str = ""
 		self.type_name:str = '' # тип - под названием
 		self.reiting:str = "" # Рейтинг
 		self.count:str = "" # кол-во 
-		
+		self.address:str = "" # Адрес/местонахождения
+
 		self.snijgp :str = '' #  краткое описание См. "описание.png"
 		self.geometry_name :str = ''
 		self.phone :str = ''
@@ -33,6 +35,8 @@ class ScraperEachAddress(Gis_page):
 		self.vk :str = '' # ВКонтакте
 		self.tg :str = ''  # Telegram
 		self.wa :str = '' # WhatsApp
+		# t = Timer(30.0, ScraperEachAddress.iterating_over_company(self, self.object_soup))
+		# t.start()
 		ScraperEachAddress.iterating_over_company(self, self.object_soup)
 
 	def iterating_over_company(self, page):
@@ -50,7 +54,7 @@ class ScraperEachAddress(Gis_page):
 
 
 
-
+		i = 0
 		if len(str(page)) > 0:
 			match_list = str(page).strip()
 			print("page: ", )
@@ -63,61 +67,65 @@ class ScraperEachAddress(Gis_page):
 
 			# print("match: ", (match_list))
 
+			while i <= 5:
+				for one_company in match_list:
+					for one_separate in one_company.split("</div><div"):
+						print(f"index {i}: ", one_company)
+						one_separate = one_separate.lstrip()
 
-			for one_company in match_list:
-				for one_separate in one_company.split("</div><div"):
-					one_separate = one_separate.lstrip()
+						reg_link_text = r'''(<a\sclass=[\"|\']_\w{3,10}[\"|\']\shref=[\"|\'][\/\w]*[\"|\']><span)'''
+						reg_titleGisReference = r'''([\"|\']\/\w*\/?[\w\/]*\/?[\"|\']?)'''
 
-					reg_link_text = r'''(<a\sclass=[\"|\']_\w{3,10}[\"|\']\shref=[\"|\'][\/\w]*[\"|\']><span)'''
-					reg_titleGisReference = r'''([\"|\']\/\w*\/?[\w\/]*\/?[\"|\']?)'''
+						# reg_name = r'''(<span class=[\"|\']_\w{3,10}[\"|\'])'''
+						reg_name = r'''(<span class=[\"|\']_\w{3,10}[\"|\']>[\w|\W]{2,100}</span> ?[^(<!-)])'''
 
-					# reg_name = r'''(<span class=[\"|\']_\w{3,10}[\"|\'])'''
-					reg_name = r'''(<span class=[\"|\']_\w{3,10}[\"|\']>[\w|\W]{2,100}</span> ?[^(<!-)])'''
-
-					reg_type_name = r'''(^ class=[\"|\']_\w{3,10}[\"|\']><span class=[\"|\']_\w{3,10}[\"|\']>[^(<!-)][\w|\W]{2,100}<\/span> ?)''' #[^(!--)]
-					# print("one_separate: ", one_separate)
-					if bool(re.search(reg_link_text, str(one_separate))):
+						reg_type_name = r'''(^ class=[\"|\']_\w{3,10}[\"|\']><span class=[\"|\']_\w{3,10}[\"|\']>[^(<!-)][\w|\W]{2,100}<\/span> ?)''' #[^(!--)]
 						# print("one_separate: ", one_separate)
-						link_text = re.search(reg_link_text, str(one_separate)).group()
-						titleGisReference = "https://2gis.ru{}".format((re.search(reg_titleGisReference, str(link_text)).group()).strip('"').strip("'"))
-						print("titleGisReference: ", titleGisReference)
+						if bool(re.search(reg_link_text, str(one_separate))):
+							# print("one_separate: ", one_separate)
+							link_text = re.search(reg_link_text, str(one_separate)).group()
+							titleGisReference = "https://2gis.ru{}".format((re.search(reg_titleGisReference, str(link_text)).group()).strip('"').strip("'"))
+							print("titleGisReference: ", titleGisReference)
 
-					if bool(re.search(reg_name, str(one_separate))):
-						# print("one_separate: ", one_separate)
-						name = str(re.search(reg_name, str(one_separate)).group())
-						# print("name: ", name)
-						self.name ="{}".format((name.lstrip(r'''(<span class=[\"|\']_\w{5,10}[\"|\']>)''').lstrip('f"><span>')).replace('</span>', ""))
-						print("self.name: ",self.name)
+						if bool(re.search(reg_name, str(one_separate))):
+							# print("one_separate: ", one_separate)
+							name = str(re.search(reg_name, str(one_separate)).group())
+							# print("name: ", name)
+							self.name ="{}".format((name.lstrip(r'''(<span class=[\"|\']_\w{5,10}[\"|\']>)''').lstrip('f"><span>')).replace('</span>', ""))
+							print("self.name: ",self.name)
 
-					elif bool(re.search(reg_type_name, str(one_separate))):
-						# print("one_separate: ", one_separate.lstrip())
+						elif bool(re.search(reg_type_name, str(one_separate))):
+							# print("one_separate: ", one_separate.lstrip())
 
-						type_name = str(re.search(reg_type_name, str(one_separate)).group())
-						type_name = re.search(r"([\w|\W]{3,100}<)", type_name).group().rstrip("<").strip()
-						type_name_separator = re.search(r"""(^class=[\"|\']_\w{3,10}[\"|\']><span class=[\"|\']_\w{3,10}[\"|\']>)""", type_name).group().__str__()
-						self.type_name = "{}".format(type_name.lstrip(str(type_name_separator)))
-						print("type_name:",self.type_name)
-					# print("reg_type_name: ", re.search(reg_type_name, str(one_separate)))
+							type_name = str(re.search(reg_type_name, str(one_separate)).group())
+							type_name = re.search(r"([\w|\W]{3,100}<)", type_name).group().rstrip("<").strip()
+							type_name_separator = re.search(r"""(^class=[\"|\']_\w{3,10}[\"|\']><span class=[\"|\']_\w{3,10}[\"|\']>)""", type_name).group().__str__()
+							self.type_name = "{}".format(type_name.lstrip(str(type_name_separator)))
+							print("type_name:",self.type_name)
+						# print("reg_type_name: ", re.search(reg_type_name, str(one_separate)))
 
-					elif bool(re.search(r'(^class=\"_\w{3,10}\">[0-5]{1,2}.?[0-9]{0,2}[^( \W)])', one_separate)):
-						# print("one_separate: ", one_separate)
-						reiting_separator = re.search(r'(^class=\"_\w{3,10}\">[0-5]{1,2}.?[0-9]{0,2}[^( \W)])', one_separate).group()
-						self.reiting = "{}".format(re.search(r'([0-5]{1,2}.?[0-9]{0,2}$)', reiting_separator).group())
+						elif bool(re.search(r'(^class=\"_\w{3,10}\">[0-5]{1,2}.?[0-9]{0,2}[^( \W)])', one_separate)):
+							# print("one_separate: ", one_separate)
+							reiting_separator = re.search(r'(^class=\"_\w{3,10}\">[0-5]{1,2}.?[0-9]{0,2}[^( \W)])', one_separate).group()
+							self.reiting = "{}".format(re.search(r'([[0-5]{1,2}.{0,1}[0-9]{0,2}$|[0-5]{1,2}$])', reiting_separator).group())
 
-						print("self.reiting: ", self.reiting)
+							print("self.reiting: ", self.reiting)
 
-						
-					elif bool(re.search(r'(^class=\"_\w{3,10}\">[0-9]{1,2})', one_separate)):
-						self.count = "{}".format(re.search(r'(>([0-9]{0,2} [оценокблва]{0,10}))', one_separate).group().lstrip(">"))
 
-						print("self.count: ", self.count)
+						# elif bool(re.search(r'(^class=\"_\w{3,10}\">[0-9]{1,2})', one_separate)):
+						elif bool(re.search(r'(>([0-9]{0,2} [оценокблва]{0,10}))', one_separate)):
+							self.count = "{}".format(re.search(r'(>([0-9]{0,2} [оценокблва]{0,10}))', one_separate).group().lstrip(">"))
 
-					elif bool(re.search(r'(^[А-ЯЁ]{1}[а-яА-ЯёЁ]{3,50})', one_separate[71:])):
-						address_separator = re.search(
-							r'''(^[А-ЯЁ]{1}[а-яА-ЯёЁ]{3,50}[, | ]{1}[^(\&nbsp;)][а-яё ,0-9\/]{1,50}[^(\&nbsp;)][а-яё ,0-9\/]{1,50}[[, | ]{0,1}|[^(\&nbsp;)]|[а-яё ,0-9\/]{1,50}|[^(\&nbsp;)]{0,1}]{0,100})''', one_separate[71:]).group()
-						print("address_separator: ", address_separator)
+							print("self.count: ", self.count)
 
-						print("count: ", one_separate)
-				break
+						elif bool(re.search(r'(^[А-ЯЁ]{1}[а-яА-ЯёЁ]{3,50})', one_separate[71:])):
+							address_separator = re.search(
+								r'''((^[А-ЯЁ]{1}[а-яА-ЯёЁ]{3,50}[, | ]{1}[^(\&nbsp;)][а-яё ,0-9\/]{1,50})([^(\&nbsp;)][[А-ЯЁа-яё .,0-9\/]|[^(\&nbsp;)][А-ЯЁа-яё .,0-9\/]{1,220}]{1,10}))''', one_separate[71:]).group()
+							self.address = "{}".format(address_separator)
+							print("self.address: ", self.address)
+
+						# print("count: ", one_separate)
+
+					i +=1
 
 
