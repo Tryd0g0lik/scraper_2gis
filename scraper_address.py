@@ -101,8 +101,8 @@ class ScraperEachAddress(Gis_page):
 
 					elif bool(re.search(r'(^class=\"_\w{3,10}\">[0-5]{1,2}.?[0-9]{0,2}[^( \W)])', one_separate)):
 						# print("one_separate: ", one_separate)
-						reiting = re.search(r'(^class=\"_\w{3,10}\">[0-5]{1,2}.?[0-9]{0,2}[^( \W)])', one_separate).group()
-						self.reiting = "{}".format(re.search(r'([0-5]{1,2}.?[0-9]{0,2}$)', reiting).group())
+						reiting_separator = re.search(r'(^class=\"_\w{3,10}\">[0-5]{1,2}.?[0-9]{0,2}[^( \W)])', one_separate).group()
+						self.reiting = "{}".format(re.search(r'([0-5]{1,2}.?[0-9]{0,2}$)', reiting_separator).group())
 
 						print("self.reiting: ", self.reiting)
 
@@ -112,10 +112,12 @@ class ScraperEachAddress(Gis_page):
 
 						print("self.count: ", self.count)
 
-					elif bool(re.search(r'((^[А-ЯЁ]{1}[а-яА-ЯёЁ]{3,50})[ |,]{1}([а-яА-ЯёЁ]{3,50}|[0-9]{1,2}[,| |\/]?[0-9]{0,2}))', one_separate[71:])):
-						print("address: ", re.search(r'((^[А-ЯЁ]{1}[а-яА-ЯёЁ]{3,50})[ |, ]{1}[^(\&nbsp;)]?([а-яА-ЯёЁ ,0-9]{3,70})[^(\&nbsp;)]?[ |, ]?)', one_separate[71:]).group())
+					elif bool(re.search(r'(^[А-ЯЁ]{1}[а-яА-ЯёЁ]{3,50})', one_separate[71:])):
+						address_separator = re.search(
+							r'''(^[А-ЯЁ]{1}[а-яА-ЯёЁ]{3,50}[, | ]{1}[^(\&nbsp;)][а-яё ,0-9\/]{1,50}[^(\&nbsp;)][а-яё ,0-9\/]{1,50}[[, | ]{0,1}|[^(\&nbsp;)]|[а-яё ,0-9\/]{1,50}|[^(\&nbsp;)]{0,1}]{0,100})''', one_separate[71:]).group()
+						print("address_separator: ", address_separator)
 
-						# print("count: ", one_separate)
+						print("count: ", one_separate)
 				break
 
 
