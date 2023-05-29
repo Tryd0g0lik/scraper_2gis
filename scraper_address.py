@@ -67,7 +67,7 @@ class ScraperEachAddress(Gis_page):
 
 			# print("match: ", (match_list))
 
-			while i <= 5:
+			while i <= 2:
 				for one_company in match_list:
 					for one_separate in one_company.split("</div><div"):
 						print(f"index {i}: ", one_company)
@@ -104,6 +104,7 @@ class ScraperEachAddress(Gis_page):
 							print("type_name:",self.type_name)
 						# print("reg_type_name: ", re.search(reg_type_name, str(one_separate)))
 
+						# elif bool(re.search(r'(^class=\"_\w{3,10}\">[0-5]{1,2}.?[0-9]{0,2}[^( \W)])', one_separate)):
 						elif bool(re.search(r'(^class=\"_\w{3,10}\">[0-5]{1,2}.?[0-9]{0,2}[^( \W)])', one_separate)):
 							# print("one_separate: ", one_separate)
 							reiting_separator = re.search(r'(^class=\"_\w{3,10}\">[0-5]{1,2}.?[0-9]{0,2}[^( \W)])', one_separate).group()
@@ -119,8 +120,12 @@ class ScraperEachAddress(Gis_page):
 							print("self.count: ", self.count)
 
 						elif bool(re.search(r'(^[А-ЯЁ]{1}[а-яА-ЯёЁ]{3,50})', one_separate[71:])):
+							group1 = r"(^[А-ЯЁ]{1}[а-яА-ЯёЁ]{3,50}[, | ]{1}[^(\&nbsp;)][а-яё ,0-9\/]{1,50})"
+							group2 = r"([^(\&nbsp;)][[А-ЯЁа-яё .,0-9\/]|[^(\&nbsp;)][А-ЯЁа-яё .,0-9\/]{1,220}]{1,10}[^(\&nbsp;)])"
+							group3 = r"([^(\&nbsp;)][[А-ЯЁа-яё .,0-9]{1,220}|[А-ЯЁа-яё .,0-9]{1,220}]{0,10}[^(\&nbsp;)]{0,2})"
+							group4 = r"([^(\&nbsp;)][[А-ЯЁа-яё .,0-9]{1,220}|[А-ЯЁа-яё .,0-9]{1,220}]{0,10}[^(\&nbsp;)])"
 							address_separator = re.search(
-								r'''((^[А-ЯЁ]{1}[а-яА-ЯёЁ]{3,50}[, | ]{1}[^(\&nbsp;)][а-яё ,0-9\/]{1,50})([^(\&nbsp;)][[А-ЯЁа-яё .,0-9\/]|[^(\&nbsp;)][А-ЯЁа-яё .,0-9\/]{1,220}]{1,10}))''', one_separate[71:]).group()
+								rf'''({group1}{group2}{group3}{group4})''', one_separate[71:]).group().rstrip("<")
 							self.address = "{}".format(address_separator)
 							print("self.address: ", self.address)
 
@@ -129,3 +134,8 @@ class ScraperEachAddress(Gis_page):
 					i +=1
 
 
+	def search_inner_company(self, data):
+
+		return ScraperEachAddress.search_church()
+	def get_inner_data_company(self):
+		pass
