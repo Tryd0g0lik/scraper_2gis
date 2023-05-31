@@ -31,10 +31,11 @@ class Gis_page():
 		return self.search_word.__str__().strip()
 
 	def get_url(self, url,  head):
-		return urls.request("get", url=url,
+		self.requests = urls.request("get", url=url,
 		                 decode_content=True,
 		                 timeout=3,
 		                 headers=head)
+		return self.requests
 
 	def search_church(self): # search the word
 		city = Gis_page.get_city_name(self)
