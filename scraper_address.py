@@ -88,7 +88,7 @@ class ScraperEachAddress(Gis_page):
 					if bool(re.search(reg_name, str(one_separate))):
 						name = str(re.search(reg_name, str(one_separate)).group())
 						self.name ="{}".format((name.lstrip(r'''(<span class=[\"|\']_\w{5,10}[\"|\']>)''').lstrip('f"><span>')).replace('</span>', ""))
-
+						print("self.name: ", self.name)
 					elif bool(re.search(reg_type_name, str(one_separate))):
 						type_name = str(re.search(reg_type_name, str(one_separate)).group())
 						type_name = re.search(r"([\w|\W]{3,100}<)", type_name).group().rstrip("<").strip()
@@ -115,10 +115,11 @@ class ScraperEachAddress(Gis_page):
 						group3 = r"([^(\&nbsp;)][[А-ЯЁа-яё .,0-9]{1,220}|[А-ЯЁа-яё .,0-9]{1,220}]{0,10}[^(\&nbsp;)]{0,2})"
 						group4 = r"([^(\&nbsp;)][[А-ЯЁа-яё .,0-9]{1,220}|[^(\&nbsp;)|(\\xa0)]{0,1}[А-ЯЁа-яё .,0-9]{1,220}]{0,10}[^(\&nbsp;)|(\\xa0)]{0,1})"
 
-						address_separator = re.search(
-							rf'''({group1}{group2}{group3}{group4})''', one_separate[71:])
+						address_separator = re.search(rf'''({group1}{group2}{group3}{group4})''', str(one_separate[71:]))
 						if bool(address_separator):
 							self.address = "{}".format(address_separator.group().rstrip("<"))
+							print("self.address:", self.address)
+							address_separator = ""
 
 class ScraperInnerPage(ScraperEachAddress):
 	def __init__(self, city, search_word):
@@ -151,6 +152,8 @@ class ScraperInnerPage(ScraperEachAddress):
 		'''
 		print("__scrap_gis_inner")
 		url = "{}".format(self.nameCompanyLingGis, )
+
+
 		response_inner = ScraperInnerPage.open_inner_page_company(self, url)
 		if response_inner.status == 200:
 			ScraperInnerPage.pages = unquote(response_inner.data)
@@ -159,7 +162,6 @@ class ScraperInnerPage(ScraperEachAddress):
 				response_text = "{}".format(ScraperInnerPage.pages)
 				soup = beauty(response_text, features="html.parser")
 
-				print("There is the Lon/lat attributes")
 				# There is the Lon/lat attributes
 				self.object_soup = ""
 				self.object_soup = soup.find(id="root") \
@@ -169,11 +171,26 @@ class ScraperInnerPage(ScraperEachAddress):
 
 				page = ["{}".format(self.object_soup)]
 				page = [page[0].replace("|", "")]
-
 				ScraperInnerPage.scraper_continues_data_company(self, page)
 
-				print("There is we search the time mode for the works")
-				# There is we search the time mode for the works
+
+				"""There  down is we search the time mode for the works and 
+				self.name, 
+				self.type_name, 
+				self.reiting, 
+				self.count,  
+				self.address, 
+				self.lat, 
+				self.lon, 
+				self.phone, 
+				self.email, 
+				self.work_mode, 
+				self.vk:str, 
+				self.tg:str, 
+				self.wa:str, 
+				self.ok:str, 
+				website, 
+				"""
 				self.object_soup = ""
 				self.object_soup = soup.find(id="root") \
 				.contents[0].contents[0] \
@@ -186,7 +203,9 @@ class ScraperInnerPage(ScraperEachAddress):
 					page = []
 					for elem in self.object_soup[0].descendants: page.append(elem)
 
-					resp = ScraperInnerPage.scraper_continues_data_company(self, page)
+					ScraperInnerPage.scraper_continues_data_company(self, page)
+
+
 					print(
 						self.name,
 					self.type_name,
@@ -207,6 +226,8 @@ class ScraperInnerPage(ScraperEachAddress):
 					self.wa,
 					self.ok
 					)
+
+				# self.object_soup = self.object_soup.find_par
 		else:
 			print("t.data: ", ScraperInnerPage.pages.status)
 			return
@@ -271,6 +292,7 @@ class ScraperInnerPage(ScraperEachAddress):
 				elif self.phone == '' and re.search('tel:', str(page)) \
 					and bool(re.search(get_phone, str(page))):
 					self.phone = (re.search(get_phone, str(page)).group()).lstrip("tel:")
+					print("self.phone:", self.phone)
 
 
 				elif self.wa == '' and bool(re.search(get_WhatsApp, str(page))):

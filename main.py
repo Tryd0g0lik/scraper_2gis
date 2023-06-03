@@ -13,7 +13,22 @@ from scraper_gis import Gis_page as Gp
 
 # Press the green button in the gutter to run the script.
 if __name__ == "__main__":
-    map = ScraperInnerPage(city="novosibirsk", search_word="Для животных")
+    map = ScraperInnerPage(city="moscow", search_word="Кладбища")
     # map.save_files()
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
+
+""""
+Динамичный постер 2gis.
+
+После того как основная колонка проскрапиться,  
+иследоваься начинает только последняя компания. (__scrap_gis_inner)
+__scrap_gis_inner - не все кампании попадают сюда
+
+ДобавитьЖ
+	self.snijgp :str = '' #  краткое описание См. "описание.png"
+    self.geometry_name :str = ''
+ + Пагинацию 
+ + перебор кампаний из основной/базовой колонки проверить 
+ + подкатегории
+"""
