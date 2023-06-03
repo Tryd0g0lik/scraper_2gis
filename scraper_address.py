@@ -34,10 +34,11 @@ class ScraperEachAddress(Gis_page):
 		self.tg:str = ''  # Telegram
 		self.wa:str = '' # WhatsApp
 		self.ok:str = '' # OK
+		self.website: str = ''
 
 		self.snijgp :str = '' #  краткое описание См. "описание.png"
 		self.geometry_name :str = ''
-		self.website :str = ''
+
 		# t = Timer(30.0, ScraperEachAddress.scraper_companies(self, self.object_soup))
 		# t.start()
 		ScraperEachAddress.scraper_companies(self, self.object_soup)
@@ -225,8 +226,8 @@ class ScraperInnerPage(ScraperEachAddress):
 		get_tg = r'(href="https:\/\/t\.me/\+[0-9]{6,12}")'
 		get_vk = r'(http(s{0,1}):\/\/vk\.com\/\w{1,21})'
 		get_points = r'(points\/[0-9]{1,2}.{1}[0-9]{1,10},{0,1}[0-9]{1,2}.{1}[0-9]{1,10})'
-		get_website = r'(http(s{0,1})([^(mailto)]://\w{0,25}[^(w3)].{0,1}\w{0,25}).[a-z]{2,3})'
-
+		get_website = r'http(s{0,1}):\/\/\w{0,25}.{0,1}\w{2,25}[^(2gis)|(w3)|vk.].ru'
+	# http://glavnoehvost.ru
 		get_time_list = [
 			r'(Ежедневно с [0-9]{2}:[0-9]{2} до [0-9]{2}:[0-9]{2})',
 			r'(Сегодня [c|с] [0-9]{2}:[0-9]{2} до [0-9]{2}:[0-9]{2})',
@@ -288,6 +289,8 @@ class ScraperInnerPage(ScraperEachAddress):
 				elif self.vk == '' and bool(re.search(r'(http(s{0,1}):\/\/vk\.com\/\w{1,21})', str(page))):
 					self.vk = re.search(r'(http(s{0,1}):\/\/vk\.com\/\w{1,21})', str(page)).group()
 
+				elif self.website == "" and bool(re.search(get_website, str(page))):
+					self.website  = re.search(get_website, str(page)).group()
 
 
 
