@@ -240,9 +240,9 @@ class ScraperInnerPage(ScraperEachAddress):
 
 			if len(str(page)) > 15:
 				if bool(re.search(get_points, str(page))) and self.lat == "" \
-					and 'points' in str(page):
+					and bool(re.search(r'points', str(page))):
 
-					# page = page.replace("|", "")
+					page = page.replace("|", "")
 					lonLat = (re.search(get_points, str(page)).group())
 					lonLat = re.search(r'[0-9]{1,2}.{1}[0-9]{1,10},{0,1}[0-9]{1,2}.{1}[0-9]{1,10}', str(lonLat)).group().strip()\
 					.split(",")
