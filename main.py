@@ -1,5 +1,5 @@
 # This is a sample Python script.
-
+from scraper_address import ScraperEachAddress, ScraperInnerPage
 # Press Shift+F10 to execute it or replace it with your code.
 # Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
 
@@ -13,7 +13,24 @@ from scraper_gis import Gis_page as Gp
 
 # Press the green button in the gutter to run the script.
 if __name__ == "__main__":
-    map = Gp(sity="omsk", search_word="церкви")
-    map.save_files()
+    # map = ScraperInnerPage(city="moscow", search_word="Кладбища")
+    map = ScraperEachAddress(city="moscow", search_word="Кладбища")
+    # map.save_files()
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
+
+""""
+Динамичный постер 2gis.
+
+После того как основная колонка проскрапиться,  
+иследоваься начинает только последняя компания. (__scrap_gis_inner)
+__scrap_gis_inner - не все кампании попадают сюда
+
+ДобавитьЖ
+	self.snijgp :str = '' #  краткое описание См. "описание.png"
+    self.geometry_name :str = ''
+ + если кампания имеет 2 телефона, то ыскфзук берет только один. (
+ + Пагинацию 
+ + перебор кампаний из основной/базовой колонки проверить 
+ + подкатегории
+"""
