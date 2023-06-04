@@ -15,8 +15,8 @@ from scraper_gis import Gis_page as Gp
 # Press the green button in the gutter to run the script.
 if __name__ == "__main__":
     # map = ScraperInnerPage(city="moscow", search_word="Кладбища")
-    map = ScraperEachAddress(city="moscow", search_word="Кладбища")
-    # Gis_paginator()
+    map = ScraperEachAddress(city="tomsk", search_word="животные")
+    Gis_paginator(city="tomsk", search_word="животные")
     # map.save_files()
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/

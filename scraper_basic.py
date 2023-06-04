@@ -6,6 +6,7 @@ class Basic_gis():
 		'''
 		TODO: We make a request  by the URL into  the 'city' by 'search_word'
 		 return uploading of html-pages from the 2gis.ru
+		:param headers: your adding the ('Referer', f"https://2gis.ru/{city}/search/{requ_word}")
 		:param city:
 		:param search_word: categories for to the search
 		'''
@@ -35,6 +36,12 @@ class Basic_gis():
 		return word_gis
 
 	def get_url(self, url,  head):
+		'''
+		:param url: page's addres from the 2gis
+		:param head: Browser Request-Header
+		:return: uploading the page from 2gis-url
+		'''
+
 		self.requests = urls.request("get", url=url,
 		                 decode_content=True,
 		                 timeout=3,
