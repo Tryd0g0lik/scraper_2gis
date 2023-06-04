@@ -47,9 +47,13 @@ class Gis_paginator(Basic_gis):
 
 		:return: Pulling up the href of the 'paginator_list and return the links list.
 		'''
-		paginator_reference: list = []
+		main_page = self.headers['Referer']
+		paginator_reference: list = [main_page,]
 		for i in range(0, len(self.paginator_list) - 1):
-			paginator_reference.append("https://2gis.ru/" + self.paginator_list[i]['href']) if bool(self.paginator_list[i]) else None
+			word_ru: str = re.search(r"([а-яё%20]{3,40}){1,3}", self.paginator_list[2]['href']).group()
+			word_ru_unicode = quote(word_ru)
+			href_unicode = str(self.paginator_list[2]['href']).replace(str(word_ru), word_ru_unicode)
+			paginator_reference.append("https://2gis.ru/" + href_unicode) if bool(self.paginator_list[i]) else None
 		return paginator_reference
 
 	def start_working(self):
