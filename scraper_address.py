@@ -7,9 +7,32 @@ import re
 
 class ScraperInnerPage(Gis_page):
 	def __init__(self, city, search_word):
+		'''
+		TODO: viewing each address
+		:param 'snijgp' it's the comments/reviews for a company
+		:param 'geometry_name' it's  the companu's address
+		:param 'phone' it's the company number phone
+		:param 'email' it's the e-mail address
+		:param 'work_mode' it's the time by which the company is working
+		:param 'website' it's the URL of the site
+		:param 'vk', tg', 'wa' it's the social network
+		:param city: 
+		:param lat
+		:param lon
+		:param search_word:
+		'''
 		super().__init__(city, search_word)
-		self.tut()
-
+		self.lat: str = ''  # широта
+		self.lon: str = ''  # долгота
+		self.phone: str = ''
+		self.email: str = ''
+		self.work_mode: str = ''
+		self.vk: str = ''  # ВКонтакте
+		self.tg: str = ''  # Telegram
+		self.wa: str = ''  # WhatsApp
+		self.ok: str = ''  # OK
+		self.website: str = ''
+		
 	def open_inner_page_company(self, data_url):
 		'''
 
@@ -128,14 +151,11 @@ class ScraperInnerPage(Gis_page):
 						.split(",")
 					self.lon = lonLat[1]
 					self.lat = lonLat[0]
-					lonLat = ('',)
-					# return re.search(get_text, str(page)).group()
+
 					continue
 
 				for get_text in get_time_list:
-					if bool(re.search(get_text, str(page))):  # \
-						# or bool(re.search(get_time_list[1], str(page))) \
-						# or bool(re.search(get_time_list[2], str(page))):
+					if bool(re.search(get_text, str(page))):
 
 						new_string = re.search(rf'{get_text}', str(page)).group() + ", "
 						if new_string not in str(self.work_mode):
@@ -174,27 +194,13 @@ class ScraperInnerPage(Gis_page):
 				elif self.website == "" and bool(re.search(get_website, str(page))):
 					self.website = re.search(get_website, str(page)).group()
 
-	def tut(self):
-
-		'''
-		:properties: 'titleGisReference' - this's a link into the inner company's page
-		:propertiies: 'ScraperEachAddress' - it's a method for works with the inner company's page
-		'''
-
-
-class ScraperEachAddress(Gis_page):
+class ScraperEachAddress(ScraperInnerPage):
 	"""
 	TODO: viewing each address
-	:properties: 'name' it's the name company;
-	:properties: 'snijgp' it's the comments/reviews for a company
-	:properties: 'geometry_name' it's  the companu's address
-	:properties: 'phone' it's the company number phone
-	:properties: 'email' it's the e-mail address
-	:properties: 'work_mode' it's the time by which the company is working
-	:properties: 'website' it's the URL of the site
-	:properties: 'lat' it's the data coordinates about the width
-	:properties: 'lon' it's the data coordinates about the long
-	:properties: 'vk', tg', 'wa' it's the social network
+	:param 'name' it's the name company;
+	
+	:param 'lat' it's the data coordinates about the width
+	:param 'lon' it's the data coordinates about the long
 	"""
 	def __init__(self, city:str='', search_word:str = ''):
 		super().__init__(city, search_word)
@@ -204,16 +210,7 @@ class ScraperEachAddress(Gis_page):
 		self.reiting:str = "" # Рейтинг
 		self.count:str = "" # кол-во 
 		self.address:str = "" # Адрес/местонахождения
-		self.lat :str = '' # широта
-		self.lon :str = ''  # долгота
-		self.phone:str = ''
-		self.email:str = ''
-		self.work_mode:str = ''
-		self.vk:str = '' # ВКонтакте
-		self.tg:str = ''  # Telegram
-		self.wa:str = '' # WhatsApp
-		self.ok:str = '' # OK
-		self.website: str = ''
+		
 
 		self.snijgp :str = '' #  краткое описание См. "описание.png"
 		self.geometry_name :str = ''

@@ -1,5 +1,5 @@
 # This is a sample Python script.
-from scraper_address import ScraperEachAddress, ScraperInnerPage
+from scraper_address import ScraperEachAddress
 # Press Shift+F10 to execute it or replace it with your code.
 # Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
 
@@ -21,10 +21,6 @@ if __name__ == "__main__":
 
 """"
 Динамичный постер 2gis.
-
-После того как основная колонка проскрапиться,  
-иследоваься начинает только последняя компания. (__scrap_gis_inner)
-__scrap_gis_inner - не все кампании попадают сюда
 
 ДобавитьЖ
 	self.snijgp :str = '' #  краткое описание См. "описание.png"
