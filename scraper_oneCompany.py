@@ -158,12 +158,11 @@ class ScraperInnerPage(Gis_page):
 
 				elif self.phone == '' and re.search('tel:', str(page)) \
 					and bool(re.search(get_phone, str(page))):
-					self.phone = (re.search(get_phone, str(page)).group()).lstrip("tel:")
+					self.phone += (re.search(get_phone, str(page)).group()).lstrip("tel:") +", "
 					print("self.phone:", self.phone)
 
 
 				elif self.wa == '' and bool(re.search(get_WhatsApp, str(page))):
-					# self.wa = re.search(rf'{get_text}', str(page)).group()
 					self.wa = re.search(r'href="http(s){0,1}:\/\/wa.me\/[0-9]{1,20}', str(page)).group()
 
 

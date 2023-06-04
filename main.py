@@ -1,4 +1,5 @@
 # This is a sample Python script.
+from scrape_paginator import Gis_paginator
 from scraper_address import ScraperEachAddress
 # Press Shift+F10 to execute it or replace it with your code.
 # Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
@@ -15,6 +16,7 @@ from scraper_gis import Gis_page as Gp
 if __name__ == "__main__":
     # map = ScraperInnerPage(city="moscow", search_word="Кладбища")
     map = ScraperEachAddress(city="moscow", search_word="Кладбища")
+    # Gis_paginator()
     # map.save_files()
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
@@ -25,7 +27,7 @@ if __name__ == "__main__":
 ДобавитьЖ
 	self.snijgp :str = '' #  краткое описание См. "описание.png"
     self.geometry_name :str = ''
- + если кампания имеет 2 телефона, то ыскфзук берет только один. (
+ + если кампания имеет 2 телефона, то ыскфзук берет только один - Второй номер доступен при клике-JS
  + Пагинацию 
  + перебор кампаний из основной/базовой колонки проверить 
  + подкатегории

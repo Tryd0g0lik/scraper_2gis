@@ -101,26 +101,26 @@ class ScraperEachAddress(ScraperInnerPage):
 							address_separator = re.search(rf'''{get_address}''', str(one_separate[index_1:]))
 
 							self.address = "{}".format(address_separator.group().rstrip("<"))
-							print(
-								self.name,
-								self.type_name,
-								self.reiting,
-								self.count,
-								self.address,
-								self.lat,
-								self.lon,
-
-								self.snijgp,
-								self.geometry_name,
-								self.phone,
-								self.email,
-								self.work_mode,
-								self.website,
-								self.vk,
-								self.tg,
-								self.wa,
-								self.ok
-							)
+							# print(
+							# 	self.name,
+							# 	self.type_name,
+							# 	self.reiting,
+							# 	self.count,
+							# 	self.address,
+							# 	self.lat,
+							# 	self.lon,
+							#
+							# 	self.snijgp,
+							# 	self.geometry_name,
+							# 	self.phone,
+							# 	self.email,
+							# 	self.work_mode,
+							# 	self.website,
+							# 	self.vk,
+							# 	self.tg,
+							# 	self.wa,
+							# 	self.ok
+							# )
 							self.name: str = ""
 							self.type_name: str = ''  # тип - под названием
 							self.reiting: str = ""  # Рейтинг
