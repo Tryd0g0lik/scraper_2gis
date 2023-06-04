@@ -269,63 +269,82 @@ class ScraperEachAddress(Gis_page):
 						self.name ="{}".format((name.lstrip(r'''(<span class=[\"|\']_\w{5,10}[\"|\']>)''').lstrip('f"><span>')).replace('</span>', ""))
 						print("self.name: ", self.name)
 
-					elif bool(re.search(reg_type_name, str(one_separate))):
+					if bool(re.search(reg_type_name, str(one_separate))):
 						type_name = str(re.search(reg_type_name, str(one_separate)).group())
 						type_name = re.search(r"([\w|\W]{3,100}<)", type_name).group().rstrip("<").strip()
 						type_name_separator = re.search(r"""(^class=[\"|\']_\w{3,10}[\"|\']><span class=[\"|\']_\w{3,10}[\"|\']>)""", type_name).group().__str__()
 						self.type_name = "{}".format(type_name.lstrip(str(type_name_separator)))
 
 
-					elif bool(re.search(r'(^class=\"_\w{3,10}\">[0-5]{1,2}.?[0-9]{0,2}[^( \W)])', str(one_separate))):
+					if bool(re.search(r'(^class=\"_\w{3,10}\">[0-5]{1,2}.?[0-9]{0,2}[^( \W)])', str(one_separate))):
 						reiting_separator = re.search(r'(^class=\"_\w{3,10}\">[0-5]{1}.?[0-9]{0,2}[^( \W)])', one_separate).group()
 						p=0.0
-						if bool(re.search(r'([[0-5].{0,1}[0-9]{0,2}$|[0-5]{1,2}$])', str(reiting_separator))):
+						if bool(re.search(r'([0-5].{0,1}[0-9]{0,2}$)', str(reiting_separator))):
 							p = float(re.search(r'([0-5].{0,1}[0-9]{0,2}$)', str(reiting_separator)).group())
 							if p <= 5.0:
 								# self.reiting = "{}".format(re.search(r'([[0-5]{1}.{0,1}[0-9]{0,2}$|[0-5]{1,2}$])', str(reiting_separator)).group())
 								self.reiting = "{}".format(p)
 								p = 0.0
 
-					elif bool(re.search(r'(>([0-9]{0,2} [оценокблва]{0,10}))', str(one_separate))):
+					if bool(re.search(r'(>([0-9]{0,2} [оценокблва]{0,10}))', str(one_separate))):
 						self.count = "{}".format(re.search(r'(>([0-9]{0,2} [оценокблва]{0,10}))', str(one_separate)).group().lstrip(">"))
 
-					elif bool(re.search(r'(^[А-ЯЁ]{1}[а-яА-ЯёЁ]{3,50})', str(one_separate[71:]))):
+					if bool(re.search(r'(^[А-ЯЁ]{1}[а-яА-ЯёЁ]{3,50})', str(one_separate[71:]))):
 						ScraperInnerPage.scrap_gis_inner(self, self.nameCompanyLingGis)
 
 						'''
 						TODO: Thi's a 
 						'''
-						group1 = r"([А-ЯЁ][а-яА-ЯёЁ -]{3,50}[, | ][а-яё ,0-9\/]{1,50})"
+											# (r'[а-яА-ЯёЁ -,]{3,50}( )?[0-9 ст]{0,8}, [а-яА-ЯёЁ -,]{3,20}')
+						group1 = r"(([0-9]{0,2}[-а-яё ]{0,4})?[а-яА-ЯёЁ -( )]{3,50}[, | ][а-яё ,( )0-9\/]{1,50})"
 						group2 = r"([(\&nbsp;)][[А-ЯЁа-яё .,0-9\/]|[^(\&nbsp;)]{0,1}[А-ЯЁа-яё .,0-9\/]{1,220}]{0,10}[^(\&nbsp;)])"
 						group3 = r"([(\&nbsp;)][[А-ЯЁа-яё .,0-9]{1,220}|[А-ЯЁа-яё .,0-9]{1,220}]{0,10}[^(\&nbsp;)]{0,2})"
 						group4 = r"([(\&nbsp;)][[А-ЯЁа-яё .,0-9]{1,220}|[^(\&nbsp;)|(\\xa0)]{0,1}[А-ЯЁа-яё .,0-9]{1,220}]{0,10}[^(\&nbsp;)|(\\xa0)]{0,1})"
 
-						if bool(re.search(rf'''({group1}{group2}{group3}{group4})''', str(one_separate))):
-							index_1 = re.search(rf"({group1}{group2}{group3}{group4})", str(one_separate)).span()[0]
-							address_separator = re.search(rf"({group1}{group2}{group3}{group4})", str(one_separate[index_1:]))
+						# if bool(re.search(rf'''{group1}{group2}{group3}{group4}''', str(one_separate))):
+						if bool(re.search(r'''(([0-9]{0,2}[-а-яё ]{0,4})?[а-яА-ЯёЁ -( )]{3,50}[, | ][а-яё ,( )0-9\\/]{1,50})([(\\&nbsp;)][[А-ЯЁа-яё .,0-9\\/]|[^(\\&nbsp;)]{0,1}[А-ЯЁа-яё .,0-9\\/]{1,220}]{0,10}[^(\\&nbsp;)])([(\\&nbsp;)][[А-ЯЁа-яё .,0-9]{1,220}|[А-ЯЁа-яё .,0-9]{1,220}]{0,10}[^(\\&nbsp;)]{0,2})([(\\&nbsp;)][[А-ЯЁа-яё .,0-9]{1,220}|[^(\\&nbsp;)|(\\\\xa0)]{0,1}[А-ЯЁа-яё .,0-9]{1,220}]{0,10}[^(\\&nbsp;)|(\\\\xa0)]{0,1})''', str(one_separate))):
+							index_1 = re.search(r'''(([0-9]{0,2}[-а-яё ]{0,4})?[а-яА-ЯёЁ -( )]{3,50}[, | ][а-яё ,( )0-9\\/]{1,50})([(\\&nbsp;)][[А-ЯЁа-яё .,0-9\\/]|[^(\\&nbsp;)]{0,1}[А-ЯЁа-яё .,0-9\\/]{1,220}]{0,10}[^(\\&nbsp;)])([(\\&nbsp;)][[А-ЯЁа-яё .,0-9]{1,220}|[А-ЯЁа-яё .,0-9]{1,220}]{0,10}[^(\\&nbsp;)]{0,2})([(\\&nbsp;)][[А-ЯЁа-яё .,0-9]{1,220}|[^(\\&nbsp;)|(\\\\xa0)]{0,1}[А-ЯЁа-яё .,0-9]{1,220}]{0,10}[^(\\&nbsp;)|(\\\\xa0)]{0,1})''', str(one_separate)).span()[0]
+							address_separator = re.search(r'''(([0-9]{0,2}[-а-яё ]{0,4})?[а-яА-ЯёЁ -( )]{3,50}[, | ][а-яё ,( )0-9\\/]{1,50})([(\\&nbsp;)][[А-ЯЁа-яё .,0-9\\/]|[^(\\&nbsp;)]{0,1}[А-ЯЁа-яё .,0-9\\/]{1,220}]{0,10}[^(\\&nbsp;)])([(\\&nbsp;)][[А-ЯЁа-яё .,0-9]{1,220}|[А-ЯЁа-яё .,0-9]{1,220}]{0,10}[^(\\&nbsp;)]{0,2})([(\\&nbsp;)][[А-ЯЁа-яё .,0-9]{1,220}|[^(\\&nbsp;)|(\\\\xa0)]{0,1}[А-ЯЁа-яё .,0-9]{1,220}]{0,10}[^(\\&nbsp;)|(\\\\xa0)]{0,1})''', str(one_separate[index_1:]))
 
 							self.address = "{}".format(address_separator.group().rstrip("<"))
-							# print(
-							# 	self.name,
-							# 	self.type_name,
-							# 	self.reiting,
-							# 	self.count,
-							# 	self.address,
-							# 	self.lat,
-							# 	self.lon,
-							#
-							# 	self.snijgp,
-							# 	self.geometry_name,
-							# 	self.phone,
-							# 	self.email,
-							# 	self.work_mode,
-							# 	self.website,
-							# 	self.vk,
-							# 	self.tg,
-							# 	self.wa,
-							# 	self.ok
-							# )
+							print(
+								self.name,
+								self.type_name,
+								self.reiting,
+								self.count,
+								self.address,
+								self.lat,
+								self.lon,
 
+								self.snijgp,
+								self.geometry_name,
+								self.phone,
+								self.email,
+								self.work_mode,
+								self.website,
+								self.vk,
+								self.tg,
+								self.wa,
+								self.ok
+							)
+							self.name: str = ""
+							self.type_name: str = ''  # тип - под названием
+							self.reiting: str = ""  # Рейтинг
+							self.count: str = ""  # кол-во
+							self.address: str = ""  # Адрес/местонахождения
+							self.lat: str = ''  # широта
+							self.lon: str = ''  # долгота
+							self.phone: str = ''
+							self.email: str = ''
+							self.work_mode: str = ''
+							self.vk: str = ''  # ВКонтакте
+							self.tg: str = ''  # Telegram
+							self.wa: str = ''  # WhatsApp
+							self.ok: str = ''  # OK
+							self.website: str = ''
+
+							self.snijgp: str = ''  # краткое описание См. "описание.png"
+							self.geometry_name: str = ''
 
 
 
