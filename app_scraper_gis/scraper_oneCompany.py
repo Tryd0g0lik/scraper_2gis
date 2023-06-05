@@ -146,36 +146,45 @@ class ScraperInnerPage(Gis_page):
 
 						new_string = re.search(rf'{get_text}', str(page)).group() + ", "
 						if new_string not in str(self.work_mode):
-							self.work_mode = self.work_mode + str(new_string)
+							self.work_mode += self.work_mode + str(new_string)
 						else:
 							None
 						continue
 
-				if self.email == '' and bool(re.search(r'(mailto:\w{1,15}@\w{3,15}.\w{2,3})', str(page))) \
+				# if self.email == '' and bool(re.search(r'(mailto:([.\w@-]{,50}){,2})', str(page))) \
+				if bool(re.search(r'(mailto:([.\w@-]{,50}){,2})', str(page))) \
 					and bool(re.search(get_mail, str(page))):
-					self.email = re.search(r'(mailto:\w{1,25}@\w{3,25}.\w{2,3})', str(page)).group().lstrip("mailto").lstrip(":")
+					self.email += re.search(r'(mailto:([.\w@-]{,50}){,2})', str(page)).group().lstrip("mailto").lstrip(":") + ", "
 
 
-				elif self.phone == '' and re.search('tel:', str(page)) \
+				# if self.phone == '' and re.search('tel:', str(page)) \
+				if re.search('tel:', str(page)) \
 					and bool(re.search(get_phone, str(page))):
 					self.phone += (re.search(get_phone, str(page)).group()).lstrip("tel:") +", "
 					print("self.phone:", self.phone)
 
 
-				elif self.wa == '' and bool(re.search(get_WhatsApp, str(page))):
-					self.wa = re.search(r'href="http(s){0,1}:\/\/wa.me\/[0-9]{1,20}', str(page)).group()
+				# if self.wa == '' and bool(re.search(get_WhatsApp, str(page))):
+				if bool(re.search(get_WhatsApp, str(page))):
+					self.wa += re.search(r'http(s){0,1}:\/\/wa.me\/[0-9]{1,20}', str(page)).group() + ", "
 
 
-				elif self.ok == '' and bool(re.search(get_ok, str(page))):
-					self.ok = re.search(get_ok, str(page)).group()
+				# if self.ok == '' and bool(re.search(get_ok, str(page))):
+				if bool(re.search(get_ok, str(page))):
+					self.ok += re.search(get_ok, str(page)).group() + ", "
 
 
-				elif self.tg == '' and bool(re.search(get_tg, str(page))):
-					self.tg = re.search(rf'{get_tg}', str(page)).group()
+				# if self.tg == '' and bool(re.search(get_tg, str(page))):
+				if bool(re.search(get_tg, str(page))):
+					self.tg += re.search(rf'{get_tg}', str(page)).group().lstrip('href=').replace('"', "") + ", "
 
 
-				elif self.vk == '' and bool(re.search(r'(http(s{0,1}):\/\/vk\.com\/\w{1,21})', str(page))):
-					self.vk = re.search(r'(http(s{0,1}):\/\/vk\.com\/\w{1,21})', str(page)).group()
+				# if self.vk == '' and bool(re.search(r'(http(s{0,1}):\/\/vk\.com\/\w{1,21})', str(page))):
+				if bool(re.search(r'(http(s{0,1}):\/\/vk\.com\/\w{1,21})', str(page))):
+					self.vk += re.search(r'(http(s{0,1}):\/\/vk\.com\/\w{1,21})', str(page)).group() + ", "
 
-				elif self.website == "" and bool(re.search(get_website, str(page))):
-					self.website = re.search(get_website, str(page)).group()
+				# if self.website == "" and bool(re.search(get_website, str(page))):
+				if bool(re.search(get_website, str(page))):
+					self.website += re.search(get_website, str(page)).group() + ", "
+
+				page_list.pop(0)
