@@ -1,6 +1,6 @@
 import re
-from scraper_oneCompany import ScraperInnerPage
-
+from app_scraper_gis.scraper_oneCompany import ScraperInnerPage
+import time
 
 class ScraperEachAddress(ScraperInnerPage):
 	"""
@@ -69,7 +69,7 @@ class ScraperEachAddress(ScraperInnerPage):
 						name = str(re.search(reg_name, str(one_separate)).group())
 						self.name = "{}".format(
 							(name.lstrip(r'''(<span class=[\"|\']_\w{5,10}[\"|\']>)''').lstrip('f"><span>')).replace('</span>', ""))
-						print("self.name: ", self.name)
+						# print("self.name: ", self.name)
 
 					if bool(re.search(reg_type_name, str(one_separate))):
 						type_name = str(re.search(reg_type_name, str(one_separate)).group())
@@ -87,7 +87,7 @@ class ScraperEachAddress(ScraperInnerPage):
 								self.reiting = "{}".format(p)
 								p = 0.0
 
-					if bool(re.search(r'(>([0-9]{0,2} [оценокблва]{0,10}))', str(one_separate))):
+					if bool(re.search(r'(>([0-9]{0,2} [оценокиблва]{0,10}))', str(one_separate))):
 						self.count = "{}".format(
 							re.search(r'(>([0-9]{0,2} [оценокблва]{0,10}))', str(one_separate)).group().lstrip(">"))
 
@@ -103,26 +103,26 @@ class ScraperEachAddress(ScraperInnerPage):
 							address_separator = re.search(rf'''{get_address}''', str(one_separate[index_1:]))
 
 							self.address = "{}".format(address_separator.group().rstrip("<"))
-							# print(
-							# 	self.name,
-							# 	self.type_name,
-							# 	self.reiting,
-							# 	self.count,
-							# 	self.address,
-							# 	self.lat,
-							# 	self.lon,
-							#
-							# 	self.snijgp,
-							# 	self.geometry_name,
-							# 	self.phone,
-							# 	self.email,
-							# 	self.work_mode,
-							# 	self.website,
-							# 	self.vk,
-							# 	self.tg,
-							# 	self.wa,
-							# 	self.ok
-							# )
+							print(
+								self.name,
+								self.type_name,
+								self.reiting,
+								self.count,
+								self.address,
+								self.lat,
+								self.lon,
+
+								self.snijgp,
+								self.geometry_name,
+								self.phone,
+								self.email,
+								self.work_mode,
+								self.website,
+								self.vk,
+								self.tg,
+								self.wa,
+								self.ok
+							)
 							self.name: str = ""
 							self.type_name: str = ''  # тип - под названием
 							self.reiting: str = ""  # Рейтинг
@@ -142,7 +142,9 @@ class ScraperEachAddress(ScraperInnerPage):
 							self.snijgp: str = ''  # краткое описание См. "описание.png"
 							self.geometry_name: str = ''
 
-
+							# print("примет мир")
+							# time.sleep(1)
+							# print("примет мир - 5")
 
 
 

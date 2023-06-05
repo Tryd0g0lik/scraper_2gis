@@ -1,4 +1,4 @@
-from scraper_gis import Gis_page
+from app_scraper_gis.scraper_gis import Gis_page
 from bs4 import BeautifulSoup as beauty
 from urllib.parse import unquote, quote
 import re
@@ -54,7 +54,7 @@ class ScraperInnerPage(Gis_page):
 		TODO: viewing the inner basis column for inner company's page
 		:return: Datas about the one company
 		'''
-		print("__scrap_gis_inner")
+		# print("__scrap_gis_inner")
 		# url = "{}".format(self.nameCompanyLingGis, )
 
 		response_inner = ScraperInnerPage.open_inner_page_company(self, url)

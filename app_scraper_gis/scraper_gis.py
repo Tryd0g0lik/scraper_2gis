@@ -1,7 +1,7 @@
 from bs4 import BeautifulSoup as beauty
 from urllib.parse import unquote, quote
 
-from scraper_basic import Basic_gis
+from app_scraper_gis.scraper_basic import Basic_gis
 
 
 class Gis_page(Basic_gis):
