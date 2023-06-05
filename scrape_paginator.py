@@ -54,6 +54,7 @@ class Gis_paginator(Basic_gis):
 			word_ru_unicode = quote(word_ru)
 			href_unicode = str(self.paginator_list[2]['href']).replace(str(word_ru), word_ru_unicode)
 			paginator_reference.append("https://2gis.ru/" + href_unicode) if bool(self.paginator_list[i]) else None
+		del self.paginator_list
 		return paginator_reference
 
 	def start_working(self):
