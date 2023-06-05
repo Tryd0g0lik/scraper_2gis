@@ -1,18 +1,17 @@
 from scraper_basic import Basic_gis
-from scraper_gis import Gis_page
 from urllib.parse import unquote, quote
 import re
 from bs4 import BeautifulSoup as beauty
 
 class Gis_paginator(Basic_gis):
-	def __init__(self, city:str, search_word:str):
+	def __init__(self, city: str, search_word: str) -> object:
 		'''
 		TODO: Scraping a 2gis-page for to getting the pagination
 		:param city:
 		:param search_word:
 		'''
 		super().__init__(city, search_word)
-		self.paginator_reference = Gis_paginator.start_working(self)
+		# self.paginator_reference = Gis_paginator.start_working(self)
 	def __scrap_gis(self):
 		city = "{}".format(Basic_gis.get_city_name(self), )
 		requ_word = quote("{}".format(Basic_gis.get_search_word(self)))
@@ -50,7 +49,7 @@ class Gis_paginator(Basic_gis):
 		main_page = self.headers['Referer']
 		paginator_reference: list = [main_page,]
 		for i in range(0, len(self.paginator_list) - 1):
-			word_ru: str = re.search(r"([а-яё%20]{3,40}){1,3}", self.paginator_list[2]['href']).group()
+			word_ru: str = re.search(r"([а-яё%20 ]{3,40}){1,3}", self.paginator_list[2]['href']).group()
 			word_ru_unicode = quote(word_ru)
 			href_unicode = str(self.paginator_list[2]['href']).replace(str(word_ru), word_ru_unicode)
 			paginator_reference.append("https://2gis.ru/" + href_unicode) if bool(self.paginator_list[i]) else None

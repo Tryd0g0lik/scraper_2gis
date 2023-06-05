@@ -12,7 +12,7 @@ class ScraperEachAddress(ScraperInnerPage):
 	"""
 	def __init__(self, city:str='', search_word:str = ''):
 		super().__init__(city, search_word)
-		ScraperEachAddress.start_working(self)
+		# ScraperEachAddress.start_working(self)
 		self.name :str = ""
 		self.type_name:str = '' # тип - под названием
 		self.reiting:str = "" # Рейтинг
@@ -22,7 +22,7 @@ class ScraperEachAddress(ScraperInnerPage):
 
 		self.snijgp :str = '' #  краткое описание См. "описание.png"
 		self.geometry_name :str = ''
-
+		# ScraperEachAddress.search_church(self) if len(self.href_list) > 0 else None
 		# t = Timer(30.0, ScraperEachAddress.scraper_companies(self, self.object_soup))
 		# t.start()
 		ScraperEachAddress.scraper_companies(self, self.object_soup)
@@ -101,26 +101,26 @@ class ScraperEachAddress(ScraperInnerPage):
 							address_separator = re.search(rf'''{get_address}''', str(one_separate[index_1:]))
 
 							self.address = "{}".format(address_separator.group().rstrip("<"))
-							# print(
-							# 	self.name,
-							# 	self.type_name,
-							# 	self.reiting,
-							# 	self.count,
-							# 	self.address,
-							# 	self.lat,
-							# 	self.lon,
-							#
-							# 	self.snijgp,
-							# 	self.geometry_name,
-							# 	self.phone,
-							# 	self.email,
-							# 	self.work_mode,
-							# 	self.website,
-							# 	self.vk,
-							# 	self.tg,
-							# 	self.wa,
-							# 	self.ok
-							# )
+							print(
+								self.name,
+								self.type_name,
+								self.reiting,
+								self.count,
+								self.address,
+								self.lat,
+								self.lon,
+
+								self.snijgp,
+								self.geometry_name,
+								self.phone,
+								self.email,
+								self.work_mode,
+								self.website,
+								self.vk,
+								self.tg,
+								self.wa,
+								self.ok
+							)
 							self.name: str = ""
 							self.type_name: str = ''  # тип - под названием
 							self.reiting: str = ""  # Рейтинг
@@ -139,6 +139,7 @@ class ScraperEachAddress(ScraperInnerPage):
 
 							self.snijgp: str = ''  # краткое описание См. "описание.png"
 							self.geometry_name: str = ''
+			# ScraperEachAddress.start_working(self)
 
 
 
