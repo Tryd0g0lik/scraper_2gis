@@ -46,5 +46,5 @@ class Basic_gis():
 		                 decode_content=True,
 		                 timeout=3,
 		                 headers=head)
-		# request_gis = "{}".format(self.requests, )
-		# return request_gis
+		request_gis = "{}".format(self.requests, )
+		return request_gis

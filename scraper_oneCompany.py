@@ -82,17 +82,17 @@ class ScraperInnerPage(Gis_page):
 				self.email,	    self.work_mode,	    self.vk:str,	  self.tg:str, 
 				self.wa:str,	  self.ok:str,	      website, 
 				"""
-				self.object_soup_inner = ""
-				self.object_soup_inner = soup.find(id="root") \
+				self.object_soup = ""
+				self.object_soup = soup.find(id="root") \
 					.contents[0].contents[0] \
 					.contents[0].contents[0].contents[1].contents[0] \
 					.contents[0].contents[1].contents[0].select("div[data-rack='true']")
 
-				if bool(self.object_soup_inner):
+				if bool(self.object_soup):
 
-					test = self.object_soup_inner[0].descendants
+					test = self.object_soup[0].descendants
 					page = []
-					for elem in self.object_soup_inner[0].descendants: page.append(elem)
+					for elem in self.object_soup[0].descendants: page.append(elem)
 
 					ScraperInnerPage.scraper_continues_data_company(self, page)
 
