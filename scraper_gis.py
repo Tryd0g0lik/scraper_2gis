@@ -10,11 +10,12 @@ class Gis_page(Basic_gis):
 	:properties: 'city_name' - it's сity name
 
 	"""
-	def __init__(self,city: str = '', search_word: str = ''):
-		super().__init__(city, search_word)
-		self.href_list: list = None
 
-		Gis_page.start_working(self)
+	def __init__(self, city: str = '', search_word: str = '', page_list: list = []):
+			super().__init__(city, search_word)
+			self.page_list = page_list
+			# Gis_page.start_working(self)
+
 
 	def search_church(self): # search the word
 		'''
@@ -30,17 +31,21 @@ class Gis_page(Basic_gis):
 		self.headers.add('Referer', f"https://2gis.ru/{city}/search/{requ_word}")
 		header = self.headers
 
-		if self.href_list == None:
-			self.href_list = Gis_paginator.start_working(self)
-		if self.href_list != None:
-			for href in self.href_list:
-				Basic_gis.get_url(self,
-					url=href, # f"https://2gis.ru/{city}/search/{requ_word}",
-					head=header
-				)
-				print("href: ", href)
-				self.href_list.remove(href)
-				break
+
+		for link in self.page_list:
+			print("link: ", link)
+			Basic_gis.get_url(self,
+				url= link, #f"https://2gis.ru/{city}/search/{requ_word}",
+				head=header
+			)
+
+			break
+
+		self.pages:str = ''
+		self.page_list.pop(0)
+		if self.requests.status == 200:
+			self.pages = "{}".format(unquote(self.requests.data), )
+
 
 			self.pages:str = ''
 			if self.requests.status == 200:
@@ -51,6 +56,8 @@ class Gis_page(Basic_gis):
 		TODO:  viewing/uploading the basis column
 		:return:
 		'''
+		tes = None
+		tes  = None
 
 		Gis_page.search_church(self)
 		city = (self.сity_name).lower()

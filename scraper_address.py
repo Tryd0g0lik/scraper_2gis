@@ -10,9 +10,10 @@ class ScraperEachAddress(ScraperInnerPage):
 	:param 'lat' it's the data coordinates about the width
 	:param 'lon' it's the data coordinates about the long
 	"""
-	def __init__(self, city:str='', search_word:str = ''):
-		super().__init__(city, search_word)
-		# ScraperEachAddress.start_working(self)
+
+	def __init__(self, city:str='', search_word:str = '', page_list=[]):
+		super().__init__(city, search_word, page_list)
+		ScraperEachAddress.start_working(self)
 		self.name :str = ""
 		self.type_name:str = '' # тип - под названием
 		self.reiting:str = "" # Рейтинг

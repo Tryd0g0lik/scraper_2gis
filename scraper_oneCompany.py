@@ -4,7 +4,7 @@ from urllib.parse import unquote, quote
 import re
 
 class ScraperInnerPage(Gis_page):
-	def __init__(self, city, search_word):
+	def __init__(self, city, search_word, page_list):
 		'''
 		TODO: viewing each address
 		:param 'snijgp' it's the comments/reviews for a company
@@ -19,7 +19,7 @@ class ScraperInnerPage(Gis_page):
 		:param lon
 		:param search_word:
 		'''
-		super().__init__(city, search_word)
+		super().__init__(city, search_word, page_list)
 		self.lat: str = ''  # широта
 		self.lon: str = ''  # долгота
 		self.phone: str = ''
