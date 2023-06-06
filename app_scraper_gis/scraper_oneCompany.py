@@ -215,8 +215,8 @@ class ScraperInnerPage(Gis_page):
 			response_text = soup.find(id="root").find(text="Контакты").find_parent("a").parent.parent.find_parents("div")[4].contents[1].contents[0].contents[0].select('div[data-divider="true"]')
 
 			for i in range(len(response_text)):
-
-				tag_reg1 = r'(^ {0,1}|(<button class="\w{3,10}")|(<span class="\w{3,10}")+|<span]+){1,20}>'
+				tag_reg = r'((<a)[ \/\w="]+>)'
+				tag_reg1 = r'''(^ {0,1}|(<button class="\w{3,10}")|(<span class="\w{3,10}")+|(<span)+)){1,20}>'''
 				tag_reg2 = r'([<\/spanbuto]{5,15}>){1,20}'
 
 				if i == 0:
@@ -237,8 +237,8 @@ class ScraperInnerPage(Gis_page):
 					text = response_text[i].find(name="span")
 					while index:
 
-						if bool(re.search(tag_reg1, str(text))):
-							tag = str(re.search(tag_reg1, str(text)).group())
+						if bool(re.search(tag_reg1, str(text))) or bool(re.search(tag_reg, str(text))):
+							tag = str(re.search((tag_reg1|tag_reg), str(text)).group())
 							tag
 							text = str(text).replace(tag, " ")
 							text
