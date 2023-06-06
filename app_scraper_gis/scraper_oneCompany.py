@@ -105,8 +105,11 @@ class ScraperInnerPage(Gis_page):
 			self.object_soup = self.object_soup[0].find_parents("div")[3] \
 				.contents[0].contents[0].contents[0].contents[0].find_all(name='a')
 			url = "https://2gis.ru" + self.object_soup[1]['href']
-			ScraperInnerPage.scraper_infoCommitPictures(self, url)
+			ScraperInnerPage.scraper_info(self, url)
 			del url
+
+			url = "https://2gis.ru" + self.object_soup[2]['href']
+			# ScraperInnerPage.
 			print("END")
 
 		else:
@@ -190,7 +193,7 @@ class ScraperInnerPage(Gis_page):
 				page_list.pop(0)
 		del page, page_list
 
-	def scraper_infoCommitPictures(self, url):
+	def scraper_info(self, url):
 		'''
 			TODO: There  down is we search the:
 		:param url: The variable stores a URL for tab. Our simple is a "Инфо".
