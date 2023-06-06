@@ -21,7 +21,7 @@ class ScraperEachAddress(ScraperInnerPage):
 		self.address: str = ""  # Адрес/местонахождения
 		self.subcategory: str = "" # (подкатегория
 
-		self.snijgp: str = ''  # (Комментарий)
+		self.snijgp: list = []  # (Комментарий)
 		self.geometry_name: str = ''
 
 		# t = Timer(30.0, ScraperEachAddress.scraper_companies(self, self.object_soup))
@@ -148,7 +148,7 @@ class ScraperEachAddress(ScraperInnerPage):
 							self.info: str = ""
 							self.subcategory: str = "" # подкатегория
 
-							self.snijgp: str = ''  # Комментарий
+							self.snijgp: list = []  # Комментарий
 							self.geometry_name: str = ''
 
 							# print("примет мир")

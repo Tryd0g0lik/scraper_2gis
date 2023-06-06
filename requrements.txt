@@ -1,4 +1,6 @@
 beautifulsoup4
 urllib3
+selenium
+webdriver-manager
 
 
