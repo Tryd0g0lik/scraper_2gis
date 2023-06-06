@@ -19,8 +19,9 @@ class ScraperEachAddress(ScraperInnerPage):
 		self.reiting: str = ""  # Рейтинг
 		self.count: str = ""  # кол-во
 		self.address: str = ""  # Адрес/местонахождения
+		self.subcategory: str = "" # (подкатегория
 
-		self.snijgp: str = ''  # краткое описание См. "описание.png"
+		self.snijgp: str = ''  # (Комментарий)
 		self.geometry_name: str = ''
 
 		# t = Timer(30.0, ScraperEachAddress.scraper_companies(self, self.object_soup))
@@ -121,7 +122,13 @@ class ScraperEachAddress(ScraperInnerPage):
 								self.vk,
 								self.tg,
 								self.wa,
-								self.ok
+								self.ok,
+								self.info,
+								self.info,
+								self.subcategory, # подкатегория
+
+								self.snijgp
+
 							)
 							self.name: str = ""
 							self.type_name: str = ''  # тип - под названием
@@ -138,8 +145,10 @@ class ScraperEachAddress(ScraperInnerPage):
 							self.wa: str = ''  # WhatsApp
 							self.ok: str = ''  # OK
 							self.website: str = ''
+							self.info: str = ""
+							self.subcategory: str = "" # подкатегория
 
-							self.snijgp: str = ''  # краткое описание См. "описание.png"
+							self.snijgp: str = ''  # Комментарий
 							self.geometry_name: str = ''
 
 							# print("примет мир")

@@ -1,6 +1,7 @@
 from app_scraper_gis.scraper_gis import Gis_page
 from bs4 import BeautifulSoup as beauty
 from urllib.parse import unquote, quote
+import urllib3 as urls
 import re
 
 class ScraperInnerPage(Gis_page):
@@ -30,6 +31,11 @@ class ScraperInnerPage(Gis_page):
 		self.wa: str = ''  # WhatsApp
 		self.ok: str = ''  # OK
 		self.website: str = ''
+		self.info: str = ""
+		self.info: str = ""
+		self.subcategory: str = ""  # подкатегория
+
+		self.snijgp: str = ''  # Комментарий
 
 	def open_inner_page_company(self, data_url):
 		'''
@@ -78,7 +84,7 @@ class ScraperInnerPage(Gis_page):
 
 				"""There  down is we search the time mode for the works and 
 				self.name,      self.type_name,     self.reiting,   self.count,  
-				self.address,   self.lat,	          self.lon,	      self.phone, 
+				self.address,   self.lat,	          self.lon,	      self.phone,
 				self.email,	    self.work_mode,	    self.vk:str,	  self.tg:str, 
 				self.wa:str,	  self.ok:str,	      website, 
 				"""
@@ -96,8 +102,16 @@ class ScraperInnerPage(Gis_page):
 
 					ScraperInnerPage.scraper_continues_data_company(self, page)
 
+			# From the content the information block
+			#
+			"""There  down is from the content the information block"""
+			self.object_soup = self.object_soup[0].find_parents("div")[3] \
+				.contents[0].contents[0].contents[0].contents[0].find_all(name='a')
+			url = "https://2gis.ru" + self.object_soup[1]['href']
+			ScraperInnerPage.scraper_infoCommitPictures(self, url)
+			del url
+			print("END")
 
-		# self.object_soup = self.object_soup.find_par
 		else:
 			print("t.data: ", ScraperInnerPage.pages.status)
 			return
@@ -188,3 +202,60 @@ class ScraperInnerPage(Gis_page):
 					self.website += re.search(get_website, str(page)).group() + ", "
 
 				page_list.pop(0)
+
+	def scraper_infoCommitPictures(self, url):
+		"""There  down is we search the time mode for the works and
+			self.phone,
+		"""
+		head = ScraperInnerPage.get_header(self)
+		info_page = urls.request("get", url=url, decode_content=True)
+		if info_page.status == 200:
+			info_page = "{}".format(unquote(info_page.data), )
+			soup = beauty(info_page, 'html.parser')
+			response_text = soup.find(id="root").find(text="Контакты").find_parent("a").parent.parent.find_parents("div")[4].contents[1].contents[0].contents[0].select('div[data-divider="true"]')
+
+			for i in range(len(response_text)):
+
+				tag_reg1 = r'(^ {0,1}|(<button class="\w{3,10}")|(<span class="\w{3,10}")+|<span]+){1,20}>'
+				tag_reg2 = r'([<\/spanbuto]{5,15}>){1,20}'
+
+				if i == 0:
+					self.info = str(response_text[i].find(name="span")).replace("<br/>", " ").replace("•", "").replace(" ", "")
+
+					if bool(re.search(tag_reg1, str(self.info))):
+						tag = re.search(tag_reg1, str(self.info)).group()
+						self.info = self.info.replace(tag, "")
+
+					if bool(re.search(tag_reg2, str(self.info))):
+						tag = re.search(tag_reg2, str(self.info)).group()
+						self.info = self.info.replace(tag, "")
+						del tag
+					print("self.info: ", self.info)
+				else:
+					index = True
+
+					text = response_text[i].find(name="span")
+					while index:
+
+						if bool(re.search(tag_reg1, str(text))):
+							tag = str(re.search(tag_reg1, str(text)).group())
+							tag
+							text = str(text).replace(tag, " ")
+							text
+
+						if bool(re.search(tag_reg2, str(text))):
+							tag = str(re.search(tag_reg2, str(text)).group())
+							tag
+							text = str(text).replace(tag, "")
+							text
+						index = False if 'class' not in text \
+							and 'button' not in text \
+							and 'span' not in text \
+							and 'div' not in text else True
+
+					self.subcategory += text
+
+					print(i, " ===>> ", self.subcategory)
+
+				# 	del tag, text, index
+				# del tag_reg1, tag_reg2
