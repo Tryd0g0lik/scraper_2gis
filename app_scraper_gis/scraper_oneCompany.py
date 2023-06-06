@@ -32,7 +32,6 @@ class ScraperInnerPage(Gis_page):
 		self.ok: str = ''  # OK
 		self.website: str = ''
 		self.info: str = ""
-		self.info: str = ""
 		self.subcategory: str = ""  # подкатегория
 
 		self.snijgp: str = ''  # Комментарий
@@ -215,8 +214,8 @@ class ScraperInnerPage(Gis_page):
 			response_text = soup.find(id="root").find(text="Контакты").find_parent("a").parent.parent.find_parents("div")[4].contents[1].contents[0].contents[0].select('div[data-divider="true"]')
 
 			for i in range(len(response_text) - 1):
-				tag_reg = r'((<a)[ \/\w="]+>)'
-				tag_reg1 = r'(^ {0,1}|(<button class="\w{3,10}")|(<span class="\w{3,10}")+|<span]+){1,20}>'
+				tag_reg = r'((<a)[, \/\w="А-ЯЁа-яё]+[\w{2,10}="-: ]*"?>?)' #'((<a)[ \/\w="]+>)'
+				tag_reg1 = r'(^ {0,1}|(<button class="\w{3,10}")|(<span [\w{2,10}="-: ]+)+|<span]+){1,20}>'
 				tag_reg2 = r'([<\/spanbuto]{3,15}>){1,20}'
 
 				if i == 0:
@@ -230,31 +229,26 @@ class ScraperInnerPage(Gis_page):
 						tag = re.search(tag_reg2, str(self.info)).group()
 						self.info = self.info.replace(tag, "")
 						del tag
-					print("self.info: ", self.info)
+					# print("self.info: ", self.info)
 				else:
 					index = True
 
 					text = response_text[i].find(name="span")
 					if text != None:
 						while index and i <= len(response_text) - 1 :
-							print(i, " ===>> ", self.subcategory)
+							# print(i, " ===>> ", self.subcategory)
 							if bool(re.search(tag_reg1, str(text))):
 								tag = str(re.search(tag_reg1, str(text)).group())
-								tag
 								text = str(text).replace(tag, " ")
-								text
 
 							elif bool(re.search(tag_reg, str(text))):
 								tag = str(re.search(tag_reg, str(text)).group())
-								tag
 								text = str(text).replace(tag, " ")
-								text
 
 							if bool(re.search(tag_reg2, str(text))):
 								tag = str(re.search(tag_reg2, str(text)).group())
-								tag
 								text = str(text).replace(tag, "")
-								text
+
 							index = False if 'class' not in text \
 								and 'button' not in text \
 								and 'span' not in text \
@@ -262,6 +256,7 @@ class ScraperInnerPage(Gis_page):
 								and '<a ' not in text else True
 
 						self.subcategory += text
+						self.subcategory = str(self.subcategory).replace(r" {2,}[A-ZА-ЯЁ]", ", ")
 
 
 

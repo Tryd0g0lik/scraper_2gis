@@ -24,7 +24,7 @@ if __name__ == "__main__":
         i +=1
         break
         # print("примет мир 10")
-        # time.sleep(10)
+        time.sleep(1)
         # print("примет мир")
 
     # map.save_files()
