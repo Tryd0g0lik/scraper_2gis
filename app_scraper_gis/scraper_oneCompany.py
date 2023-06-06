@@ -18,6 +18,7 @@ class ScraperInnerPage(Gis_page):
 		:param city:
 		:param lat
 		:param lon
+		:param subcategory: This's a additional information about the company, sub-category
 		:param search_word:
 		'''
 		super().__init__(city, search_word, page_list)
@@ -203,10 +204,13 @@ class ScraperInnerPage(Gis_page):
 				page_list.pop(0)
 
 	def scraper_infoCommitPictures(self, url):
-		"""There  down is we search the time mode for the works and
-			self.phone,
-		"""
-		head = ScraperInnerPage.get_header(self)
+		'''
+			TODO: There  down is we search the:
+		:param url: The variable stores a URL for tab. Our simple is a "Инфо".
+		:param info: it's main-information about the company, It's took from is a tab "Инфо".
+		:param subcategory: This's a additional information about the company, sub-category
+		:return: subcategory and info
+		'''
 		info_page = urls.request("get", url=url, decode_content=True)
 		if info_page.status == 200:
 			info_page = "{}".format(unquote(info_page.data), )
@@ -224,6 +228,7 @@ class ScraperInnerPage(Gis_page):
 					if bool(re.search(tag_reg1, str(self.info))):
 						tag = re.search(tag_reg1, str(self.info)).group()
 						self.info = self.info.replace(tag, "")
+						del tag
 
 					if bool(re.search(tag_reg2, str(self.info))):
 						tag = re.search(tag_reg2, str(self.info)).group()
@@ -240,14 +245,17 @@ class ScraperInnerPage(Gis_page):
 							if bool(re.search(tag_reg1, str(text))):
 								tag = str(re.search(tag_reg1, str(text)).group())
 								text = str(text).replace(tag, " ")
+								del tag
 
 							elif bool(re.search(tag_reg, str(text))):
 								tag = str(re.search(tag_reg, str(text)).group())
 								text = str(text).replace(tag, " ")
+								del tag
 
 							if bool(re.search(tag_reg2, str(text))):
 								tag = str(re.search(tag_reg2, str(text)).group())
 								text = str(text).replace(tag, "")
+								del tag
 
 							index = False if 'class' not in text \
 								and 'button' not in text \
@@ -260,5 +268,7 @@ class ScraperInnerPage(Gis_page):
 
 
 
-				# 	del tag, text, index
-				# del tag_reg1, tag_reg2
+					del text, index
+				del tag_reg1, tag_reg2
+			del response_text
+		del info_page
