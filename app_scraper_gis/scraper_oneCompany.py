@@ -60,8 +60,6 @@ class ScraperInnerPage(Gis_page):
 		TODO: viewing the inner basis column for inner company's page
 		:return: Datas about the one company
 		'''
-		# print("__scrap_gis_inner")
-		# url = "{}".format(self.nameCompanyLingGis, )
 
 		response_inner = ScraperInnerPage.open_inner_page_company(self, url)
 		if response_inner.status == 200:
@@ -103,7 +101,6 @@ class ScraperInnerPage(Gis_page):
 					ScraperInnerPage.scraper_continues_data_company(self, page)
 
 			# From the content the information block
-			#
 			"""There  down is from the content the information block"""
 			self.object_soup = self.object_soup[0].find_parents("div")[3] \
 				.contents[0].contents[0].contents[0].contents[0].find_all(name='a')
@@ -115,6 +112,7 @@ class ScraperInnerPage(Gis_page):
 		else:
 			print("t.data: ", ScraperInnerPage.pages.status)
 			return
+		del response_inner
 
 	def scraper_continues_data_company(self, page_list: list):
 		'''
@@ -130,7 +128,7 @@ class ScraperInnerPage(Gis_page):
 		get_ok = r'(https:\/\/ok\.ru\/group\/[0-9]{1,21})'
 		get_tg = r'(href="https:\/\/t\.me/\+[0-9]{6,12}")'
 		get_vk = r'(http(s{0,1}):\/\/vk\.com\/\w{1,21})'
-		get_points = r'(points\/[0-9]{1,2}.{1}[0-9]{1,10},{0,1}[0-9]{1,2}.{1}[0-9]{1,10})'
+		get_points = r'(points\/[0-9]{1,3}.[0-9]{1,10},?[0-9]{,3}.{1}[0-9]{1,10})'
 		get_website = r'http(s{0,1}):\/\/\w{0,25}.{0,1}\w{2,25}[^(2gis)|(w3)|vk.].ru'
 		# http://glavnoehvost.ru
 		get_time_list = [
@@ -138,8 +136,6 @@ class ScraperInnerPage(Gis_page):
 			r'(Сегодня [c|с] [0-9]{2}:[0-9]{2} до [0-9]{2}:[0-9]{2})',
 			r'(Откроется [завтра]{0,1} {0,1}в [А-ЯЁа-яё]{0,25}[в| ]{1,3}[0-9]{2}:[0-9]{2})',
 		]
-
-		i = 0
 
 		for page in page_list:
 
@@ -161,47 +157,38 @@ class ScraperInnerPage(Gis_page):
 						new_string = re.search(rf'{get_text}', str(page)).group() + ", "
 						if new_string not in str(self.work_mode):
 							self.work_mode += self.work_mode + str(new_string)
+
 						else:
 							None
+
+						del new_string
 						continue
 
-				# if self.email == '' and bool(re.search(r'(mailto:([.\w@-]{,50}){,2})', str(page))) \
 				if bool(re.search(r'(mailto:([.\w@-]{,50}){,2})', str(page))) \
 					and bool(re.search(get_mail, str(page))):
 					self.email += re.search(r'(mailto:([.\w@-]{,50}){,2})', str(page)).group().lstrip("mailto").lstrip(":") + ", "
 
-
-				# if self.phone == '' and re.search('tel:', str(page)) \
 				if re.search('tel:', str(page)) \
 					and bool(re.search(get_phone, str(page))):
 					self.phone += (re.search(get_phone, str(page)).group()).lstrip("tel:") +", "
-					print("self.phone:", self.phone)
 
-
-				# if self.wa == '' and bool(re.search(get_WhatsApp, str(page))):
 				if bool(re.search(get_WhatsApp, str(page))):
 					self.wa += re.search(r'http(s){0,1}:\/\/wa.me\/[0-9]{1,20}', str(page)).group() + ", "
 
-
-				# if self.ok == '' and bool(re.search(get_ok, str(page))):
 				if bool(re.search(get_ok, str(page))):
 					self.ok += re.search(get_ok, str(page)).group() + ", "
 
-
-				# if self.tg == '' and bool(re.search(get_tg, str(page))):
 				if bool(re.search(get_tg, str(page))):
 					self.tg += re.search(rf'{get_tg}', str(page)).group().lstrip('href=').replace('"', "") + ", "
 
-
-				# if self.vk == '' and bool(re.search(r'(http(s{0,1}):\/\/vk\.com\/\w{1,21})', str(page))):
 				if bool(re.search(r'(http(s{0,1}):\/\/vk\.com\/\w{1,21})', str(page))):
 					self.vk += re.search(r'(http(s{0,1}):\/\/vk\.com\/\w{1,21})', str(page)).group() + ", "
 
-				# if self.website == "" and bool(re.search(get_website, str(page))):
 				if bool(re.search(get_website, str(page))):
 					self.website += re.search(get_website, str(page)).group() + ", "
 
 				page_list.pop(0)
+		del page, page_list
 
 	def scraper_infoCommitPictures(self, url):
 		'''
