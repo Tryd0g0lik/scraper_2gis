@@ -21,7 +21,7 @@ class ScraperEachAddress(ScraperInnerPage):
 		self.address: str = ""  # Адрес/местонахождения
 		self.subcategory: str = "" # (подкатегория
 
-		self.snijgp: str = ''  # (Комментарий)
+		self.snijgp: list = []  # (Комментарий)
 		self.geometry_name: str = ''
 
 		# t = Timer(30.0, ScraperEachAddress.scraper_companies(self, self.object_soup))
@@ -88,9 +88,9 @@ class ScraperEachAddress(ScraperInnerPage):
 								self.reiting = "{}".format(p)
 								p = 0.0
 
-					if bool(re.search(r'(>([0-9]{0,2} [оценокиблва]{0,10}))', str(one_separate))):
+					if bool(re.search(r'(>([0-9]{0,4} [оценокиблва]{0,10}))', str(one_separate))):
 						self.count = "{}".format(
-							re.search(r'(>([0-9]{0,2} [оценокблва]{0,10}))', str(one_separate)).group().lstrip(">"))
+							re.search(r'(>([0-9]{0,4} [оценокблва]{0,10}))', str(one_separate)).group().lstrip(">"))
 
 					if bool(re.search(r'(^[А-ЯЁ]{1}[а-яА-ЯёЁ]{3,50})', str(one_separate[71:]))):
 						ScraperInnerPage.scrap_gis_inner(self, self.nameCompanyLingGis)
@@ -127,7 +127,8 @@ class ScraperEachAddress(ScraperInnerPage):
 								self.info,
 								self.subcategory, # подкатегория
 
-								self.snijgp
+								self.snijgp,
+								self.pictures
 
 							)
 							self.name: str = ""
@@ -148,7 +149,9 @@ class ScraperEachAddress(ScraperInnerPage):
 							self.info: str = ""
 							self.subcategory: str = "" # подкатегория
 
-							self.snijgp: str = ''  # Комментарий
+							self.snijgp: list = []  # Комментарий
+							self.pictures: list = []  # фото из комментариев
+
 							self.geometry_name: str = ''
 
 							# print("примет мир")

@@ -12,24 +12,43 @@ import time
 
 # Press the green button in the gutter to run the script.
 if __name__ == "__main__":
-
-    paginator = Gis_paginator(city="irkutsk", search_word="животные")
-    map = ScraperEachAddress(city="irkutsk", search_word="животные центры", page_list=paginator.paginator_reference)
+    city: str = "irkutsk"
+    thema: str = "животные центры"
+    paginator = Gis_paginator(city=city, search_word=thema)
+    map = ScraperEachAddress(city=city, search_word=thema, page_list=paginator.paginator_reference)
     i = 0
     while i < len(map.page_list):
-    # if len(map.page_list) > 0:
-        # page = map.object_soup
         page = map.start_working()
         map.scraper_companies(page)
         i +=1
         break
-        # print("примет мир 10")
         time.sleep(1)
-        # print("примет мир")
 
-    # map.save_files()
 
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 """"

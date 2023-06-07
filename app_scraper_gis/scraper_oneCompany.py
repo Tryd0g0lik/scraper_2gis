@@ -2,7 +2,15 @@ from app_scraper_gis.scraper_gis import Gis_page
 from bs4 import BeautifulSoup as beauty
 from urllib.parse import unquote, quote
 import urllib3 as urls
-import re
+import re, os, time
+from selenium import webdriver
+from selenium.webdriver.chrome.service import Service as ChromeService
+from webdriver_manager.chrome import ChromeDriverManager
+from selenium.webdriver.chrome.options import Options
+from pathlib import Path
+from PIL import Image
+import requests
+from io import StringIO, BytesIO
 
 class ScraperInnerPage(Gis_page):
 	def __init__(self, city, search_word, page_list):
@@ -35,7 +43,8 @@ class ScraperInnerPage(Gis_page):
 		self.info: str = ""
 		self.subcategory: str = ""  # подкатегория
 
-		self.snijgp: str = ''  # Комментарий
+		self.snijgp: list = []  # Комментарий [{'user_ball': snijgp_ball}, {'user_fdsdsd':snijgp_comment}]
+		self.pictures: list = []  # фото из комментариев
 
 	def open_inner_page_company(self, data_url):
 		'''
@@ -60,8 +69,6 @@ class ScraperInnerPage(Gis_page):
 		TODO: viewing the inner basis column for inner company's page
 		:return: Datas about the one company
 		'''
-		# print("__scrap_gis_inner")
-		# url = "{}".format(self.nameCompanyLingGis, )
 
 		response_inner = ScraperInnerPage.open_inner_page_company(self, url)
 		if response_inner.status == 200:
@@ -103,18 +110,22 @@ class ScraperInnerPage(Gis_page):
 					ScraperInnerPage.scraper_continues_data_company(self, page)
 
 			# From the content the information block
-			#
 			"""There  down is from the content the information block"""
 			self.object_soup = self.object_soup[0].find_parents("div")[3] \
 				.contents[0].contents[0].contents[0].contents[0].find_all(name='a')
 			url = "https://2gis.ru" + self.object_soup[1]['href']
-			ScraperInnerPage.scraper_infoCommitPictures(self, url)
+			ScraperInnerPage.scraper_info(self, url)
+			del url
+
+			url = "https://2gis.ru" + self.object_soup[2]['href']
+			ScraperInnerPage.scraper_snijgp(self, url)
 			del url
 			print("END")
 
 		else:
 			print("t.data: ", ScraperInnerPage.pages.status)
 			return
+		del response_inner
 
 	def scraper_continues_data_company(self, page_list: list):
 		'''
@@ -130,7 +141,7 @@ class ScraperInnerPage(Gis_page):
 		get_ok = r'(https:\/\/ok\.ru\/group\/[0-9]{1,21})'
 		get_tg = r'(href="https:\/\/t\.me/\+[0-9]{6,12}")'
 		get_vk = r'(http(s{0,1}):\/\/vk\.com\/\w{1,21})'
-		get_points = r'(points\/[0-9]{1,2}.{1}[0-9]{1,10},{0,1}[0-9]{1,2}.{1}[0-9]{1,10})'
+		get_points = r'(points\/[0-9]{1,3}.[0-9]{1,10},?[0-9]{,3}.{1}[0-9]{1,10})'
 		get_website = r'http(s{0,1}):\/\/\w{0,25}.{0,1}\w{2,25}[^(2gis)|(w3)|vk.].ru'
 		# http://glavnoehvost.ru
 		get_time_list = [
@@ -138,8 +149,6 @@ class ScraperInnerPage(Gis_page):
 			r'(Сегодня [c|с] [0-9]{2}:[0-9]{2} до [0-9]{2}:[0-9]{2})',
 			r'(Откроется [завтра]{0,1} {0,1}в [А-ЯЁа-яё]{0,25}[в| ]{1,3}[0-9]{2}:[0-9]{2})',
 		]
-
-		i = 0
 
 		for page in page_list:
 
@@ -161,49 +170,40 @@ class ScraperInnerPage(Gis_page):
 						new_string = re.search(rf'{get_text}', str(page)).group() + ", "
 						if new_string not in str(self.work_mode):
 							self.work_mode += self.work_mode + str(new_string)
+
 						else:
 							None
+
+						del new_string
 						continue
 
-				# if self.email == '' and bool(re.search(r'(mailto:([.\w@-]{,50}){,2})', str(page))) \
 				if bool(re.search(r'(mailto:([.\w@-]{,50}){,2})', str(page))) \
 					and bool(re.search(get_mail, str(page))):
 					self.email += re.search(r'(mailto:([.\w@-]{,50}){,2})', str(page)).group().lstrip("mailto").lstrip(":") + ", "
 
-
-				# if self.phone == '' and re.search('tel:', str(page)) \
 				if re.search('tel:', str(page)) \
 					and bool(re.search(get_phone, str(page))):
 					self.phone += (re.search(get_phone, str(page)).group()).lstrip("tel:") +", "
-					print("self.phone:", self.phone)
 
-
-				# if self.wa == '' and bool(re.search(get_WhatsApp, str(page))):
 				if bool(re.search(get_WhatsApp, str(page))):
 					self.wa += re.search(r'http(s){0,1}:\/\/wa.me\/[0-9]{1,20}', str(page)).group() + ", "
 
-
-				# if self.ok == '' and bool(re.search(get_ok, str(page))):
 				if bool(re.search(get_ok, str(page))):
 					self.ok += re.search(get_ok, str(page)).group() + ", "
 
-
-				# if self.tg == '' and bool(re.search(get_tg, str(page))):
 				if bool(re.search(get_tg, str(page))):
 					self.tg += re.search(rf'{get_tg}', str(page)).group().lstrip('href=').replace('"', "") + ", "
 
-
-				# if self.vk == '' and bool(re.search(r'(http(s{0,1}):\/\/vk\.com\/\w{1,21})', str(page))):
 				if bool(re.search(r'(http(s{0,1}):\/\/vk\.com\/\w{1,21})', str(page))):
 					self.vk += re.search(r'(http(s{0,1}):\/\/vk\.com\/\w{1,21})', str(page)).group() + ", "
 
-				# if self.website == "" and bool(re.search(get_website, str(page))):
 				if bool(re.search(get_website, str(page))):
 					self.website += re.search(get_website, str(page)).group() + ", "
 
 				page_list.pop(0)
+		del page, page_list
 
-	def scraper_infoCommitPictures(self, url):
+	def scraper_info(self, url):
 		'''
 			TODO: There  down is we search the:
 		:param url: The variable stores a URL for tab. Our simple is a "Инфо".
@@ -213,6 +213,9 @@ class ScraperInnerPage(Gis_page):
 		'''
 		info_page = urls.request("get", url=url, decode_content=True)
 		if info_page.status == 200:
+			'''
+				Scrapering data-info from the inf-html
+			'''
 			info_page = "{}".format(unquote(info_page.data), )
 			soup = beauty(info_page, 'html.parser')
 			response_text = soup.find(id="root").find(text="Контакты").find_parent("a").parent.parent.find_parents("div")[4].contents[1].contents[0].contents[0].select('div[data-divider="true"]')
@@ -223,6 +226,9 @@ class ScraperInnerPage(Gis_page):
 				tag_reg2 = r'([<\/spanbuto]{3,15}>){1,20}'
 
 				if i == 0:
+					'''
+						Working with the info-block ('Инфо')
+					'''
 					self.info = str(response_text[i].find(name="span")).replace("<br/>", " ").replace("•", "").replace(" ", "")
 
 					if bool(re.search(tag_reg1, str(self.info))):
@@ -237,7 +243,9 @@ class ScraperInnerPage(Gis_page):
 					# print("self.info: ", self.info)
 				else:
 					index = True
-
+					'''
+						scraping the sub-cotegories from the info-block ('Инфо') 
+					'''
 					text = response_text[i].find(name="span")
 					if text != None:
 						while index and i <= len(response_text) - 1 :
@@ -272,3 +280,86 @@ class ScraperInnerPage(Gis_page):
 				del tag_reg1, tag_reg2
 			del response_text
 		del info_page
+
+	def scraper_snijgp(self, url):
+		'''
+		TODO: Working through the SELENIUM.
+		 and IMG-file loading into folder from-the 2gis
+		:param url: for a feedback block.
+		:return snijgp: Feedback from people about the one company
+		'''
+
+		PATH = os.path.dirname(os.path.abspath(__file__)) + "\\chromedriver\\chromedriver.exe"
+		chrome_options = Options()
+		chrome_options.binary_location = "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe"
+		driver = webdriver.Chrome(executable_path=str(PATH), chrome_options=chrome_options)
+		driver.get(str(url))
+
+		'''
+			JS  - scrolling the browser's window
+		'''
+		js_elem = """document.querySelector("#root > div > div > div:nth-child(1) > div:nth-child(1) > div:nth-child(2) > div > div > div:nth-child(2) > div > div > div:nth-child(2) > div:nth-child(2) > div > div:nth-child(1) > div > div")"""
+		driver.execute_script(js_elem + '.scrollBy({top:' + js_elem + '.scrollHeight' + ', left: 0, behavior: "smooth"});')
+		time.sleep(5)
+		html = driver.page_source
+
+		soup = beauty(str(html), 'html.parser')
+		if len(soup.find(id="root").select('input[value="all"]')) > 0:
+			response_text_common = soup.find(id="root").select('input[value="all"]')[0].find_parent("div").find_parents('div')[1].contents[2:]
+
+			for i in range(0, len(response_text_common) - 1):
+
+				'''
+					pictures checking from feedback
+				'''
+				snijgp_img = "NAN" if len(response_text_common[i].contents) <= 2 \
+					or bool(response_text_common[i].contents[len(response_text_common[i].contents)-2]) == False \
+					or bool(response_text_common[i].contents[len(response_text_common[i].contents)-2].contents) == False \
+					or bool(response_text_common[i].contents[len(response_text_common[i].contents)-2].contents[0]) == False \
+					or bool(response_text_common[i].contents[len(response_text_common[i].contents)-2].contents[0].find("img")) == False \
+					else response_text_common[i].contents[len(response_text_common[i].contents)-2].contents[0].find_all("img")
+				if 'img' in str(snijgp_img):
+					'''
+						Thi's code (for in) it's IMG-file loading into folder from-the 2gis
+					'''
+					for ind in range(0, len(snijgp_img)):
+						snijgp_img_src = snijgp_img[ind].attrs['src']
+
+						'''
+							URL-row is cleaning
+						'''
+						if bool(re.search(r'\?\w=[0-9]{2,3}$', str(snijgp_img_src))) == False:
+							break
+
+						else:
+							w = re.search(r'\?\w=[0-9]{2,3}$', str(snijgp_img_src)).group()
+							snijgp_img_src = str(snijgp_img_src).replace(w, '')
+							del w
+
+						'''
+						There is file IMG loading from the 2Gis 
+						'''
+						url = requests.get(str(snijgp_img_src))
+						img = Image.open(BytesIO(url.content))
+						rename = str(self.name) + '_feedback_' + str(i) + '_img_' + str(ind)
+
+						PATH_img = str(os.path.dirname(os.path.abspath(__file__))) + '/file'
+						img.save(os.path.join(PATH_img, rename) + '.JPG', 'JPEG', quality=90)
+						self.pictures.append(rename + '.JPG' + ', ')
+						del snijgp_img_src, img, rename, PATH_img
+
+				'''
+				Commits copy in the your db from the 2Gis 
+				'''
+				snijgp_comment = "NAN" if len(response_text_common[i].contents) <= 2 \
+					else response_text_common[i].contents[len(response_text_common[i].contents)-1].contents[0].find("a").text
+
+				self.snijgp.append(snijgp_comment) if len(snijgp_comment) > 5 \
+					else self.snijgp.append("NaN")
+
+				del snijgp_comment
+			del js_elem, html, response_text_common
+
+			return
+		else:
+			return
