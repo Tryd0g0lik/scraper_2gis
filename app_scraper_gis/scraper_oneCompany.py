@@ -109,12 +109,13 @@ class ScraperInnerPage(Gis_page):
 			"""There  down is from the content the information block"""
 			self.object_soup = self.object_soup[0].find_parents("div")[3] \
 				.contents[0].contents[0].contents[0].contents[0].find_all(name='a')
-			# url = "https://2gis.ru" + self.object_soup[1]['href']
-			# ScraperInnerPage.scraper_info(self, url)
-			# del url
+			url = "https://2gis.ru" + self.object_soup[1]['href']
+			ScraperInnerPage.scraper_info(self, url)
+			del url
 
 			url = "https://2gis.ru" + self.object_soup[2]['href']
 			ScraperInnerPage.scraper_snijgp(self, url)
+			del url
 			print("END")
 
 		else:
@@ -269,30 +270,57 @@ class ScraperInnerPage(Gis_page):
 		del info_page
 
 	def scraper_snijgp(self, url):
-		snijgp_page = urls.request('get', url=url, decode_content=True)
-		if snijgp_page.status == 200:
-			snijgp_page = "{}".format(unquote(snijgp_page.data))
-			soup = beauty(snijgp_page, 'html.parser')
-			response_text_common = soup.find(id="root").select('input[value="filial"]')[0].find_parent("div").find_parents('div')[1].contents[3
-			                                                                                                                                  :]
-
-			for i in range(0, len(response_text_common)-1):
-				# snijgp_ball = len(response_text_common[3].contents[0].contents[0].contents[1].find_all("span")) - 1
-				print(i)
-				snijgp_comment = response_text_common[i].contents[2].contents[0].find("a").text # contents[2] - выходит за диапозон
-				self.snijgp.append(snijgp_comment)
-				del snijgp_comment
+		'''
+		TODO: Working through the selenium
+		:param url: for a feedback block.
+		:return snijgp: Feedback from people about the one company
+		'''
 
 		PATH = os.path.dirname(os.path.abspath(__file__)) + "\\chromedriver\\chromedriver.exe"
-			# chrome_options = Options()
-			# chrome_options.binary_location = "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe"
-			# # chrome_options.add_argument("--disable-extensions")
-			# driver = webdriver.Chrome(executable_path=str(PATH), chrome_options=chrome_options)
-			# driver.get(str(url))
-			# driver.execute_script('Window.scroll(0,document.body.scrollHeight);')
-			# time.sleep(5)
-			# html = driver.page_source
-			#
+		chrome_options = Options()
+		chrome_options.binary_location = "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe"
+		# chrome_options.add_argument("--disable-extensions")
+		driver = webdriver.Chrome(executable_path=str(PATH), chrome_options=chrome_options)
+		driver.get(str(url))
+
+		# JS  - scrolling the window
+		js_elem = """document.querySelector("#root > div > div > div:nth-child(1) > div:nth-child(1) > div:nth-child(2) > div > div > div:nth-child(2) > div > div > div:nth-child(2) > div:nth-child(2) > div > div:nth-child(1) > div > div")"""
+		driver.execute_script(js_elem + '.scrollBy({top:' + js_elem + '.scrollHeight' + ', left: 0, behavior: "smooth"});')
+		time.sleep(5)
+		html = driver.page_source
 
 
-		return
+		soup = beauty(str(html), 'html.parser')
+
+		if len(soup.find(id="root").select('input[value="all"]')) > 0:
+			response_text_common = soup.find(id="root").select('input[value="all"]')[0].find_parent("div").find_parents('div')[1].contents[3:]
+
+			for i in range(0, len(response_text_common) - 1):
+
+				# pictures from feedback
+				snijgp_img = "NAN" if len(response_text_common[i].contents) <= 2 \
+					or bool(response_text_common[i].contents[len(response_text_common[i].contents)-2]) == False \
+					or bool(response_text_common[i].contents[len(response_text_common[i].contents)-2].contents) == False \
+					or bool(response_text_common[i].contents[len(response_text_common[i].contents)-2].contents[0]) == False \
+					or bool(response_text_common[i].contents[len(response_text_common[i].contents)-2].contents[0].find("img")) == False \
+					else response_text_common[i].contents[len(response_text_common[i].contents)-2].contents[0].find_all("img")
+				if 'img' in str(snijgp_img):
+
+					for i in range(0, len(snijgp_img)):
+						print("i: ", i, type(snijgp_img[i]))
+						print("snijgp_img: ", snijgp_img[i].attrs['src'] )
+						snijgp_img_src = snijgp_img[i].attrs['src']
+
+						# feedback
+				snijgp_comment = "NAN" if len(response_text_common[i].contents) <= 2 \
+					else response_text_common[i].contents[len(response_text_common[i].contents)-1].contents[0].find("a").text
+
+				self.snijgp.append(snijgp_comment) if len(snijgp_comment) > 5 \
+					else self.snijgp.append("NaN")
+
+				del snijgp_comment
+			del js_elem, html, response_text_common
+
+			return
+		else:
+			return
