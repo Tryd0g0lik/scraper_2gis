@@ -8,6 +8,9 @@ from selenium.webdriver.chrome.service import Service as ChromeService
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.options import Options
 from pathlib import Path
+from PIL import Image
+import requests
+from io import StringIO, BytesIO
 
 class ScraperInnerPage(Gis_page):
 	def __init__(self, city, search_word, page_list):
@@ -271,7 +274,8 @@ class ScraperInnerPage(Gis_page):
 
 	def scraper_snijgp(self, url):
 		'''
-		TODO: Working through the selenium
+		TODO: Working through the SELENIUM.
+		 and IMG-file loading into folder from-the 2gis
 		:param url: for a feedback block.
 		:return snijgp: Feedback from people about the one company
 		'''
@@ -279,25 +283,26 @@ class ScraperInnerPage(Gis_page):
 		PATH = os.path.dirname(os.path.abspath(__file__)) + "\\chromedriver\\chromedriver.exe"
 		chrome_options = Options()
 		chrome_options.binary_location = "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe"
-		# chrome_options.add_argument("--disable-extensions")
 		driver = webdriver.Chrome(executable_path=str(PATH), chrome_options=chrome_options)
 		driver.get(str(url))
 
-		# JS  - scrolling the window
+		'''
+			JS  - scrolling the browser's window
+		'''
 		js_elem = """document.querySelector("#root > div > div > div:nth-child(1) > div:nth-child(1) > div:nth-child(2) > div > div > div:nth-child(2) > div > div > div:nth-child(2) > div:nth-child(2) > div > div:nth-child(1) > div > div")"""
 		driver.execute_script(js_elem + '.scrollBy({top:' + js_elem + '.scrollHeight' + ', left: 0, behavior: "smooth"});')
 		time.sleep(5)
 		html = driver.page_source
 
-
 		soup = beauty(str(html), 'html.parser')
-
 		if len(soup.find(id="root").select('input[value="all"]')) > 0:
-			response_text_common = soup.find(id="root").select('input[value="all"]')[0].find_parent("div").find_parents('div')[1].contents[3:]
+			response_text_common = soup.find(id="root").select('input[value="all"]')[0].find_parent("div").find_parents('div')[1].contents[2:]
 
 			for i in range(0, len(response_text_common) - 1):
 
-				# pictures from feedback
+				'''
+					pictures checking from feedback
+				'''
 				snijgp_img = "NAN" if len(response_text_common[i].contents) <= 2 \
 					or bool(response_text_common[i].contents[len(response_text_common[i].contents)-2]) == False \
 					or bool(response_text_common[i].contents[len(response_text_common[i].contents)-2].contents) == False \
@@ -305,13 +310,38 @@ class ScraperInnerPage(Gis_page):
 					or bool(response_text_common[i].contents[len(response_text_common[i].contents)-2].contents[0].find("img")) == False \
 					else response_text_common[i].contents[len(response_text_common[i].contents)-2].contents[0].find_all("img")
 				if 'img' in str(snijgp_img):
+					'''
+						IMG-file loading into folder from-the 2gis
+					'''
+					for ind in range(0, len(snijgp_img)):
+						snijgp_img_src = snijgp_img[ind].attrs['src']
 
-					for i in range(0, len(snijgp_img)):
-						print("i: ", i, type(snijgp_img[i]))
-						print("snijgp_img: ", snijgp_img[i].attrs['src'] )
-						snijgp_img_src = snijgp_img[i].attrs['src']
+						'''
+							URL-row is cleaning
+						'''
+						if bool(re.search(r'\?\w=[0-9]{2,3}$', str(snijgp_img_src))) == False:
+							break
 
-						# feedback
+						else:
+							w = re.search(r'\?\w=[0-9]{2,3}$', str(snijgp_img_src)).group()
+							snijgp_img_src = str(snijgp_img_src).replace(w, '')
+							del w
+
+						'''
+						There is file IMG loading from the 2Gis 
+						'''
+						url = requests.get(str(snijgp_img_src))
+						img = Image.open(BytesIO(url.content))
+						rename = str(self.name) + '_feedback_' + str(i) + '_img_' + str(ind)
+
+						PATH_img = str(os.path.dirname(os.path.abspath(__file__))) + '/file'
+						img.save(os.path.join(PATH_img, rename) + '.JPG', 'JPEG', quality=90)
+						del snijgp_img_src, img, rename, PATH_img
+
+
+				'''
+				Commits copy in the uor db from the 2Gis 
+				'''
 				snijgp_comment = "NAN" if len(response_text_common[i].contents) <= 2 \
 					else response_text_common[i].contents[len(response_text_common[i].contents)-1].contents[0].find("a").text
 
