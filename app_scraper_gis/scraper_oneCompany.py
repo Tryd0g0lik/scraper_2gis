@@ -44,6 +44,7 @@ class ScraperInnerPage(Gis_page):
 		self.subcategory: str = ""  # подкатегория
 
 		self.snijgp: list = []  # Комментарий [{'user_ball': snijgp_ball}, {'user_fdsdsd':snijgp_comment}]
+		self.pictures: list = []  # фото из комментариев
 
 	def open_inner_page_company(self, data_url):
 		'''
@@ -212,6 +213,9 @@ class ScraperInnerPage(Gis_page):
 		'''
 		info_page = urls.request("get", url=url, decode_content=True)
 		if info_page.status == 200:
+			'''
+				Scrapering data-info from the inf-html
+			'''
 			info_page = "{}".format(unquote(info_page.data), )
 			soup = beauty(info_page, 'html.parser')
 			response_text = soup.find(id="root").find(text="Контакты").find_parent("a").parent.parent.find_parents("div")[4].contents[1].contents[0].contents[0].select('div[data-divider="true"]')
@@ -222,6 +226,9 @@ class ScraperInnerPage(Gis_page):
 				tag_reg2 = r'([<\/spanbuto]{3,15}>){1,20}'
 
 				if i == 0:
+					'''
+						Working with the info-block ('Инфо')
+					'''
 					self.info = str(response_text[i].find(name="span")).replace("<br/>", " ").replace("•", "").replace(" ", "")
 
 					if bool(re.search(tag_reg1, str(self.info))):
@@ -236,7 +243,9 @@ class ScraperInnerPage(Gis_page):
 					# print("self.info: ", self.info)
 				else:
 					index = True
-
+					'''
+						scraping the sub-cotegories from the info-block ('Инфо') 
+					'''
 					text = response_text[i].find(name="span")
 					if text != None:
 						while index and i <= len(response_text) - 1 :
@@ -311,7 +320,7 @@ class ScraperInnerPage(Gis_page):
 					else response_text_common[i].contents[len(response_text_common[i].contents)-2].contents[0].find_all("img")
 				if 'img' in str(snijgp_img):
 					'''
-						IMG-file loading into folder from-the 2gis
+						Thi's code (for in) it's IMG-file loading into folder from-the 2gis
 					'''
 					for ind in range(0, len(snijgp_img)):
 						snijgp_img_src = snijgp_img[ind].attrs['src']
@@ -336,11 +345,11 @@ class ScraperInnerPage(Gis_page):
 
 						PATH_img = str(os.path.dirname(os.path.abspath(__file__))) + '/file'
 						img.save(os.path.join(PATH_img, rename) + '.JPG', 'JPEG', quality=90)
+						self.pictures.append(rename + '.JPG' + ', ')
 						del snijgp_img_src, img, rename, PATH_img
 
-
 				'''
-				Commits copy in the uor db from the 2Gis 
+				Commits copy in the your db from the 2Gis 
 				'''
 				snijgp_comment = "NAN" if len(response_text_common[i].contents) <= 2 \
 					else response_text_common[i].contents[len(response_text_common[i].contents)-1].contents[0].find("a").text

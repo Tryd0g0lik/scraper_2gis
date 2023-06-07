@@ -127,7 +127,8 @@ class ScraperEachAddress(ScraperInnerPage):
 								self.info,
 								self.subcategory, # подкатегория
 
-								self.snijgp
+								self.snijgp,
+								self.pictures
 
 							)
 							self.name: str = ""
@@ -149,6 +150,8 @@ class ScraperEachAddress(ScraperInnerPage):
 							self.subcategory: str = "" # подкатегория
 
 							self.snijgp: list = []  # Комментарий
+							self.pictures: list = []  # фото из комментариев
+
 							self.geometry_name: str = ''
 
 							# print("примет мир")
