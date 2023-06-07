@@ -4,11 +4,11 @@ import time
 
 class ScraperEachAddress(ScraperInnerPage):
 	"""
-	TODO: viewing each address
-	:param 'name' it's the name company;
+		TODO: viewing each address
+		:param 'name' it's the name company;
 
-	:param 'lat' it's the data coordinates about the width
-	:param 'lon' it's the data coordinates about the long
+		:param 'lat' it's the data coordinates about the width
+		:param 'lon' it's the data coordinates about the long
 	"""
 
 	def __init__(self, city: str = '', search_word: str = '', page_list = []):
