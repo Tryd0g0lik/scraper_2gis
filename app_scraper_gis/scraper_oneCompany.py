@@ -1,9 +1,12 @@
 from app_scraper_gis.scraper_gis import Gis_page
 from bs4 import BeautifulSoup as beauty
 from urllib.parse import unquote, quote
-import urllib3 as urls
+from urllib3 import request, Timeout,PoolManager
 import re, os, time
 from selenium import webdriver
+from socket import timeout
+
+
 from selenium.webdriver.chrome.service import Service as ChromeService
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.options import Options
@@ -56,7 +59,7 @@ class ScraperInnerPage(Gis_page):
 		self.headers['Referer'] = data_url
 		header = "{}".format(self.headers)
 
-		pages = urls.request("get", url=data_url,
+		pages = request("get", url=data_url,
 		                     decode_content=True,
 		                     timeout=3)
 
@@ -113,13 +116,20 @@ class ScraperInnerPage(Gis_page):
 			"""There  down is from the content the information block"""
 			self.object_soup = self.object_soup[0].find_parents("div")[3] \
 				.contents[0].contents[0].contents[0].contents[0].find_all(name='a')
-			url = "https://2gis.ru" + self.object_soup[1]['href']
-			ScraperInnerPage.scraper_info(self, url)
-			del url
+			# url = "https://2gis.ru" + self.object_soup[1]['href']
+			# ScraperInnerPage.scraper_info(self, url)
+			# del url
+			#
+			# url = "https://2gis.ru" + self.object_soup[2]['href']
+			# ScraperInnerPage.scraper_snijgp(self, url)
+			# del url
 
-			url = "https://2gis.ru" + self.object_soup[2]['href']
-			ScraperInnerPage.scraper_snijgp(self, url)
-			del url
+
+			for i in range(len(self.object_soup) - 1):
+				url = "https://2gis.ru" + self.object_soup[i]['href'] if 'gallery/firm' in str(self.object_soup[i]) \
+					else None
+				if url != None: ScraperInnerPage.scraper_photo_company(self, url)
+				print('photo:', url)
 			print("END")
 
 		else:
@@ -211,7 +221,7 @@ class ScraperInnerPage(Gis_page):
 		:param subcategory: This's a additional information about the company, sub-category
 		:return: subcategory and info
 		'''
-		info_page = urls.request("get", url=url, decode_content=True)
+		info_page = request("get", url=url, decode_content=True)
 		if info_page.status == 200:
 			'''
 				Scrapering data-info from the inf-html
@@ -349,7 +359,7 @@ class ScraperInnerPage(Gis_page):
 						del snijgp_img_src, img, rename, PATH_img
 
 				'''
-				Commits copy in the your db from the 2Gis 
+					Commits copy in the your db from the 2Gis 
 				'''
 				snijgp_comment = "NAN" if len(response_text_common[i].contents) <= 2 \
 					else response_text_common[i].contents[len(response_text_common[i].contents)-1].contents[0].find("a").text
@@ -363,3 +373,38 @@ class ScraperInnerPage(Gis_page):
 			return
 		else:
 			return
+
+	def scraper_photo_company(self, url):
+		print("url00: ", url)
+		'''
+			Creting the timeout for the request-url into the company foto-block  
+		'''
+		# timeout = Timeout(connect =5.0, read=15.0)
+		# timeout = timeout.read_timeout
+		# http = PoolManager(timeout=timeout)
+
+
+		photo_page = request("get", url=url, decode_content=True,)
+		# photo_page = urllib.request.urlopen(url, timeout=10).read().decode('utf-8')
+
+		if photo_page.status == 200:
+			photo_page = "{}".format(unquote(photo_page.data))
+
+			try:
+				soup = beauty(photo_page, 'html.parser')
+				gallery_photo =  soup.find(id='root').contents[0].contents[0].contents[0].contents[0].contents[1].contents[0] \
+					.contents[0].contents[1].contents[0].contents[0].contents[1].contents[0].contents[0].contents[0].contents[0] \
+					.contents[0].contents[0].contents[1].contents[0].contents[0].contents[0]
+
+
+				if bool(gallery_photo):
+
+					for i in range(0, len(gallery_photo)):
+						print("i, ", i)
+						print("Photo_compzny: ", gallery_photo[i]['src'])
+			except ValueError:
+				print("Is somthing wrong into the 'scraper_photo_company'/ It's search the 'gallery_photo'")
+
+			''''
+			soup.find(id='root').contents[0].contents[0].contents[0].contents[0].contents[1].contents[0].contents[0].contents[1].contents[0].contents[0].contents[1].contents[0].contents[0].contents[0].contents[0].contents[0].contents[0].contents[1].contents[0].contents[0].contents[0].contents[0].contents[0]
+			'''

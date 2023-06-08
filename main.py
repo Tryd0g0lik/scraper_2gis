@@ -21,8 +21,8 @@ if __name__ == "__main__":
         page = map.start_working()
         map.scraper_companies(page)
         i +=1
-        break
         time.sleep(1)
+        break
 
 
 
