@@ -401,7 +401,7 @@ class ScraperInnerPage(Gis_page):
 
 					for i in range(0, len(gallery_photo)):
 						print("i, ", i)
-						print("Photo_compzny: ", gallery_photo[i]['src'])
+						# print("Photo_compzny: ", gallery_photo[i]['src'])
 			except ValueError:
 				print("Is somthing wrong into the 'scraper_photo_company'/ It's search the 'gallery_photo'")
 
