@@ -1,3 +1,5 @@
+import datetime
+
 from app_scraper_gis.scraper_gis import Gis_page
 from bs4 import BeautifulSoup as beauty
 from urllib.parse import unquote, quote
@@ -14,6 +16,22 @@ from pathlib import Path
 from PIL import Image
 import requests
 from io import StringIO, BytesIO
+PATH = os.path.dirname(os.path.abspath(__file__)) + "\\chromedriver\\chromedriver.exe"
+PATH_img = str(os.path.dirname(os.path.abspath(__file__))) + '\\file'
+
+
+def folder(name:str, path:str = "./"):
+	if path == "./":
+		name = os.path.dirname(os.path.abspath(__file__)) + '\\file\\' + name
+		if not os.path.isdir(str(name)):
+			os.mkdir(str(name))
+
+	else:
+		if not os.path.isdir(str(path) + str(name)):
+			os.path.isdir(str(os.path.isdir(str(path) + str(name))))
+
+	return
+
 
 class ScraperInnerPage(Gis_page):
 	def __init__(self, city, search_word, page_list):
@@ -48,7 +66,7 @@ class ScraperInnerPage(Gis_page):
 
 		self.snijgp: list = []  # Комментарий [{'user_ball': snijgp_ball}, {'user_fdsdsd':snijgp_comment}]
 		self.pictures: list = []  # фото из комментариев
-
+		self.photo_comapny: list = []
 	def open_inner_page_company(self, data_url):
 		'''
 
@@ -299,7 +317,7 @@ class ScraperInnerPage(Gis_page):
 		:return snijgp: Feedback from people about the one company
 		'''
 
-		PATH = os.path.dirname(os.path.abspath(__file__)) + "\\chromedriver\\chromedriver.exe"
+
 		chrome_options = Options()
 		chrome_options.binary_location = "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe"
 		driver = webdriver.Chrome(executable_path=str(PATH), chrome_options=chrome_options)
@@ -312,6 +330,7 @@ class ScraperInnerPage(Gis_page):
 		driver.execute_script(js_elem + '.scrollBy({top:' + js_elem + '.scrollHeight' + ', left: 0, behavior: "smooth"});')
 		time.sleep(5)
 		html = driver.page_source
+		driver.close()
 
 		soup = beauty(str(html), 'html.parser')
 		if len(soup.find(id="root").select('input[value="all"]')) > 0:
@@ -353,7 +372,7 @@ class ScraperInnerPage(Gis_page):
 						img = Image.open(BytesIO(url.content))
 						rename = str(self.name) + '_feedback_' + str(i) + '_img_' + str(ind)
 
-						PATH_img = str(os.path.dirname(os.path.abspath(__file__))) + '/file'
+
 						img.save(os.path.join(PATH_img, rename) + '.JPG', 'JPEG', quality=90)
 						self.pictures.append(rename + '.JPG' + ', ')
 						del snijgp_img_src, img, rename, PATH_img
@@ -379,32 +398,53 @@ class ScraperInnerPage(Gis_page):
 		'''
 			Creting the timeout for the request-url into the company foto-block  
 		'''
-		# timeout = Timeout(connect =5.0, read=15.0)
-		# timeout = timeout.read_timeout
-		# http = PoolManager(timeout=timeout)
+
+		chrome_options = Options()
+		chrome_options.binary_location = "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe"
+		driver = webdriver.Chrome(
+			executable_path=str(PATH),
+			chrome_options=chrome_options
+		)
+		driver.get(str(url))
+		time.sleep(3)
+		html = driver.page_source
+		driver.close()
+
+		# soup = beauty(str(html), 'html.parser').soup.find_all("img")
+		chrome_options = Options()
+		chrome_options.binary_location = "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe"
+		driver = webdriver.Chrome(
+			executable_path=str(PATH),
+			chrome_options=chrome_options
+		)
+		driver.get(str(url))
+		time.sleep(3)
+		html = driver.page_source
+		driver.close()
+
+		soup = beauty(str(html), 'html.parser')
+		photo_page = soup.find_all("img")
+		src_reg = r'[ \w0-9]{,3}$'
+		# try:
+		# 	# pass
+		if bool(photo_page) and len(photo_page) > 0:
+			for i in range(0, len(photo_page[:4])):
+				src = photo_page[i]['srcset']
+				if bool(re.search(src_reg, src)):
+					src_trash = re.search(src_reg, src).group()
+					src_ = str(src).replace(src_trash, "")
 
 
-		photo_page = request("get", url=url, decode_content=True,)
-		# photo_page = urllib.request.urlopen(url, timeout=10).read().decode('utf-8')
+					url = requests.get(str(src_))
+					img = Image.open(BytesIO(url.content))
+					#
+					rename = str(self.name) + 'photo_block' + str(i) + '_img_'
+					date_ = str(datetime.date.today())
+					folder_name = '_' + str(self.name).strip() + '_' + str(date_).strip()
+					folder(folder_name)
 
-		if photo_page.status == 200:
-			photo_page = "{}".format(unquote(photo_page.data))
+					img.save(os.path.join(str(PATH_img) + '\\' + str(folder_name), rename) + '.JPG', 'JPEG', quality=90)
+					self.photo_comapny.append(rename + '.JPG' + ', ')
 
-			try:
-				soup = beauty(photo_page, 'html.parser')
-				gallery_photo =  soup.find(id='root').contents[0].contents[0].contents[0].contents[0].contents[1].contents[0] \
-					.contents[0].contents[1].contents[0].contents[0].contents[1].contents[0].contents[0].contents[0].contents[0] \
-					.contents[0].contents[0].contents[1].contents[0].contents[0].contents[0]
-
-
-				if bool(gallery_photo):
-
-					for i in range(0, len(gallery_photo)):
-						print("i, ", i)
-						# print("Photo_compzny: ", gallery_photo[i]['src'])
-			except ValueError:
-				print("Is somthing wrong into the 'scraper_photo_company'/ It's search the 'gallery_photo'")
-
-			''''
-			soup.find(id='root').contents[0].contents[0].contents[0].contents[0].contents[1].contents[0].contents[0].contents[1].contents[0].contents[0].contents[1].contents[0].contents[0].contents[0].contents[0].contents[0].contents[0].contents[1].contents[0].contents[0].contents[0].contents[0].contents[0]
-			'''
+		# except ValueError:
+		# 	print("Is somthing wrong into the 'scraper_photo_company'/ It's search the 'gallery_photo'")
