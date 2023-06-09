@@ -1,4 +1,9 @@
 import datetime
+
+from selenium.webdriver import ActionChains
+from selenium.webdriver.common.actions.action_builder import ActionBuilder
+from selenium.webdriver.common.by import By
+
 from app_scraper_gis.scraper_gis import Gis_page
 from bs4 import BeautifulSoup as beauty
 from urllib.parse import unquote
@@ -26,8 +31,9 @@ def makeFolder(name:str, path:str = "./"):
 	return
 
 
-def getUrlOfDriverChrome(url: str, selector: str = ''):
+def getHtmlOfDriverChrome(url: str, selector: str = '', scroll:bool = False, click:bool = False):
 	'''
+		If we want make the click-action, means the XPATH format-SELECTOR inserting
 		:param url: data-source
 		:param path_chrom: path to the Chrome.exe (from is the Program files folder)
 		:param selector: it's the path with the html-element for will be work with the JavaScript
@@ -35,27 +41,39 @@ def getUrlOfDriverChrome(url: str, selector: str = ''):
 	'''
 	path_chrome: str = "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe"
 
-	chrome_options = Options()
-	chrome_options.binary_location = path_chrome
+	browser = Options()
+	browser.binary_location = path_chrome
 	driver = webdriver.Chrome(
 		executable_path=str(PATH),
-		chrome_options=chrome_options
+		chrome_options=browser
 	)
 	driver.get(str(url))
 	time.sleep(3)
 	if selector == '':
-	 html = driver.page_source
-	else:
-		'''
-			JS  - scrolling the browser's window
-		'''
-		#
-		js_elem = "document.querySelector('" + (selector).strip() + "')"
-		driver.execute_script(js_elem + '.scrollBy({top:' + js_elem + '.scrollHeight' + ', left: 0, behavior: "smooth"});')
+		html = driver.page_source
+	elif selector != '':
+		if scroll==True:
+			'''
+				JS  - scrolling the browser's window
+			'''
+
+			js_elem = "document.querySelector('" + (selector).strip() + "')"
+			driver.execute_script(js_elem + '.scrollBy({top:' + js_elem + '.scrollHeight' + ', left: 0, behavior: "smooth"});')
+			del selector, js_elem
+
+		elif click == True:
+			'''
+				Finding the html element and
+				create the click-action for an element   
+			'''
+
+			element = driver.find_element(By.XPATH, selector)
+			ActionChains(driver).click(element).perform()
+			element.clear()
+			del selector
+
 		time.sleep(5)
 		html = driver.page_source
-
-
 	driver.close()
 	return html
 
@@ -187,6 +205,9 @@ class ScraperInnerPage(Gis_page):
 	def scraper_continues_data_company(self, page_list: list):
 		'''
 		TODO: continues scraper  target data
+		:param page_list: it's a list has  tags-html/  Everyone element from the list check -
+		 will be this element has the tadas or not. if yes, then this element cleaned using
+		  regular-regrowth. Will been get datas of the doata-sources
 		:param page: - html of the column  sigle company
 		:return: target data
 		'''
@@ -239,7 +260,29 @@ class ScraperInnerPage(Gis_page):
 
 				if re.search('tel:', str(page)) \
 					and bool(re.search(get_phone, str(page))):
-					self.phone += (re.search(get_phone, str(page)).group()).lstrip("tel:") +", "
+					url = self.nameCompanys2Gis
+
+					# '//*[@id="root"]/div/div/div[1]/div[1]/div[2]/div/div/div[2]/div/div/div[2]/div[2]/div/div[1]/div/div/div/div/div[2]/div[2]/div[1]/div[1]/div/div[3]/div[2]/div/button'
+					html = getHtmlOfDriverChrome(
+						url,
+						selector='//*[@id="root"]/div/div/div[1]/div[1]/div[2]/div/div/div[2]/div/div/div[2]/div[2]/div/div[1]/div/div/div/div/div[2]/div[2]/div[1]/div[1]/div/div[3]/div[2]/div/button',
+						click=True
+					)
+					'''
+						find a[href='tel:']
+					'''
+					phone_button = beauty(html, 'html.parser').find(text="Контакты").find_parents(name="div")[6] \
+						.contents[0].parent.contents[1].contents[0].contents[0].contents[0].contents[2].find_all("a")
+
+					'''
+						checking the what to me found
+					'''
+					if bool(phone_button) and len(phone_button) > 1:
+						for i in range(len(phone_button)):
+								self.phone += (re.search(get_phone, str(phone_button)).group()).lstrip("tel:") +", "
+
+					else:
+						self.phone += (re.search(get_phone, str(page)).group()).lstrip("tel:") +", "
 
 				if bool(re.search(get_WhatsApp, str(page))):
 					self.wa += re.search(r'http(s){0,1}:\/\/wa.me\/[0-9]{1,20}', str(page)).group() + ", "
@@ -344,7 +387,7 @@ class ScraperInnerPage(Gis_page):
 		:return snijgp: Feedback from people about the one company
 		'''
 
-		html = getUrlOfDriverChrome(url, selector)
+		html = getHtmlOfDriverChrome(url, selector, scroll=True)
 		soup = beauty(str(html), 'html.parser')
 		if len(soup.find(id="root").select('input[value="all"]')) > 0:
 			response_text_common = soup.find(id="root").select('input[value="all"]')[0].find_parent("div").find_parents('div')[1].contents[2:]
@@ -411,7 +454,7 @@ class ScraperInnerPage(Gis_page):
 		:param selector: it's the path with the html-element for will be work with the JavaScript
 		:return: the folder where id saving foto-files
 		'''
-		html = getUrlOfDriverChrome(url, selector)
+		html = getHtmlOfDriverChrome(url, selector, click=True)
 		soup = beauty(str(html), 'html.parser')
 		photo_page = soup.find_all("img")
 		src_reg = r'[ \w0-9]{,3}$'

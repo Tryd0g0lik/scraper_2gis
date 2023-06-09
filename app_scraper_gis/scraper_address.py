@@ -23,7 +23,7 @@ class ScraperEachAddress(ScraperInnerPage):
 
 		self.snijgp: list = []  # (Комментарий)
 		self.geometry_name: str = ''
-
+		self.nameCompanys2Gis: str =''  # ссылка на страницу кмпании
 		ScraperEachAddress.scraper_companies(self, self.object_soup)
 
 	def scraper_companies(self, page):
@@ -52,7 +52,7 @@ class ScraperEachAddress(ScraperInnerPage):
 					one_separate = one_separate.lstrip()
 
 					reg_link_text = r'''(<a\sclass=[\"|\']_\w{3,10}[\"|\']\shref=[\"|\'][\/\w]*[\"|\']><span)'''
-					reg_nameCompanyLingGis = r'''([\"|\']\/\w*\/?[\w\/]*\/?[\"|\']?)'''
+					reg_nameCompanys2Gis = r'''([\"|\']\/\w*\/?[\w\/]*\/?[\"|\']?)'''
 					reg_name = r'''(<span class=[\"|\']_\w{3,10}[\"|\']>[\w|\W]{2,100}</span> ?[^(<!-)])'''
 					reg_type_name = r'''(^ class=[\"|\']_\w{3,10}[\"|\']><span class=[\"|\']_\w{3,10}[\"|\']>[^(<!-)][\w|\W]{2,100}<\/span> ?)'''  # [^(!--)]
 
@@ -61,8 +61,8 @@ class ScraperEachAddress(ScraperInnerPage):
 						We getting the link/url into inner company's page from 'object_soup'  
 						'''
 						link_text = re.search(reg_link_text, str(one_separate)).group()
-						self.nameCompanyLingGis = "https://2gis.ru{}".format(
-							(re.search(reg_nameCompanyLingGis, str(link_text)).group()).strip('"').strip("'"))
+						self.nameCompanys2Gis = "https://2gis.ru{}".format(
+							(re.search(reg_nameCompanys2Gis, str(link_text)).group()).strip('"').strip("'"))
 
 					if bool(re.search(reg_name, str(one_separate))):
 						name = str(re.search(reg_name, str(one_separate)).group())
@@ -94,7 +94,7 @@ class ScraperEachAddress(ScraperInnerPage):
 					 Everyone links referencing into the page. This's the page has the description only
 						one company'''
 					if bool(re.search(r'(^[А-ЯЁ]{1}[а-яА-ЯёЁ]{3,50})', str(one_separate[71:]))):
-						ScraperInnerPage.scrap_gis_inner(self, self.nameCompanyLingGis)
+						ScraperInnerPage.scrap_gis_inner(self, self.nameCompanys2Gis)
 
 						'''
 						TODO: Thi's a 
