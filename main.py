@@ -13,23 +13,26 @@ import time
 
 # Press the green button in the gutter to run the script.
 if __name__ == "__main__":
-	city: str = "irkutsk"
-	thema: str = "животные центры"
-	paginator = Gis_paginator(city=city, search_word=thema)
-	map = ScraperEachAddress(city=city, search_word=thema, page_list=paginator.paginator_reference)
-	i = 0
-	while i < len(map.page_list):
-		page = map.start_working()
-		map.scraper_companies(page)
-		i += 1
-		break
-	time.sleep(1)
+    city: str = "irkutsk"
+    thema: str = "животные центры"
+    paginator = Gis_paginator(city=city, search_word=thema)
+    map = ScraperEachAddress(city=city, search_word=thema, page_list=paginator.paginator_reference)
+    i = 0
+    while i < len(map.page_list):
+        page = map.start_working()
+        map.scraper_companies(page)
+        i +=1
+        time.sleep(1)
+        break
+
+
+
+
 
 """"
     Динамичный постер 2gis.
 
     ДобавитьЖ
-	  self.snijgp :str = '' #  краткое описание См. "описание.png"
     self.geometry_name :str = ''
     + проверить ПОЛУЧЕННЫЕ данные на уникальность 
     + подкатегории

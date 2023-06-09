@@ -1,6 +1,9 @@
 import re
-from app_scraper_gis.scraper_oneCompany import ScraperInnerPage
+
 import time
+
+from app_scraper_gis.scraper_oneCompany import ScraperInnerPage
+
 
 class ScraperEachAddress(ScraperInnerPage):
 	"""
@@ -92,6 +95,9 @@ class ScraperEachAddress(ScraperInnerPage):
 						self.count = "{}".format(
 							re.search(r'(>([0-9]{0,4} [оценокблва]{0,10}))', str(one_separate)).group().lstrip(">"))
 
+					'''page-date from the comnon column. It's has a many links.
+					 Everyone links referencing into the page. This's the page has the description only
+						one company'''
 					if bool(re.search(r'(^[А-ЯЁ]{1}[а-яА-ЯёЁ]{3,50})', str(one_separate[71:]))):
 						ScraperInnerPage.scrap_gis_inner(self, self.nameCompanyLingGis)
 
