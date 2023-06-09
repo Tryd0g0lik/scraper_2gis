@@ -1,7 +1,4 @@
 import re
-
-import time
-
 from app_scraper_gis.scraper_oneCompany import ScraperInnerPage
 
 
@@ -27,8 +24,6 @@ class ScraperEachAddress(ScraperInnerPage):
 		self.snijgp: list = []  # (Комментарий)
 		self.geometry_name: str = ''
 
-		# t = Timer(30.0, ScraperEachAddress.scraper_companies(self, self.object_soup))
-		# t.start()
 		ScraperEachAddress.scraper_companies(self, self.object_soup)
 
 	def scraper_companies(self, page):

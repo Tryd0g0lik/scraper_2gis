@@ -1,26 +1,19 @@
 import datetime
-
 from app_scraper_gis.scraper_gis import Gis_page
 from bs4 import BeautifulSoup as beauty
-from urllib.parse import unquote, quote
-from urllib3 import request, Timeout,PoolManager
+from urllib.parse import unquote
+from urllib3 import request
 import re, os, time
 from selenium import webdriver
-from socket import timeout
-
-
-from selenium.webdriver.chrome.service import Service as ChromeService
-from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.options import Options
-from pathlib import Path
 from PIL import Image
 import requests
-from io import StringIO, BytesIO
+from io import BytesIO
 PATH = os.path.dirname(os.path.abspath(__file__)) + "\\chromedriver\\chromedriver.exe"
 PATH_img = str(os.path.dirname(os.path.abspath(__file__))) + '\\file'
 
 
-def folder(name:str, path:str = "./"):
+def makeFolder(name:str, path:str = "./"):
 	if path == "./":
 		name = os.path.dirname(os.path.abspath(__file__)) + '\\file\\' + name
 		if not os.path.isdir(str(name)):
@@ -454,7 +447,7 @@ class ScraperInnerPage(Gis_page):
 				rename = str(self.name) + 'photo_block' + str(i) + '_img_'
 				date_ = str(datetime.date.today())
 				folder_name = '_' + str(self.name).strip() + '_' + str(date_).strip()
-				folder(folder_name)
+				makeFolder(folder_name)
 
 				img.save(os.path.join(str(PATH_img) + '\\' + str(folder_name), rename) + '.' + str(img.format).strip(), str(img.format).strip(), quality=90)
 				self.photo_comapny.append(rename + '.' + str(img.format).strip() + ', ')
