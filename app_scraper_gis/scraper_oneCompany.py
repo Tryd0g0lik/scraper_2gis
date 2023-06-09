@@ -18,7 +18,7 @@ import requests
 from io import StringIO, BytesIO
 PATH = os.path.dirname(os.path.abspath(__file__)) + "\\chromedriver\\chromedriver.exe"
 PATH_img = str(os.path.dirname(os.path.abspath(__file__))) + '\\file'
-
+path_chrome:str = "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe"
 
 def folder(name:str, path:str = "./"):
 	if path == "./":
@@ -32,6 +32,36 @@ def folder(name:str, path:str = "./"):
 
 	return
 
+
+def getUrlOfDriverChrome(url: str, path_chrome: str, js_elem: str = ''):
+	'''
+		:param url: data-source
+		:param path_chrom: path to the Chrome.exe (from is the Program files folder)
+		:return: page-html
+	'''
+
+	chrome_options = Options()
+	chrome_options.binary_location = path_chrome
+	driver = webdriver.Chrome(
+		executable_path=str(PATH),
+		chrome_options=chrome_options
+	)
+	driver.get(str(url))
+	time.sleep(3)
+	if js_elem == '':
+	 html = driver.page_source
+	else:
+		'''
+			JS  - scrolling the browser's window
+		'''
+		# js_elem = """document.querySelector("#root > div > div > div:nth-child(1) > div:nth-child(1) > div:nth-child(2) > div > div > div:nth-child(2) > div > div > div:nth-child(2) > div:nth-child(2) > div > div:nth-child(1) > div > div")"""
+		driver.execute_script(js_elem + '.scrollBy({top:' + js_elem + '.scrollHeight' + ', left: 0, behavior: "smooth"});')
+		time.sleep(5)
+		html = driver.page_source
+		driver.close()
+
+	driver.close()
+	return html
 
 class ScraperInnerPage(Gis_page):
 	def __init__(self, city, search_word, page_list):
@@ -134,20 +164,20 @@ class ScraperInnerPage(Gis_page):
 			"""There  down is from the content the information block"""
 			self.object_soup = self.object_soup[0].find_parents("div")[3] \
 				.contents[0].contents[0].contents[0].contents[0].find_all(name='a')
-			# url = "https://2gis.ru" + self.object_soup[1]['href']
-			# ScraperInnerPage.scraper_info(self, url)
-			# del url
-			#
+			url = "https://2gis.ru" + self.object_soup[1]['href']
+			ScraperInnerPage.scraper_info(self, url)
+
+
 			# url = "https://2gis.ru" + self.object_soup[2]['href']
 			# ScraperInnerPage.scraper_snijgp(self, url)
 			# del url
 
 
-			for i in range(len(self.object_soup) - 1):
+			for i in range(0, len(self.object_soup)):
 				url = "https://2gis.ru" + self.object_soup[i]['href'] if 'gallery/firm' in str(self.object_soup[i]) \
 					else None
 				if url != None: ScraperInnerPage.scraper_photo_company(self, url)
-				print('photo:', url)
+				del url
 			print("END")
 
 		else:
@@ -318,19 +348,22 @@ class ScraperInnerPage(Gis_page):
 		'''
 
 
-		chrome_options = Options()
-		chrome_options.binary_location = "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe"
-		driver = webdriver.Chrome(executable_path=str(PATH), chrome_options=chrome_options)
-		driver.get(str(url))
+		# chrome_options = Options()
+		# chrome_options.binary_location = "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe"
+		# driver = webdriver.Chrome(executable_path=str(PATH), chrome_options=chrome_options)
+		# driver.get(str(url))
+		#
+		# '''
+		# 	JS  - scrolling the browser's window
+		# '''
+		# js_elem = """document.querySelector("#root > div > div > div:nth-child(1) > div:nth-child(1) > div:nth-child(2) > div > div > div:nth-child(2) > div > div > div:nth-child(2) > div:nth-child(2) > div > div:nth-child(1) > div > div")"""
+		# driver.execute_script(js_elem + '.scrollBy({top:' + js_elem + '.scrollHeight' + ', left: 0, behavior: "smooth"});')
+		# time.sleep(5)
+		# html = driver.page_source
+		# driver.close()
 
-		'''
-			JS  - scrolling the browser's window
-		'''
 		js_elem = """document.querySelector("#root > div > div > div:nth-child(1) > div:nth-child(1) > div:nth-child(2) > div > div > div:nth-child(2) > div > div > div:nth-child(2) > div:nth-child(2) > div > div:nth-child(1) > div > div")"""
-		driver.execute_script(js_elem + '.scrollBy({top:' + js_elem + '.scrollHeight' + ', left: 0, behavior: "smooth"});')
-		time.sleep(5)
-		html = driver.page_source
-		driver.close()
+		html = getUrlOfDriverChrome(url, path_chrome, js_elem)
 
 		soup = beauty(str(html), 'html.parser')
 		if len(soup.find(id="root").select('input[value="all"]')) > 0:
@@ -375,7 +408,7 @@ class ScraperInnerPage(Gis_page):
 
 						img.save(os.path.join(PATH_img, rename) + '.JPG', 'JPEG', quality=90)
 						self.pictures.append(rename + '.JPG' + ', ')
-						del snijgp_img_src, img, rename, PATH_img
+						del snijgp_img_src, img
 
 				'''
 					Commits copy in the your db from the 2Gis 
@@ -394,57 +427,50 @@ class ScraperInnerPage(Gis_page):
 			return
 
 	def scraper_photo_company(self, url):
-		print("url00: ", url)
 		'''
-			Creting the timeout for the request-url into the company foto-block  
+		:param url:  the source company's block-foto
+		:return: the folder where id saving foto-files
 		'''
-
-		chrome_options = Options()
-		chrome_options.binary_location = "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe"
-		driver = webdriver.Chrome(
-			executable_path=str(PATH),
-			chrome_options=chrome_options
-		)
-		driver.get(str(url))
-		time.sleep(3)
-		html = driver.page_source
-		driver.close()
-
-		# soup = beauty(str(html), 'html.parser').soup.find_all("img")
-		chrome_options = Options()
-		chrome_options.binary_location = "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe"
-		driver = webdriver.Chrome(
-			executable_path=str(PATH),
-			chrome_options=chrome_options
-		)
-		driver.get(str(url))
-		time.sleep(3)
-		html = driver.page_source
-		driver.close()
-
+		html = getUrlOfDriverChrome(url, path_chrome)
 		soup = beauty(str(html), 'html.parser')
 		photo_page = soup.find_all("img")
 		src_reg = r'[ \w0-9]{,3}$'
-		# try:
-		# 	# pass
+
+		'''
+			checking count the collected reference
+		'''
 		if bool(photo_page) and len(photo_page) > 0:
+
+			'''
+				Collecting before the 4 pictures
+			'''
 			for i in range(0, len(photo_page[:4])):
 				src = photo_page[i]['srcset']
+
+				'''
+					Cleaning the src/link
+				'''
 				if bool(re.search(src_reg, src)):
 					src_trash = re.search(src_reg, src).group()
 					src_ = str(src).replace(src_trash, "")
-
-
 					url = requests.get(str(src_))
-					img = Image.open(BytesIO(url.content))
-					#
-					rename = str(self.name) + 'photo_block' + str(i) + '_img_'
-					date_ = str(datetime.date.today())
-					folder_name = '_' + str(self.name).strip() + '_' + str(date_).strip()
-					folder(folder_name)
+					del src
 
-					img.save(os.path.join(str(PATH_img) + '\\' + str(folder_name), rename) + '.JPG', 'JPEG', quality=90)
-					self.photo_comapny.append(rename + '.JPG' + ', ')
+				else:
+					url = requests.get(str(src))
+					del src
 
-		# except ValueError:
-		# 	print("Is somthing wrong into the 'scraper_photo_company'/ It's search the 'gallery_photo'")
+				'''
+					Getting pictures from the source
+				'''
+				img = Image.open(BytesIO(url.content))
+				rename = str(self.name) + 'photo_block' + str(i) + '_img_'
+				date_ = str(datetime.date.today())
+				folder_name = '_' + str(self.name).strip() + '_' + str(date_).strip()
+				folder(folder_name)
+
+				img.save(os.path.join(str(PATH_img) + '\\' + str(folder_name), rename) + '.' + str(img.format).strip(), str(img.format).strip(), quality=90)
+				self.photo_comapny.append(rename + '.JPG' + ', ')
+
+				del date_, folder_name, rename, img
+		del photo_page, src_reg
