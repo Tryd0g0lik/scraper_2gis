@@ -1,9 +1,7 @@
 import datetime
 
 from selenium.webdriver import ActionChains
-from selenium.webdriver.common.actions.action_builder import ActionBuilder
 from selenium.webdriver.common.by import By
-
 from app_scraper_gis.scraper_gis import Gis_page
 from bs4 import BeautifulSoup as beauty
 from urllib.parse import unquote
@@ -69,8 +67,6 @@ def getHtmlOfDriverChrome(url: str, selector: str = '', scroll:bool = False, cli
 
 			element = driver.find_element(By.XPATH, selector)
 			ActionChains(driver).click(element).perform()
-			element.clear()
-			del selector
 
 		time.sleep(5)
 		html = driver.page_source
@@ -81,11 +77,11 @@ def getHtmlOfDriverChrome(url: str, selector: str = '', scroll:bool = False, cli
 class ScraperInnerPage(Gis_page):
 	def __init__(self, city, search_word, page_list):
 		'''
-		TODO: viewing each address
+		TODO: viewing each geometry_name
 		:param 'snijgp' it's the comments/reviews for a company
-		:param 'geometry_name' it's  the companu's address
+		:param 'geometry_name' it's  the companu's geometry_name
 		:param 'phone' it's the company number phone
-		:param 'email' it's the e-mail address
+		:param 'email' it's the e-mail geometry_name
 		:param 'work_mode' it's the time by which the company is working
 		:param 'website' it's the URL of the site
 		:param 'vk', tg', 'wa' it's the social network
@@ -159,7 +155,7 @@ class ScraperInnerPage(Gis_page):
 
 				"""There  down is we search the time mode for the works and 
 				self.name,      self.type_name,     self.reiting,   self.count,  
-				self.address,   self.lat,	          self.lon,	      self.phone,
+				self.geometry_name,   self.lat,	          self.lon,	      self.phone,
 				self.email,	    self.work_mode,	    self.vk:str,	  self.tg:str, 
 				self.wa:str,	  self.ok:str,	      website, 
 				"""
@@ -262,7 +258,6 @@ class ScraperInnerPage(Gis_page):
 					and bool(re.search(get_phone, str(page))):
 					url = self.nameCompanys2Gis
 
-					# '//*[@id="root"]/div/div/div[1]/div[1]/div[2]/div/div/div[2]/div/div/div[2]/div[2]/div/div[1]/div/div/div/div/div[2]/div[2]/div[1]/div[1]/div/div[3]/div[2]/div/button'
 					html = getHtmlOfDriverChrome(
 						url,
 						selector='//*[@id="root"]/div/div/div[1]/div[1]/div[2]/div/div/div[2]/div/div/div[2]/div[2]/div/div[1]/div/div/div/div/div[2]/div[2]/div[1]/div[1]/div/div[3]/div[2]/div/button',

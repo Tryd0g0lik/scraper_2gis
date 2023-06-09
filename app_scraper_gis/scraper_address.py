@@ -4,7 +4,7 @@ from app_scraper_gis.scraper_oneCompany import ScraperInnerPage
 
 class ScraperEachAddress(ScraperInnerPage):
 	"""
-		TODO: viewing each address
+		TODO: viewing each geometry_name
 		:param 'name' it's the name company;
 
 		:param 'lat' it's the data coordinates about the width
@@ -18,7 +18,7 @@ class ScraperEachAddress(ScraperInnerPage):
 		self.type_name: str = ''  # тип - под названием
 		self.reiting: str = ""  # Рейтинг
 		self.count: str = ""  # кол-во
-		self.address: str = ""  # Адрес/местонахождения
+		self.geometry_name: str = ""  # Адрес/местонахождения
 		self.subcategory: str = "" # (подкатегория
 
 		self.snijgp: list = []  # (Комментарий)
@@ -99,24 +99,25 @@ class ScraperEachAddress(ScraperInnerPage):
 						'''
 						TODO: Thi's a 
 						'''
-						get_address = r"(([0-9]{0,2}[-а-яё ]{0,4})?[а-яА-ЯёЁ -( )]{3,50}[, | ][а-яё ,( )0-9\/]{1,50}){1,}"
-						if bool(re.search(rf'''{get_address}''', str(one_separate))):
-							index_1 = re.search(rf'''{get_address}''', str(one_separate)).span()[0]
-							address_separator = re.search(rf'''{get_address}''', str(one_separate[index_1:]))
+						get_geometry_name = r"(([0-9]{0,2}[-а-яё ]{0,4})?[а-яА-ЯёЁ -( )]{3,50}[, | ][а-яё ,( )0-9\/]{1,50}){1,}"
+						if bool(re.search(rf'''{get_geometry_name}''', str(one_separate))):
+							index_1 = re.search(rf'''{get_geometry_name}''', str(one_separate)).span()[0]
+							geometry_name_separator = re.search(rf'''{get_geometry_name}''', str(one_separate[index_1:]))
 
-							self.address = "{}".format(address_separator.group().rstrip("<"))
+							self.geometry_name = "{}".format(geometry_name_separator.group().rstrip("<"))
 							print(
+								self.phone,
 								self.name,
 								self.type_name,
 								self.reiting,
 								self.count,
-								self.address,
+								self.geometry_name,
 								self.lat,
 								self.lon,
 
 								self.snijgp,
 								self.geometry_name,
-								self.phone,
+
 								self.email,
 								self.work_mode,
 								self.website,
@@ -136,7 +137,7 @@ class ScraperEachAddress(ScraperInnerPage):
 							self.type_name: str = ''  # тип - под названием
 							self.reiting: str = ""  # Рейтинг
 							self.count: str = ""  # кол-во
-							self.address: str = ""  # Адрес/местонахождения
+							self.geometry_name: str = ""  # Адрес/местонахождения
 							self.lat: str = ''  # широта
 							self.lon: str = ''  # долгота
 							self.phone: str = ''
@@ -152,8 +153,6 @@ class ScraperEachAddress(ScraperInnerPage):
 
 							self.snijgp: list = []  # Комментарий
 							self.pictures: list = []  # фото из комментариев
-
-							self.geometry_name: str = ''
 
 							# print("примет мир")
 							# time.sleep(1)
