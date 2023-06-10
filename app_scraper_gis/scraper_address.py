@@ -1,8 +1,11 @@
 import re
+
+from app_scraper_gis.get_data_TableFile.basic_data import BasicDataArray
 from app_scraper_gis.scraper_oneCompany import ScraperInnerPage
 
 
-class ScraperEachAddress(ScraperInnerPage):
+
+class ScraperEachAddress(ScraperInnerPage, BasicDataArray):
 	"""
 		TODO: viewing each geometry_name
 		:param 'name' it's the name company;
@@ -54,7 +57,7 @@ class ScraperEachAddress(ScraperInnerPage):
 					reg_link_text = r'''(<a\sclass=[\"|\']_\w{3,10}[\"|\']\shref=[\"|\'][\/\w]*[\"|\']><span)'''
 					reg_nameCompanys2Gis = r'''([\"|\']\/\w*\/?[\w\/]*\/?[\"|\']?)'''
 					reg_name = r'''(<span class=[\"|\']_\w{3,10}[\"|\']>[\w|\W]{2,100}</span> ?[^(<!-)])'''
-					reg_type_name = r'''(^ class=[\"|\']_\w{3,10}[\"|\']><span class=[\"|\']_\w{3,10}[\"|\']>[^(<!-)][\w|\W]{2,100}<\/span> ?)'''  # [^(!--)]
+					reg_type_name = r'''(^ ?class=[\"|\']_\w{3,10}[\"|\']><span class=[\"|\']_\w{3,10}[\"|\']>[^(<!-)][\w|\W]{2,100}<\/span> ?)'''  # [^(!--)]
 
 					if bool(re.search(reg_link_text, str(one_separate))):
 						'''
@@ -77,11 +80,11 @@ class ScraperEachAddress(ScraperInnerPage):
 							r"""(^class=[\"|\']_\w{3,10}[\"|\']><span class=[\"|\']_\w{3,10}[\"|\']>)""", type_name).group().__str__()
 						self.type_name = "{}".format(type_name.lstrip(str(type_name_separator)))
 
-					if bool(re.search(r'(^class=\"_\w{3,10}\">[0-5]{1,2}.?[0-9]{0,2}[^( \W)])', str(one_separate))):
+					if bool(re.search(r'(class=\"_\w{3,10}\">[0-5]{1,2}.?[0-9]{0,2}[^ оценокиблва]*)', str(one_separate))):
 						reiting_separator = re.search(r'(^class=\"_\w{3,10}\">[0-5]{1}.?[0-9]{0,2}[^( \W)])', one_separate).group()
 						p = 0.0
-						if bool(re.search(r'([0-5].{0,1}[0-9]{0,2}$)', str(reiting_separator))):
-							p = float(re.search(r'([0-5].{0,1}[0-9]{0,2}$)', str(reiting_separator)).group())
+						if bool(re.search(r'([0-5][.|,]?[0-9]{0,2})', str(reiting_separator))):
+							p = float(re.search(r'([0-5][.|,]?[0-9]{0,2}$)', str(reiting_separator)).group())
 							if p <= 5.0:
 								self.reiting = "{}".format(p)
 								p = 0.0
@@ -105,6 +108,7 @@ class ScraperEachAddress(ScraperInnerPage):
 							geometry_name_separator = re.search(rf'''{get_geometry_name}''', str(one_separate[index_1:]))
 
 							self.geometry_name = "{}".format(geometry_name_separator.group().rstrip("<"))
+							ScraperEachAddress.get_sorting_data(self)
 							print(
 								self.phone,
 								self.name,
@@ -153,10 +157,6 @@ class ScraperEachAddress(ScraperInnerPage):
 
 							self.snijgp: list = []  # Комментарий
 							self.pictures: list = []  # фото из комментариев
-
-							# print("примет мир")
-							# time.sleep(1)
-							# print("примет мир - 5")
 
 
 
