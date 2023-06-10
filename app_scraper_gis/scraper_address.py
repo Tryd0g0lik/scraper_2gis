@@ -109,34 +109,34 @@ class ScraperEachAddress(ScraperInnerPage, BasicDataArray):
 
 							self.geometry_name = "{}".format(geometry_name_separator.group().rstrip("<"))
 							ScraperEachAddress.get_sorting_data(self)
-							print(
-								self.phone,
-								self.name,
-								self.type_name,
-								self.reiting,
-								self.count,
-								self.geometry_name,
-								self.lat,
-								self.lon,
-
-								self.snijgp,
-								self.geometry_name,
-
-								self.email,
-								self.work_mode,
-								self.website,
-								self.vk,
-								self.tg,
-								self.wa,
-								self.ok,
-								self.info,
-								self.info,
-								self.subcategory, # подкатегория
-
-								self.snijgp,
-								self.pictures
-
-							)
+							# print(
+							# 	self.phone,
+							# 	self.name,
+							# 	self.type_name,
+							# 	self.reiting,
+							# 	self.count,
+							# 	self.geometry_name,
+							# 	self.lat,
+							# 	self.lon,
+							#
+							# 	self.snijgp,
+							# 	self.geometry_name,
+							#
+							# 	self.email,
+							# 	self.work_mode,
+							# 	self.website,
+							# 	self.vk,
+							# 	self.tg,
+							# 	self.wa,
+							# 	self.ok,
+							# 	self.info,
+							# 	self.info,
+							# 	self.subcategory, # подкатегория
+							#
+							# 	self.snijgp,
+							# 	self.pictures
+							#
+							# )
 							self.name: str = ""
 							self.type_name: str = ''  # тип - под названием
 							self.reiting: str = ""  # Рейтинг

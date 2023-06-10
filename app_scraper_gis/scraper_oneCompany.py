@@ -96,7 +96,7 @@ class ScraperInnerPage(Gis_page):
 		self.lon: str = ''  # долгота
 		self.phone: str = ''
 		self.email: str = ''
-		self.work_mode: str = ''
+		self.work_mode: list = []
 		self.vk: str = ''  # ВКонтакте
 		self.tg: str = ''  # Telegram
 		self.wa: str = ''  # WhatsApp
@@ -240,7 +240,7 @@ class ScraperInnerPage(Gis_page):
 
 						new_string = re.search(rf'{get_text}', str(page)).group() + ", "
 						if new_string not in str(self.work_mode):
-							self.work_mode += self.work_mode + str(new_string)
+							self.work_mode.append(str(new_string))
 
 						else:
 							None
@@ -400,7 +400,7 @@ class ScraperInnerPage(Gis_page):
 					else response_text_common[i].contents[len(response_text_common[i].contents)-2].contents[0].find_all("img")
 				if 'img' in str(snijgp_img):
 					'''
-						Thi's code (for in) it's IMG-file loading into folder from-the 2gis
+						This's code (for in) it's IMG-file loading into folder from-the 2gis
 					'''
 
 					for ind in range(0, len(snijgp_img)):
@@ -422,7 +422,7 @@ class ScraperInnerPage(Gis_page):
 						'''
 						url = requests.get(str(snijgp_img_src))
 						img = Image.open(BytesIO(url.content))
-						rename = str(self.name) + '_feedback_' + str(i) + '_img_' + str(ind)
+						rename = str(self.name).strip() + '_feedback_' + str(i) + '_img_' + str(ind)
 
 						img.save(os.path.join(PATH_img, rename) + '.' + str(img.format).strip(), str(img.format).strip(), quality=90)
 						self.pictures.append(rename + '.' + str(img.format).strip() + ', ')
