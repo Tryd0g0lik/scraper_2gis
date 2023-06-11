@@ -83,13 +83,15 @@ class ScraperEachAddress(ScraperInnerPage, BasicDataArray):
 						self.type_name = "{}".format(type_name.lstrip(str(type_name_separator)))
 
 					if bool(re.search(r'(class=\"_\w{3,10}\">[0-5]{1,2}.?[0-9]{0,2}[^ оценокиблва]*)', str(one_separate))):
-						reiting_separator = re.search(r'(^class=\"_\w{3,10}\">[0-5]{1}.?[0-9]{0,2}[^( \W)])', one_separate).group()
-						p = 0.0
-						if bool(re.search(r'([0-5][.|,]?[0-9]{0,2})', str(reiting_separator))):
-							p = float(re.search(r'([0-5][.|,]?[0-9]{0,2})', str(reiting_separator)).group())
-							if p <= 5.0:
-								self.reiting = "{}".format(p)
-								p = 0.0
+						if bool(re.search(r'(^class=\"_\w{3,10}\">[0-5]{1}.?[0-9]{0,2}[^( \W)])', one_separate)):
+							reiting_separator = re.search(r'(^class=\"_\w{3,10}\">[0-5]{1}.?[0-9]{0,2}[^( \W)])', one_separate).group() \
+
+							p = 0.0
+							if bool(re.search(r'([0-5][.|,]?[0-9]{0,2})', str(reiting_separator))):
+								p = float(re.search(r'([0-5][.|,]?[0-9]{0,2})', str(reiting_separator)).group())
+								if p <= 5.0:
+									self.reiting = "{}".format(p)
+									p = 0.0
 
 					if bool(re.search(r'(>([0-9]{0,4} [оценокиблва]{0,10}))', str(one_separate))):
 						self.count = "{}".format(
