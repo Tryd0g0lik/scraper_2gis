@@ -2,7 +2,8 @@ import re
 
 from app_scraper_gis.get_data_TableFile.basic_data import BasicDataArray
 from app_scraper_gis.scraper_oneCompany import ScraperInnerPage
-
+import pandas as pd
+import numpy as np
 
 
 class ScraperEachAddress(ScraperInnerPage, BasicDataArray):
@@ -27,6 +28,7 @@ class ScraperEachAddress(ScraperInnerPage, BasicDataArray):
 		self.snijgp: list = []  # (Комментарий)
 		self.geometry_name: str = ''
 		self.nameCompanys2Gis: str =''  # ссылка на страницу кмпании
+		self.file = pd.DataFrame()
 		ScraperEachAddress.scraper_companies(self, self.object_soup)
 
 	def scraper_companies(self, page):
@@ -84,7 +86,7 @@ class ScraperEachAddress(ScraperInnerPage, BasicDataArray):
 						reiting_separator = re.search(r'(^class=\"_\w{3,10}\">[0-5]{1}.?[0-9]{0,2}[^( \W)])', one_separate).group()
 						p = 0.0
 						if bool(re.search(r'([0-5][.|,]?[0-9]{0,2})', str(reiting_separator))):
-							p = float(re.search(r'([0-5][.|,]?[0-9]{0,2}$)', str(reiting_separator)).group())
+							p = float(re.search(r'([0-5][.|,]?[0-9]{0,2})', str(reiting_separator)).group())
 							if p <= 5.0:
 								self.reiting = "{}".format(p)
 								p = 0.0
@@ -108,7 +110,12 @@ class ScraperEachAddress(ScraperInnerPage, BasicDataArray):
 							geometry_name_separator = re.search(rf'''{get_geometry_name}''', str(one_separate[index_1:]))
 
 							self.geometry_name = "{}".format(geometry_name_separator.group().rstrip("<"))
+
 							ScraperEachAddress.get_sorting_data(self)
+							# if len(self.file.columns) == 0:
+							# 	self.file = ScraperEachAddress.get_sorting_data(self)
+							# else:
+							# 	self.file[ScraperEachAddress.get_sorting_data(self).total_table.columns[0]] = BasicDataArray(self).total_table
 							# print(
 							# 	self.phone,
 							# 	self.name,
@@ -146,7 +153,7 @@ class ScraperEachAddress(ScraperInnerPage, BasicDataArray):
 							self.lon: str = ''  # долгота
 							self.phone: str = ''
 							self.email: str = ''
-							self.work_mode: str = ''
+							self.work_mode = []
 							self.vk: str = ''  # ВКонтакте
 							self.tg: str = ''  # Telegram
 							self.wa: str = ''  # WhatsApp

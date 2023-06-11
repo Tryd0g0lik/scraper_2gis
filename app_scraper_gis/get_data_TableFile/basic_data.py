@@ -1,8 +1,16 @@
 import pandas as pd
+pd.set_option('display.width', 98)
 import numpy as np
+import scv
 import pprint
+import os
+import csv
+
+from app_scraper_gis.scraper_basic import Basic_gis
+PATH_img = str(os.path.dirname(os.path.abspath(__file__)))
+
 class BasicDataArray():
-	def __init__(self):
+	def __init__(self, total_table = None):
 
 		'''
 		self.name: str = ""
@@ -48,7 +56,7 @@ class BasicDataArray():
 		self.lon = '',
 		self.phone = '',
 		self.email = '',
-		self.work_mode = '',
+		self.work_mode = [],
 		self.vk = '',
 		self.td = '',
 		self.wa = '',
@@ -58,21 +66,12 @@ class BasicDataArray():
 		self.subcategory = '',
 		self.snijgp = [],
 		self.pictures = []
+		self.photo_comapny: list = []
+		self.total_table = total_table
 
 	def get_sorting_data(self):
-
-		# print("XXX: ",
-	  #   self.name,
-		# 	self.type_name,  # тип - под названием
-		# 	self.reiting,  # Рейтинг
-		# 	self.count,  # кол-во
-		# 	self.geometry_name,  # Адрес/местонахождения
-		# 	self.lat, # широта
-		# 	self.lon,  # долгота
-		# 	self.phone
-		# )
-		one_object = pd.Series({
-			'name': str(self.name),
+		self.basic_company = pd.Series({
+			'name':str(self.name),
 			'type_name':str(self.type_name),
 			'reiting': str(self.reiting),
 			'count': str(self.count),
@@ -90,6 +89,68 @@ class BasicDataArray():
 			'info': str(self.info),
 			'subcategory': str(self.subcategory),
 			'snijgp': list(self.snijgp),
-			'pictures': list(self.pictures)
+			'pictures': list(self.pictures),
+
 		})
-		print(one_object)
+		# BasicDataArray.creted_tabale_onCompany(self)
+		name_comany = self.basic_company[0]
+		data_company_keys = list(self.basic_company[1:].keys())
+		data_company_values = list(self.basic_company[1:].values)
+
+		new_table = pd.DataFrame({
+			name_comany: data_company_values
+		}, index=data_company_keys)
+		print(new_table)
+
+		# file = "./test_csv.csv"
+		file = None
+		if os.path.isdir(PATH_img) \
+			and os.path.isfile(PATH_img + "\\test_csv.csv") == False:
+			with open(PATH_img + "\\test_csv.csv", 'w', encoding='utf-8') as file: file.close()
+
+		if os.stat(PATH_img + "\\test_csv.csv").st_size == 0:
+			# with open(PATH_img + "\\test_csv.csv", 'w', encoding='utf-8') as file:  # file.close()
+			#file = PATH_img + "\\test_csv.csv"
+			# file = pd.read_csv(PATH_img + "\\test_csv.csv", sep=',', encoding="utf-8")
+			file = open(PATH_img + "\\test_csv.csv", 'w', encoding='utf-8')
+			print("my_file: ", file.encoding)
+			df = pd.DataFrame(
+				data= new_table.values,
+				columns=list(new_table.columns),
+				index=new_table.index,
+
+			)
+			df.to_csv(PATH_img + "\\test_csv.csv", mode="w",
+			          encoding="cp1251",
+			          sep=';'
+			          )
+
+		else:
+			file = open(PATH_img + "\\test_csv.csv", 'w', encoding='utf-8')
+			df = pd.read_csv(file,
+			                 # encoding="cp1251",
+			                 sep=';'
+			                 )
+			print("my_file_2: ", df.encoding)
+			print("str(new_table.columns[0]): ", str(new_table.columns[0]))
+			df[str(new_table.columns[0])] = new_table.values
+
+			df.to_csv(PATH_img + "\\test_csv.csv", mode="w",
+			          encoding="cp1251",
+								sep=';'
+			          )
+	def creted_tabale_onCompany(self):
+		self.name_comany = self.basic_company[0]
+		data_company_keys = list(self.basic_company[1:].keys())
+		data_company_values = list(self.basic_company[1:].values)
+
+		new_table = pd.DataFrame({
+			self.name_comany:data_company_values
+		}, index=data_company_keys)
+		print(new_table)
+		# BasicDataArray.creted_tabale_total(self, new_table)
+		total_table = pd.DataFrame().loc[:new_table.columns[0]] = new_table[1:].values
+	def creted_tabale_total(self, table):
+
+		total_table = pd.DataFrame().loc[:table.columns[0]] = table.values
+		print(total_table)

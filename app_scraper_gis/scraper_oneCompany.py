@@ -238,9 +238,9 @@ class ScraperInnerPage(Gis_page):
 				for get_text in get_time_list:
 					if bool(re.search(get_text, str(page))):
 
-						new_string = re.search(rf'{get_text}', str(page)).group() + ", "
+						new_string = re.search(rf'{get_text}', str(page)).group()
 						if new_string not in str(self.work_mode):
-							self.work_mode.append(str(new_string))
+							self.work_mode.append(new_string)
 
 						else:
 							None
@@ -253,7 +253,7 @@ class ScraperInnerPage(Gis_page):
 				'''
 				if bool(re.search(r'(mailto:([.\w@-]{,50}){,2})', str(page))) \
 					and bool(re.search(get_mail, str(page))):
-					self.email += re.search(r'(mailto:([.\w@-]{,50}){,2})', str(page)).group().lstrip("mailto").lstrip(":") + ", "
+					self.email += re.search(r'(mailto:([.\w@-]{,50}){,2})', str(page)).group().lstrip("mailto").lstrip(":")
 
 				if re.search('tel:', str(page)) \
 					and bool(re.search(get_phone, str(page))):
@@ -432,7 +432,7 @@ class ScraperInnerPage(Gis_page):
 					Commits copy in the your db from the 2Gis 
 				'''
 				snijgp_comment = "NAN" if len(response_text_common[i].contents) <= 2 \
-					else response_text_common[i].contents[len(response_text_common[i].contents)-1].contents[0].find("a").text
+					else response_text_common[i].contents[len(response_text_common[i].contents)-1].contents[0].find("a").text.replace('\u200b','')
 
 				self.snijgp.append(snijgp_comment) if len(snijgp_comment) > 5 \
 					else self.snijgp.append("NaN")
