@@ -106,14 +106,16 @@ class BasicDataArray():
 		file = None
 		if os.path.isdir(PATH_img) \
 			and os.path.isfile(PATH_img + "\\test_csv.csv") == False:
-			with open(PATH_img + "\\test_csv.csv", 'w', encoding='utf-8') as file: file.close()
+			with open(PATH_img + "\\test_csv.csv", 'w', encoding="cp1251") as file: file.close()
 
 		if os.stat(PATH_img + "\\test_csv.csv").st_size == 0:
-			# with open(PATH_img + "\\test_csv.csv", 'w', encoding='utf-8') as file:  # file.close()
+			# with open(PATH_img + "\\test_csv.csv", 'w', encoding="cp1251") as file:  # file.close()
 			#file = PATH_img + "\\test_csv.csv"
 			# file = pd.read_csv(PATH_img + "\\test_csv.csv", sep=',', encoding="utf-8")
-			file = open(PATH_img + "\\test_csv.csv", 'w', encoding='utf-8')
-			print("my_file: ", file.encoding)
+			file = open(PATH_img + "\\test_csv.csv", 'w', encoding="cp1251")
+
+			file.close()
+
 			df = pd.DataFrame(
 				data= new_table.values,
 				columns=list(new_table.columns),
@@ -122,35 +124,38 @@ class BasicDataArray():
 			)
 			df.to_csv(PATH_img + "\\test_csv.csv", mode="w",
 			          encoding="cp1251",
-			          sep=';'
+			          sep=';',
 			          )
 
+
 		else:
-			file = open(PATH_img + "\\test_csv.csv", 'w', encoding='utf-8')
-			df = pd.read_csv(file,
-			                 # encoding="cp1251",
-			                 sep=';'
+			# file = open(PATH_img + "\\test_csv.csv", 'w', encoding="cp1251", )
+			df = pd.read_csv(PATH_img + "\\test_csv.csv",
+			                 sep=';',
+			                 encoding="cp1251",
+			                 index_col=0
 			                 )
-			print("my_file_2: ", df.encoding)
+
 			print("str(new_table.columns[0]): ", str(new_table.columns[0]))
-			df[str(new_table.columns[0])] = new_table.values
+			df[str(new_table.columns[0])] = new_table[0:]
 
 			df.to_csv(PATH_img + "\\test_csv.csv", mode="w",
 			          encoding="cp1251",
-								sep=';'
+			          sep=';',
+
 			          )
-	def creted_tabale_onCompany(self):
-		self.name_comany = self.basic_company[0]
-		data_company_keys = list(self.basic_company[1:].keys())
-		data_company_values = list(self.basic_company[1:].values)
-
-		new_table = pd.DataFrame({
-			self.name_comany:data_company_values
-		}, index=data_company_keys)
-		print(new_table)
-		# BasicDataArray.creted_tabale_total(self, new_table)
-		total_table = pd.DataFrame().loc[:new_table.columns[0]] = new_table[1:].values
-	def creted_tabale_total(self, table):
-
-		total_table = pd.DataFrame().loc[:table.columns[0]] = table.values
-		print(total_table)
+	# def creted_tabale_onCompany(self):
+	# 	self.name_comany = self.basic_company[0]
+	# 	data_company_keys = list(self.basic_company[1:].keys())
+	# 	data_company_values = list(self.basic_company[1:].values)
+	#
+	# 	new_table = pd.DataFrame({
+	# 		self.name_comany:data_company_values
+	# 	}, index=data_company_keys)
+	# 	print(new_table)
+	# 	# BasicDataArray.creted_tabale_total(self, new_table)
+	# 	total_table = pd.DataFrame().loc[:new_table.columns[0]] = new_table[1:].values
+	# def creted_tabale_total(self, table):
+	#
+	# 	total_table = pd.DataFrame().loc[:table.columns[0]] = table.values
+	# 	print(total_table)

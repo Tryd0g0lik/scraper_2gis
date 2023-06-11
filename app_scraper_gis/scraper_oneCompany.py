@@ -240,7 +240,8 @@ class ScraperInnerPage(Gis_page):
 
 						new_string = re.search(rf'{get_text}', str(page)).group()
 						if new_string not in str(self.work_mode):
-							self.work_mode.append(new_string)
+							self.work_mode.append(new_string.replace('\u200b',' ') \
+							                      .replace(" ", ' ').replace('\U0001f60a', ''))
 
 						else:
 							None
@@ -324,7 +325,13 @@ class ScraperInnerPage(Gis_page):
 					'''
 						Working with the info-block ('Инфо')
 					'''
-					self.info = str(response_text[i].find(name="span")).replace("<br/>", " ").replace("•", "").replace(" ", "")
+
+
+					info = str(response_text[i].find(name="span")).replace("•", "")
+					# self.info = re.sub(r'[(\\U\w{1,})(\\x\w{1,})(\\u\w{1,})(0xc4)("<br/>")]', ' ', str(info))
+					# .encode('cp1251', 'ignore').decode('cp1251')
+					self.info = info.encode('cp1251', 'ignore').decode('cp1251')
+					del info
 
 					if bool(re.search(tag_reg1, str(self.info))):
 						tag = re.search(tag_reg1, str(self.info)).group()
@@ -366,7 +373,8 @@ class ScraperInnerPage(Gis_page):
 								and 'div' not in text \
 								and '<a ' not in text else True
 
-						self.subcategory += text
+						self.subcategory += text.replace('​ ', " ").replace('\u200b', ' ') \
+						.replace('\U0001f60a', ' ')
 						self.subcategory = str(self.subcategory).replace(r" {2,}[A-ZА-ЯЁ]", ", ")
 
 					del text, index
@@ -431,13 +439,15 @@ class ScraperInnerPage(Gis_page):
 				'''
 					Commits copy in the your db from the 2Gis 
 				'''
-				snijgp_comment = "NAN" if len(response_text_common[i].contents) <= 2 \
-					else response_text_common[i].contents[len(response_text_common[i].contents)-1].contents[0].find("a").text.replace('\u200b','')
-
-				self.snijgp.append(snijgp_comment) if len(snijgp_comment) > 5 \
+				snijgp_comment_link = "NAN" if len(response_text_common[i].contents) <= 2 \
+					else response_text_common[i].contents[len(response_text_common[i].contents)-1].contents[0].find("a") \
+					.text.replace(" ", ' ')
+				result_unicode = re.sub(r'[(\\U\w{1,})(\\x\w{1,})(\\u\w{1,})(0xc4)]', '', snijgp_comment_link)
+				# snijgp_comment_link = snijgp_comment_link.replace(result_unicode, ' UNI ')
+				self.snijgp.append(str(snijgp_comment_link).encode('cp1251', 'ignore').decode('cp1251')) if len(snijgp_comment_link) > 5 \
 					else self.snijgp.append("NaN")
 
-				del snijgp_comment
+				del snijgp_comment_link
 			del selector, html, response_text_common
 
 			return
