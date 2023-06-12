@@ -54,7 +54,7 @@ class BasicDataArray():
 		self.info = '',
 		self.subcategory = '',
 		self.snijgp = [],
-		self.pictures = []
+		self.pictures_feedback = []
 		self.photo_comapny: list = []
 		
 
@@ -85,7 +85,7 @@ class BasicDataArray():
 			'info': str(self.info),
 			'subcategory': str(self.subcategory),
 			'snijgp': list(self.snijgp),
-			'pictures': list(self.pictures),
+			'pictures_feedback': list(self.pictures_feedback),
 
 		})
 		df =  pd.DataFrame({

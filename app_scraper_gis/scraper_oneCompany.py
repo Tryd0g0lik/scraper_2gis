@@ -106,7 +106,7 @@ class ScraperInnerPage(Gis_page):
 		self.info: str = ""
 		self.subcategory: str = ""  # подкатегория
 		self.snijgp: list = []  # Комментарий [{'user_ball': snijgp_ball}, {'user_fdsdsd':snijgp_comment}]
-		self.pictures: list = []  # фото из комментариев
+		self.pictures_feedback: list = []  # фото из комментариев
 		self.photo_comapny: list = []
 	def open_inner_page_company(self, data_url):
 		'''
@@ -327,8 +327,6 @@ class ScraperInnerPage(Gis_page):
 					'''
 						Working with the info-block ('Инфо')
 					'''
-
-
 					info = str(response_text[i].find(name="span")).replace("•", "")
 					# self.info = re.sub(r'[(\\U\w{1,})(\\x\w{1,})(\\u\w{1,})(0xc4)("<br/>")]', ' ', str(info))
 					# .encode('cp1251', 'ignore').decode('cp1251')
@@ -437,7 +435,7 @@ class ScraperInnerPage(Gis_page):
 						rename = str(self.name).strip() + '_feedback_' + str(i) + '_img_' + str(ind)
 
 						img.save(os.path.join(PATH_img, rename) + '.' + str(img.format).strip(), str(img.format).strip(), quality=90)
-						self.pictures.append(rename + '.' + str(img.format).strip() + ', ')
+						self.pictures_feedback.append(rename + '.' + str(img.format).strip() + ', ')
 						del snijgp_img_src, img
 
 				'''
@@ -448,7 +446,9 @@ class ScraperInnerPage(Gis_page):
 					.text.replace(" ", ' ')
 				result_unicode = re.sub(r'[(\\U\w{1,})(\\x\w{1,})(\\u\w{1,})(0xc4)]', '', snijgp_comment_link)
 				# snijgp_comment_link = snijgp_comment_link.replace(result_unicode, ' UNI ')
-				self.snijgp.append(str(snijgp_comment_link).encode('cp1251', 'ignore').decode('cp1251')) if len(snijgp_comment_link) > 5 \
+				self.snijgp.append( \
+					"(" + str(snijgp_comment_link).encode('cp1251', 'ignore').decode('cp1251') + ")") \
+					if len(snijgp_comment_link) > 5 \
 					else self.snijgp.append("NaN")
 
 				del snijgp_comment_link

@@ -136,7 +136,7 @@ class ScraperEachAddress(ScraperInnerPage, BasicDataArray):
 							self.subcategory: str = ""  # подкатегория
 
 							self.snijgp: list = []  # Комментарий
-							self.pictures: list = []  # фото из комментариев
+							self.pictures_feedback: list = []  # фото из комментариев
 
 	def get_sortedata(self, filename:str, csv_file = False):
 		if bool(filename):
