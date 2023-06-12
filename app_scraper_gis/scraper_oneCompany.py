@@ -474,7 +474,9 @@ class ScraperInnerPage(Gis_page):
 				Collecting before the 4 pictures
 			'''
 			for i in range(0, len(photo_page[:4])):
-				src = photo_page[i]['srcset']
+				if bool(photo_page[i]['srcset']): src = photo_page[i]['srcset']
+				elif bool(photo_page[i]['src']): src = photo_page[i]['src']
+				else: self.photo_comapny.append('NaN')
 
 				'''
 					Cleaning the src/link

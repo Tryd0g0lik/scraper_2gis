@@ -1,5 +1,5 @@
 # This is a sample Python script.
-from scrape_paginator import Gis_paginator
+from app_scraper_gis.scrape_paginator import Gis_paginator
 from app_scraper_gis.scraper_address import ScraperEachAddress
 import time
 # Press Shift+F10 to execute it or replace it with your code.
