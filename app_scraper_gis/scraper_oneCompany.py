@@ -319,7 +319,8 @@ class ScraperInnerPage(Gis_page):
 
 			for i in range(len(response_text) - 1):
 				tag_reg = r'((<a)[, \/\w="А-ЯЁа-яё]+[\w{2,10}="-: ]*"?>?)' #'((<a)[ \/\w="]+>)'
-				tag_reg1 = r'(^ {0,1}|(<button class="\w{3,10}")|(<span [\w{2,10}="-: ]+)+|<span]+){1,20}>'
+				# tag_reg1 = r'(^ {0,1}|(<button class="\w{3,10}")|(<span [\w{2,10}="-: ]+)+|<span]+){1,20}>'
+				tag_reg1 = r'(^ {0,1}|(<button class="\w{3,10}")|(<span ?[\w="-: ]*)+>){1,20}'
 				tag_reg2 = r'([<\/spanbuto]{3,15}>){1,20}'
 
 				if i == 0:
@@ -335,14 +336,16 @@ class ScraperInnerPage(Gis_page):
 					del info
 
 					if bool(re.search(tag_reg1, str(self.info))):
-						tag = re.search(tag_reg1, str(self.info)).group()
-						self.info = self.info.replace(tag, "")
-						del tag
+						# tag = re.search(tag_reg1, str(self.info)).group()
+						self.info = re.sub(tag_reg1, '', str(self.info))
+						# self.info = self.info.replace(tag, "")
+						# del tag
 
 					if bool(re.search(tag_reg2, str(self.info))):
-						tag = re.search(tag_reg2, str(self.info)).group()
-						self.info = self.info.replace(tag, "")
-						del tag
+						# tag = re.search(tag_reg2, str(self.info)).group()
+						self.info = re.sub(tag_reg2, '', str(self.info))
+						# self.info = self.info.replace(tag, "")
+						# del tag
 
 				else:
 					index = True
