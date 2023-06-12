@@ -55,42 +55,16 @@ class BasicDataArray():
 		self.info = '',
 		self.subcategory = '',
 		self.snijgp = [],
-		self.pictures_feedback = []
-		self.photo_comapny: list = []#
+		self.src_img_feedback = []
+		self.src_img_company: list = []#
 		self.city:str = ''
 		
 
-	def get_basic_data(self, filename:str, csv_file:bool = False,
-	                   city_name:str = '',
-	                   search_word=''):
-
+	def get_basic_data(self, filename:str, csv_file:bool = False, **kwargs):
 		date_ = str(datetime.date.today())
-		filename = date_+ "_" + city_name + '_' + filename
+		filename = date_+ "_" + kwargs['Населенный пункт'] + '_' + filename
 
-		self.basic_series = pd.Series({
-			'Название':str(self.name),
-			'Населенный': str(city_name),
-			'Рубрика':str(self.type_name),
-			'Подраздел': str(self.subcategory),
-			'Рейтинг': str(self.reiting),
-			'Количество  Отзывов': str(self.count),
-			'Ключевое слово': search_word, # ОБАВИТЬ на страницы - слова для поиска
-			'Адрес': str(self.geometry_name),
-			'X-lat': str(self.lat),
-			'Y-lon': str(self.lon),
-			'Телефоны':str(self.phone),
-			'Email': str(self.email),
-			'Время Работы':str(self.work_mode),
-			'Vk.com': str(self.vk),
-			'Telegram': str(self.tg),
-			'WatsApp': str(self.wa),
-			'Ok': str(self.ok),
-			'Сайт': str(self.website),
-			'Информация': str(self.info),
-			'snijgp': list(self.snijgp),
-			'pictures_feedback': list(self.pictures_feedback),
-
-		})
+		self.basic_series = pd.Series(kwargs)
 		'''
 		:param csv_file: It's a bool value. It's a properties has the False value by default.
 			 True - create the CSV-file
@@ -98,12 +72,12 @@ class BasicDataArray():
 
 		:return:
 		'''
-		# df =  pd.DataFrame({
-		# 	self.basic_series[0]: list(self.basic_series[1:].values)
-		# }, index=list(self.basic_series[1:].keys()))
 		df =  pd.DataFrame({
-					self.basic_series[0]: list(self.basic_series[1:].values)
-				}, index=list(self.basic_series[1:].keys()))
+			self.basic_series[0]: list(self.basic_series[1:].values)
+		}, index=list(self.basic_series[1:].keys()))
+		# df =  pd.DataFrame({
+		# 			self.basic_series[0]: list(self.basic_series[1:].values)
+		# 		}, index=list(self.basic_series[1:].keys()))
 
 		if csv_file == True and len(filename) > 0:
 			BasicDataArray.create_csv(self, filename=filename, df_data=df)
@@ -144,11 +118,17 @@ class BasicDataArray():
 			print("str(new_table.columns[0]): ", str(df_data.columns[0]))
 			df[str(df_data.columns[0])] = df_data[0:]
 
-			df.to_csv(PATH_img + "\\..\\..\\" + filename + ".csv", mode="w",
-			          encoding=encoding,
-			          sep=';',
+			try:
+				df.to_csv(PATH_img + "\\..\\..\\" + filename + ".csv", mode="w",
+				          encoding=encoding,
+				          sep=';',
 
-			          )
+				          )
+			except PermissionError:
+
+				err = 'PermissionError: Кажется файл, в который должен записаться результат - открыт. Закройте. Метод  "create_csv"'
+				print(err)
+				return
 	# def creted_tabale_onCompany(self):
 	# 	self.name_comany = self.basic_series[0]
 	# 	data_company_keys = list(self.basic_series[1:].keys())

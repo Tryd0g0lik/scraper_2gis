@@ -85,15 +85,15 @@ class ScraperEachAddress(ScraperInnerPage, BasicDataArray):
 							r"""(^class=[\"|\']_\w{3,10}[\"|\']><span class=[\"|\']_\w{3,10}[\"|\']>)""", type_name).group().__str__()
 						self.type_name = "{}".format(type_name.lstrip(str(type_name_separator)))
 
-					if bool(re.search(r'(class=\"_\w{3,10}\">[0-5]{1,2}.?[0-9]{0,2}[^ оценокиблва]*)', str(one_separate))):
+					if bool(re.search(r'(class=\"_\w{3,10}\">[0-5]{1,2}.?[0-9]{0,2}[^ оценокиблва<]*)', str(one_separate))):
 						if bool(re.search(r'(^class=\"_\w{3,10}\">[0-5]{1}.?[0-9]{0,2}[^( \W)])', one_separate)):
 							reiting_separator = re.search(r'(^class=\"_\w{3,10}\">[0-5]{1}.?[0-9]{0,2}[^( \W)])', one_separate).group() \
 
 							p = 0.0
-							if bool(re.search(r'([0-5][.|,]?[0-9]{0,2})', str(reiting_separator))):
-								p = float(re.search(r'([0-5][.|,]?[0-9]{0,2})', str(reiting_separator)).group())
+							if bool(re.search(r'([0-5][.|,]?[0-9]{0,2}$)', str(reiting_separator))):
+								p = float(re.search(r'([0-5][.|,]?[0-9]{0,2}$)', str(reiting_separator)).group())
 								if p <= 5.0:
-									self.reiting = "{}".format(p)
+									self.reiting = "_{}".format(p)
 									p = 0.0
 
 					if bool(re.search(r'(>([0-9]{0,4} [оценокиблва]{0,10}))', str(one_separate))):
@@ -138,13 +138,40 @@ class ScraperEachAddress(ScraperInnerPage, BasicDataArray):
 							self.subcategory: str = ""  # подкатегория
 
 							self.snijgp: list = []  # Комментарий
-							self.pictures_feedback: list = []  # фото из комментариев
+							self.src_img_feedback: list = []  # фото из комментариев
+							self.src_img_company: list = []
 
 	def get_sortedata(self, filename:str, csv_file = False):
 		if bool(filename):
 			search_word = ScraperEachAddress.get_search_word(self)
 			city_name = ScraperEachAddress.get_city_name(self)
-			ScraperEachAddress.get_basic_data(self, filename, city_name, csv_file, search_word)
+			data_to_File = {
+				'Название': str(self.name),
+				'Населенный пункт': str(city_name),
+				'Рубрика': str(self.type_name),
+				'Подраздел': str(self.subcategory),
+				'Ключевое слово': search_word,  # ОБАВИТЬ на страницы - слова для поиска
+				'Рейтинг': str(self.reiting),
+				'Количество  Отзывов': str(self.count),
+				'Адрес': str(self.geometry_name),
+				'X-lat': str(self.lat),
+				'Y-lon': str(self.lon),
+				'Время Работы': str(self.work_mode),
+				'Телефоны': str(self.phone),
+				'Email': str(self.email),
+				'Vk.com': str(self.vk),
+				'Telegram': str(self.tg),
+				'WatsApp': str(self.wa),
+				'Ok': str(self.ok),
+				'Сайт': str(self.website),
+				'Информация': str(self.info),
+				'Фото': list(self.src_img_company),
+				'Комментарии': list(self.snijgp),
+				'Фото-комментарии': list(self.src_img_feedback),
+
+			}
+
+			ScraperEachAddress.get_basic_data(self, filename, csv_file=True, **data_to_File)
 
 
 

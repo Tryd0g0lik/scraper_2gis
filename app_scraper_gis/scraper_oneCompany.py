@@ -10,8 +10,8 @@ import re, os, time
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from PIL import Image
-import requests
 from io import BytesIO
+import requests
 PATH = os.path.dirname(os.path.abspath(__file__)) + "\\chromedriver\\chromedriver.exe"
 PATH_img = str(os.path.dirname(os.path.abspath(__file__))) + '\\file'
 
@@ -91,6 +91,8 @@ class ScraperInnerPage(Gis_page):
 		:param lon
 		:param subcategory: This's a additional information about the company, sub-category
 		:param search_word:
+		:param src_img_feedback: it's the image-src from the feedback-block
+		:param src_img_company: it's the image-src from the company info-block
 		'''
 		super().__init__(city, search_word, references)
 		self.lat: str = ''  # широта
@@ -106,8 +108,8 @@ class ScraperInnerPage(Gis_page):
 		self.info: str = ""
 		self.subcategory: str = ""  # подкатегория
 		self.snijgp: list = []  # Комментарий [{'user_ball': snijgp_ball}, {'user_fdsdsd':snijgp_comment}]
-		self.pictures_feedback: list = []  # фото из комментариев
-		self.photo_comapny: list = []
+		self.src_img_feedback: list = []  # фото из комментариев
+		self.src_img_company: list = []
 
 	def open_inner_page_company(self, data_url):
 		'''
@@ -254,7 +256,10 @@ class ScraperInnerPage(Gis_page):
 				'''
 				if bool(re.search(r'(mailto:([.\w@-]{,50}){,2})', str(page))) \
 					and bool(re.search(get_mail, str(page))):
-					self.email += re.search(r'(mailto:([.\w@-]{,50}){,2})', str(page)).group().lstrip("mailto").lstrip(":")
+					self.email += re.search( \
+						r'(mailto:([.\w@-]{,50}){,2})', \
+					  str(page)).group().lstrip("mailto") \
+						.lstrip(":") + ", "
 
 				if re.search('tel:', str(page)) \
 					and bool(re.search(get_phone, str(page))):
@@ -414,16 +419,8 @@ class ScraperInnerPage(Gis_page):
 							snijgp_img_src = str(snijgp_img_src).replace(w, '')
 							del w
 
-						'''
-						There is file IMG loading from the 2Gis 
-						'''
-						url = requests.get(str(snijgp_img_src))
-						img = Image.open(BytesIO(url.content))
-						rename = str(self.name).strip() + '_feedback_' + str(i) + '_img_' + str(ind)
-
-						img.save(os.path.join(PATH_img, rename) + '.' + str(img.format).strip(), str(img.format).strip(), quality=90)
-						self.pictures_feedback.append(rename + '.' + str(img.format).strip() + ', ')
-						del snijgp_img_src, img
+						self.src_img_feedback.append((snijgp_img_src).strip())
+						del snijgp_img_src
 
 				'''
 					Commits copy in the your db from the 2Gis 
@@ -455,46 +452,28 @@ class ScraperInnerPage(Gis_page):
 		'''
 		html = getHtmlOfDriverChrome(url, selector, click=True)
 		soup = beauty(str(html), 'html.parser')
-		photo_page = soup.find_all("img")
-		src_reg = r'[ \w0-9]{,3}$'
+		src_img_company = soup.find_all("img")
 
 		'''
 			checking count the collected reference
 		'''
-		if bool(photo_page) and len(photo_page) > 0:
+		if bool(src_img_company) and len(src_img_company) > 0:
+			''' Collecting before the 4 pictures '''
 
-			'''
-				Collecting before the 4 pictures
-			'''
-			for i in range(0, len(photo_page[:4])):
-				if 'srcset' in str(photo_page[i]): src = photo_page[i]['srcset']
-				elif 'src' in str(photo_page[i]): src = photo_page[i]['src']
-				else: self.photo_comapny.append('NaN')
+			for i in range(0, len(src_img_company[:4])):
+				if 'srcset' in str(src_img_company[i]): self.src_img_company.append(src_img_company[i]['srcset'])
+				elif 'src' in str(src_img_company[i]): self.src_img_company.append(src_img_company[i]['src'])
+				else: break
+		del src_img_company
 
-				'''
-					Cleaning the src/link
-				'''
-				if bool(re.search(src_reg, src)):
-					src_trash = re.search(src_reg, src).group()
-					src_ = str(src).replace(src_trash, "")
-					url = requests.get(str(src_))
-					del src
 
-				else:
-					url = requests.get(str(src))
-					del src
 
-				'''
-					Getting pictures from the source
-				'''
-				img = Image.open(BytesIO(url.content))
-				rename = str(self.name) + 'photo_block' + str(i) + '_img_'
-				date_ = str(datetime.date.today())
-				folder_name = '_' + str(self.name).strip() + '_' + str(date_).strip()
-				makeFolder(folder_name)
+'''
+	from PIL import Image
+	from io import BytesIO
+	# Getting pictures from the source
+	url = requests.get(str(src))
+	
+	img = Image.open(BytesIO(url.content))
 
-				img.save(os.path.join(str(PATH_img) + '\\' + str(folder_name), rename) + '.' + str(img.format).strip(), str(img.format).strip(), quality=90)
-				self.photo_comapny.append(rename + '.' + str(img.format).strip() + ', ')
-
-				del date_, folder_name, rename, img
-		del photo_page, src_reg
+'''
