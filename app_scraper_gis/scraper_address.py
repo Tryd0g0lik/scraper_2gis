@@ -16,8 +16,8 @@ class ScraperEachAddress(ScraperInnerPage, BasicDataArray):
 		:param title_link_company: reference on the 2gis's column company from the title
 	"""
 
-	def __init__(self, filename:str, city: str = '', search_word: str = '', page_list = []):
-		super().__init__(city, search_word, page_list)
+	def __init__(self, filename:str, city: str = '', search_word: str = '', references = []):
+		super().__init__(city, search_word, references)
 		ScraperEachAddress.start_working(self)
 		self.name: str = ""
 		self.type_name: str = ''  # тип - под названием

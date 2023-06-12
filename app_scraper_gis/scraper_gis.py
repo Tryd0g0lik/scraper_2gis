@@ -9,9 +9,9 @@ class Gis_page(Basic_gis):
 	:properties: 'city_name' - it's сity name
 
 	"""
-	def __init__(self, city: str = '', search_word: str = '', page_list: list = []):
+	def __init__(self, city: str = '', search_word: str = '', references: list = []):
 		super().__init__(city, search_word)
-		self.page_list = page_list
+		self.references = references
 		# Gis_page.start_working(self)
 
 	def search_church(self): # search the word
@@ -27,7 +27,7 @@ class Gis_page(Basic_gis):
 		self.headers.add('Referer', f"https://2gis.ru/{city}/search/{requ_word}")
 		header = self.headers
 
-		for link in self.page_list:
+		for link in self.references:
 			print("link: ", link)
 			Basic_gis.get_url(self,
 				url= link, #f"https://2gis.ru/{city}/search/{requ_word}",
@@ -37,7 +37,7 @@ class Gis_page(Basic_gis):
 			break
 
 		self.pages:str = ''
-		self.page_list.pop(0)
+		self.references.pop(0)
 		if self.requests.status == 200:
 			self.pages = "{}".format(unquote(self.requests.data), )
 

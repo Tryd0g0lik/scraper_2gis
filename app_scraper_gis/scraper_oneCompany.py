@@ -75,9 +75,10 @@ def getHtmlOfDriverChrome(url: str, selector: str = '', scroll:bool = False, cli
 
 
 class ScraperInnerPage(Gis_page):
-	def __init__(self, city, search_word, page_list):
+	def __init__(self, city, search_word, references):
 		'''
 		TODO: viewing each geometry_name
+		:param references: list links on pages
 		:param 'snijgp' it's the comments/reviews for a company
 		:param 'geometry_name' it's  the companu's geometry_name
 		:param 'phone' it's the company number phone
@@ -91,7 +92,7 @@ class ScraperInnerPage(Gis_page):
 		:param subcategory: This's a additional information about the company, sub-category
 		:param search_word:
 		'''
-		super().__init__(city, search_word, page_list)
+		super().__init__(city, search_word, references)
 		self.lat: str = ''  # широта
 		self.lon: str = ''  # долгота
 		self.phone: str = ''
