@@ -212,14 +212,12 @@ class ScraperInnerPage(Gis_page):
 		get_mail = r'(mailto:\w{1,15}@\w{3,15}.\w{2,3})'
 		get_ok = r'(https:\/\/ok\.ru\/group\/[0-9]{1,21})'
 		get_tg = r'(href="https:\/\/t\.me/\+[0-9]{6,12}")'
-		get_vk = r'(http(s{0,1}):\/\/vk\.com\/\w{1,21})'
 		get_points = r'(points\/[0-9]{1,3}.[0-9]{1,10},?[0-9]{,3}.{1}[0-9]{1,10})'
 		get_website = r'http(s{0,1}):\/\/\w{0,25}.{0,1}\w{2,25}[^(2gis)|(w3)|vk.].ru'
 		get_time_list = [
 			r'(Ежедневно с [0-9]{2}:[0-9]{2} до [0-9]{2}:[0-9]{2})',
 			r'(Круглосуточно)',
 			r'(Сегодня [c|с] [0-9]{2}:[0-9]{2} до [0-9]{2}:[0-9]{2})',
-			# r'(Откроется [завтра]{0,1} {0,1}в [А-ЯЁа-яё]{0,25}[в| ]{1,3}[0-9]{2}:[0-9]{2})',
 			r'(Откроется [(завтра)|(через)]+ [в 0-9А-ЯЁа-яё]{0,32}[в 0-9:]{,10})',
 		]
 
@@ -261,6 +259,9 @@ class ScraperInnerPage(Gis_page):
 					and bool(re.search(get_phone, str(page))):
 					url = self.title_link_company
 
+					'''
+						Selenium - driver Chrome
+					'''
 					html = getHtmlOfDriverChrome(
 						url,
 						selector='//*[@id="root"]/div/div/div[1]/div[1]/div[2]/div/div/div[2]/div/div/div[2]/div[2]/div/div[1]/div/div/div/div/div[2]/div[2]/div[1]/div[1]/div/div[3]/div[2]/div/button',
@@ -277,10 +278,12 @@ class ScraperInnerPage(Gis_page):
 					'''
 					if bool(phone_button) and len(phone_button) > 1:
 						for i in range(len(phone_button)):
-								self.phone += (re.search(get_phone, str(phone_button)).group()).lstrip("tel:") +", "
+								self.phone += str((re.search(get_phone, str(phone_button)).group()).lstrip("tel:") \
+								              .lstrip('+')) +", "
 
 					else:
-						self.phone += (re.search(get_phone, str(page)).group()).lstrip("tel:") +", "
+						self.phone += str((re.search(get_phone, str(page)).group()).lstrip("tel:") \
+						              .lstrip('+')) +", "
 
 				if bool(re.search(get_WhatsApp, str(page))):
 					self.wa += re.search(r'http(s){0,1}:\/\/wa.me\/[0-9]{1,20}', str(page)).group() + ", "
@@ -318,8 +321,7 @@ class ScraperInnerPage(Gis_page):
 			response_text = soup.find(id="root").find(text="Контакты").find_parent("a").parent.parent.find_parents("div")[4].contents[1].contents[0].contents[0].select('div[data-divider="true"]')
 
 			for i in range(len(response_text) - 1):
-				tag_reg = r'((<a)[, \/\w="А-ЯЁа-яё]+[\w{2,10}="-: ]*"?>?)' #'((<a)[ \/\w="]+>)'
-				# tag_reg1 = r'(^ {0,1}|(<button class="\w{3,10}")|(<span [\w{2,10}="-: ]+)+|<span]+){1,20}>'
+				tag_reg = r'((<a)[, \/\w="А-ЯЁа-яё]+[\w{2,10}="-: ]*"?>?)'
 				tag_reg1 = r'(^ {0,1}|(<button class="\w{3,10}")|(<span ?[\w="-: ]*)+>){1,20}'
 				tag_reg2 = r'([<\/spanbuto]{3,15}>){1,20}'
 
@@ -328,22 +330,14 @@ class ScraperInnerPage(Gis_page):
 						Working with the info-block ('Инфо')
 					'''
 					info = str(response_text[i].find(name="span")).replace("•", "")
-					# self.info = re.sub(r'[(\\U\w{1,})(\\x\w{1,})(\\u\w{1,})(0xc4)("<br/>")]', ' ', str(info))
-					# .encode('cp1251', 'ignore').decode('cp1251')
 					self.info = info.encode('cp1251', 'ignore').decode('cp1251')
 					del info
 
 					if bool(re.search(tag_reg1, str(self.info))):
-						# tag = re.search(tag_reg1, str(self.info)).group()
 						self.info = re.sub(tag_reg1, '', str(self.info))
-						# self.info = self.info.replace(tag, "")
-						# del tag
 
 					if bool(re.search(tag_reg2, str(self.info))):
-						# tag = re.search(tag_reg2, str(self.info)).group()
 						self.info = re.sub(tag_reg2, '', str(self.info))
-						# self.info = self.info.replace(tag, "")
-						# del tag
 
 				else:
 					index = True
@@ -355,28 +349,20 @@ class ScraperInnerPage(Gis_page):
 					if text != None:
 						while index and i <= len(response_text) - 1 :
 							if bool(re.search(tag_reg1, str(text))):
-								tag = str(re.search(tag_reg1, str(text)).group())
-								text = str(text).replace(tag, " ")
-								del tag
+								text = re.sub(tag_reg1, ' // ', str(text))
 
-							elif bool(re.search(tag_reg, str(text))):
-								tag = str(re.search(tag_reg, str(text)).group())
-								text = str(text).replace(tag, " ")
-								del tag
+							if bool(re.search(tag_reg, str(text))):
+								text = re.sub(tag_reg, ' // ', str(text))
 
 							if bool(re.search(tag_reg2, str(text))):
-								tag = str(re.search(tag_reg2, str(text)).group())
-								text = str(text).replace(tag, "")
-								del tag
+								text = re.sub(tag_reg2, '', str(text))
 
 							index = False if 'class' not in text \
-								and 'button' not in text \
-								and 'span' not in text \
-								and 'div' not in text \
-								and '<a ' not in text else True
+								and 'button' not in text  and 'span' not in text \
+								and 'div' not in text  and '<a ' not in text else True
 
-						self.subcategory += text.replace('​ ', " ").replace('\u200b', ' ') \
-						.replace('\U0001f60a', ' ')
+						self.subcategory += text.replace('​', "").replace('\u200b', '') \
+						.replace('\U0001f60a', '')
 						self.subcategory = str(self.subcategory).replace(r" {2,}[A-ZА-ЯЁ]", ", ")
 
 					del text, index
@@ -444,8 +430,10 @@ class ScraperInnerPage(Gis_page):
 				snijgp_comment_link = "NAN" if len(response_text_common[i].contents) <= 2 \
 					else response_text_common[i].contents[len(response_text_common[i].contents)-1].contents[0].find("a") \
 					.text.replace(" ", ' ')
-				result_unicode = re.sub(r'[(\\U\w{1,})(\\x\w{1,})(\\u\w{1,})(0xc4)]', '', snijgp_comment_link)
-				# snijgp_comment_link = snijgp_comment_link.replace(result_unicode, ' UNI ')
+
+				'''
+					and delete UNICODE 
+				'''
 				self.snijgp.append( \
 					"(" + str(snijgp_comment_link).encode('cp1251', 'ignore').decode('cp1251') + ")") \
 					if len(snijgp_comment_link) > 5 \
