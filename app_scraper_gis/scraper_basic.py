@@ -1,4 +1,3 @@
-from bs4 import BeautifulSoup
 import urllib3 as urls
 
 class Basic_gis():
@@ -12,6 +11,8 @@ class Basic_gis():
 		'''
 		self.сity_name = city;
 		self.search_word = search_word;
+		self.total_table = []
+
 
 	def get_header(self):
 		"""
