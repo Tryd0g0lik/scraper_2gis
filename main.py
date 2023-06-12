@@ -14,9 +14,13 @@ import time
 if __name__ == "__main__":
     city: str = "irkutsk"
     thema: str = "животные центры"
+    returned_file_name = 'test_csv'
     paginator = Gis_paginator(city=city, search_word=thema)
-    map = ScraperEachAddress(city=city, search_word=thema, page_list=paginator.paginator_reference)
+    map = ScraperEachAddress(city=city, filename=returned_file_name, search_word=thema, page_list=paginator.paginator_reference)
+    page = map.object_soup
+    map.scraper_companies(page)
     i = 0
+
     while i < len(map.page_list):
         page = map.start_working()
         map.scraper_companies(page)

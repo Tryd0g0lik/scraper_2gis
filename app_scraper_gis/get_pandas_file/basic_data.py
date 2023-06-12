@@ -10,9 +10,10 @@ from app_scraper_gis.scraper_basic import Basic_gis
 PATH_img = str(os.path.dirname(os.path.abspath(__file__)))
 
 class BasicDataArray():
-	def __init__(self, total_table = None):
+	def __init__(self,):
 
 		'''
+
 		self.name: str = ""
 		self.type_name: str = ''  # тип - под названием
 		self.reiting: str = ""  # Рейтинг
@@ -34,19 +35,7 @@ class BasicDataArray():
 		self.snijgp: list = []  # Комментарий
 		self.pictures: list = []  # фото из комментариев
 		'''
-		get_phone = r'([(\+7)|(8)|(\+8)]{1}[0-9]{5,12})'
-		get_WhatsApp = r'(wa.me\/)'
-		get_mail = r'(\w{1,15}@\w{3,15}.\w{2,3})'
-		get_ok = r'(ok\.ru\/)'
-		get_tg = r'(t\.me/")'
-		get_vk = r'(vk\.com\/)'
-		get_points = r'([0-9]{1,3}.[0-9]{1,10})|([0-9]{,3}.{1}[0-9]{1,10})'
-		get_website = r'http(s{0,1}):\/\/\w{0,25}.{0,1}\w{2,25}[^(2gis)|(w3)|(vk.)|(ok.)].ru'
-		get_time_list = [ #????????
-			r'(Ежедневно с [0-9]{2}:[0-9]{2} до [0-9]{2}:[0-9]{2})',
-			r'(Сегодня [c|с] [0-9]{2}:[0-9]{2} до [0-9]{2}:[0-9]{2})',
-			r'(Откроется [завтра]{0,1} {0,1}в [А-ЯЁа-яё]{0,25}[в| ]{1,3}[0-9]{2}:[0-9]{2})',
-		]
+
 		self.name = ''
 		self.type_name = '',
 		self.reiting = '',
@@ -67,10 +56,17 @@ class BasicDataArray():
 		self.snijgp = [],
 		self.pictures = []
 		self.photo_comapny: list = []
-		self.total_table = total_table
+		
 
-	def get_sorting_data(self):
-		self.basic_company = pd.Series({
+	def get_basic_data(self, filename:str, csv_file:bool = False):
+		'''
+		:param csv_file: It's a bool value. It's a properties has the False value by default.
+			 True - create the CSV-file
+		:param filename: file name from the return file
+
+		:return:
+		'''
+		self.basic_series = pd.Series({
 			'name':str(self.name),
 			'type_name':str(self.type_name),
 			'reiting': str(self.reiting),
@@ -92,62 +88,58 @@ class BasicDataArray():
 			'pictures': list(self.pictures),
 
 		})
-		# BasicDataArray.creted_tabale_onCompany(self)
-		name_comany = self.basic_company[0]
-		data_company_keys = list(self.basic_company[1:].keys())
-		data_company_values = list(self.basic_company[1:].values)
+		df =  pd.DataFrame({
+			self.basic_series[0]: list(self.basic_series[1:].values)
+		}, index=list(self.basic_series[1:].keys()))
 
-		new_table = pd.DataFrame({
-			name_comany: data_company_values
-		}, index=data_company_keys)
-		print(new_table)
+		if csv_file == True and len(filename) > 0:
+			BasicDataArray.create_csv(self, filename=filename, df_data=df)
 
-		# file = "./test_csv.csv"
-		file = None
+	def create_csv(self, df_data, filename:str, encoding:str="cp1251"):
+		'''
+		:param df_data: it's DataFrame data
+		:param encoding: it's properties show encoding. default=cp1251
+		:return:
+		'''
 		if os.path.isdir(PATH_img) \
-			and os.path.isfile(PATH_img + "\\test_csv.csv") == False:
-			with open(PATH_img + "\\test_csv.csv", 'w', encoding="cp1251") as file: file.close()
+			and os.path.isfile(PATH_img + "\\..\\..\\" + filename + ".csv") == False:
+			with open(PATH_img + "\\..\\..\\" + filename + ".csv", 'w', encoding=encoding) as file: file.close()
 
-		if os.stat(PATH_img + "\\test_csv.csv").st_size == 0:
-			# with open(PATH_img + "\\test_csv.csv", 'w', encoding="cp1251") as file:  # file.close()
-			#file = PATH_img + "\\test_csv.csv"
-			# file = pd.read_csv(PATH_img + "\\test_csv.csv", sep=',', encoding="utf-8")
-			file = open(PATH_img + "\\test_csv.csv", 'w', encoding="cp1251")
-
+		if os.stat(PATH_img + "\\..\\..\\" + filename + ".csv").st_size == 0:
+			file = open(PATH_img + "\\..\\..\\" + filename + ".csv", 'w', encoding=encoding)
 			file.close()
 
 			df = pd.DataFrame(
-				data= new_table.values,
-				columns=list(new_table.columns),
-				index=new_table.index,
+				data= df_data.values,
+				columns=list(df_data.columns),
+				index=df_data.index,
 
 			)
-			df.to_csv(PATH_img + "\\test_csv.csv", mode="w",
-			          encoding="cp1251",
+			df.to_csv(PATH_img + "\\..\\..\\" + filename + ".csv", mode="w",
+			          encoding=encoding,
 			          sep=';',
 			          )
 
 
 		else:
-			# file = open(PATH_img + "\\test_csv.csv", 'w', encoding="cp1251", )
-			df = pd.read_csv(PATH_img + "\\test_csv.csv",
+			df = pd.read_csv(PATH_img + "\\..\\..\\" + filename + ".csv",
 			                 sep=';',
 			                 encoding="cp1251",
 			                 index_col=0
 			                 )
 
-			print("str(new_table.columns[0]): ", str(new_table.columns[0]))
-			df[str(new_table.columns[0])] = new_table[0:]
+			print("str(new_table.columns[0]): ", str(df_data.columns[0]))
+			df[str(df_data.columns[0])] = df_data[0:]
 
-			df.to_csv(PATH_img + "\\test_csv.csv", mode="w",
-			          encoding="cp1251",
+			df.to_csv(PATH_img + "\\..\\..\\" + filename + ".csv", mode="w",
+			          encoding=encoding,
 			          sep=';',
 
 			          )
 	# def creted_tabale_onCompany(self):
-	# 	self.name_comany = self.basic_company[0]
-	# 	data_company_keys = list(self.basic_company[1:].keys())
-	# 	data_company_values = list(self.basic_company[1:].values)
+	# 	self.name_comany = self.basic_series[0]
+	# 	data_company_keys = list(self.basic_series[1:].keys())
+	# 	data_company_values = list(self.basic_series[1:].values)
 	#
 	# 	new_table = pd.DataFrame({
 	# 		self.name_comany:data_company_values

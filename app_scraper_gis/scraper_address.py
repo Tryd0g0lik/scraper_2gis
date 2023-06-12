@@ -1,6 +1,6 @@
 import re
 
-from app_scraper_gis.get_data_TableFile.basic_data import BasicDataArray
+from app_scraper_gis.get_pandas_file.basic_data import BasicDataArray
 from app_scraper_gis.scraper_oneCompany import ScraperInnerPage
 import pandas as pd
 import numpy as np
@@ -13,9 +13,10 @@ class ScraperEachAddress(ScraperInnerPage, BasicDataArray):
 
 		:param 'lat' it's the data coordinates about the width
 		:param 'lon' it's the data coordinates about the long
+		:param title_link_company: reference on the 2gis's column company from the title
 	"""
 
-	def __init__(self, city: str = '', search_word: str = '', page_list = []):
+	def __init__(self, filename:str, city: str = '', search_word: str = '', page_list = []):
 		super().__init__(city, search_word, page_list)
 		ScraperEachAddress.start_working(self)
 		self.name: str = ""
@@ -27,11 +28,11 @@ class ScraperEachAddress(ScraperInnerPage, BasicDataArray):
 
 		self.snijgp: list = []  # (Комментарий)
 		self.geometry_name: str = ''
-		self.nameCompanys2Gis: str =''  # ссылка на страницу кмпании
-		self.file = pd.DataFrame()
-		ScraperEachAddress.scraper_companies(self, self.object_soup)
+		self.title_link_company: str = ''  # ссылка на страницу кмпании
+		self.filename = (filename).strip()
+		# ScraperEachAddress.scraper_companies(self, page=self.object_soup, )
 
-	def scraper_companies(self, page):
+	def scraper_companies(self, page, ):
 		'''
 		TODO: перебераем каждую найденую по запросу компанию
 		:rpoperties: 'titleGisReference' getting the url for  a company. It's the URL from the primary common
@@ -66,7 +67,7 @@ class ScraperEachAddress(ScraperInnerPage, BasicDataArray):
 						We getting the link/url into inner company's page from 'object_soup'  
 						'''
 						link_text = re.search(reg_link_text, str(one_separate)).group()
-						self.nameCompanys2Gis = "https://2gis.ru{}".format(
+						self.title_link_company = "https://2gis.ru{}".format(
 							(re.search(reg_nameCompanys2Gis, str(link_text)).group()).strip('"').strip("'"))
 
 					if bool(re.search(reg_name, str(one_separate))):
@@ -101,7 +102,7 @@ class ScraperEachAddress(ScraperInnerPage, BasicDataArray):
 					 Everyone links referencing into the page. This's the page has the description only
 						one company'''
 					if bool(re.search(r'(^[А-ЯЁ]{1}[а-яА-ЯёЁ]{3,50})', str(one_separate[71:]))):
-						ScraperInnerPage.scrap_gis_inner(self, self.nameCompanys2Gis)
+						ScraperInnerPage.scrap_gis_inner(self, self.title_link_company)
 
 						'''
 						TODO: Thi's a 
@@ -112,40 +113,10 @@ class ScraperEachAddress(ScraperInnerPage, BasicDataArray):
 							geometry_name_separator = re.search(rf'''{get_geometry_name}''', str(one_separate[index_1:]))
 
 							self.geometry_name = "{}".format(geometry_name_separator.group().rstrip("<"))
-
-							ScraperEachAddress.get_sorting_data(self)
-							# if len(self.file.columns) == 0:
-							# 	self.file = ScraperEachAddress.get_sorting_data(self)
-							# else:
-							# 	self.file[ScraperEachAddress.get_sorting_data(self).total_table.columns[0]] = BasicDataArray(self).total_table
-							# print(
-							# 	self.phone,
-							# 	self.name,
-							# 	self.type_name,
-							# 	self.reiting,
-							# 	self.count,
-							# 	self.geometry_name,
-							# 	self.lat,
-							# 	self.lon,
-							#
-							# 	self.snijgp,
-							# 	self.geometry_name,
-							#
-							# 	self.email,
-							# 	self.work_mode,
-							# 	self.website,
-							# 	self.vk,
-							# 	self.tg,
-							# 	self.wa,
-							# 	self.ok,
-							# 	self.info,
-							# 	self.info,
-							# 	self.subcategory, # подкатегория
-							#
-							# 	self.snijgp,
-							# 	self.pictures
-							#
-							# )
+							ScraperEachAddress.get_sortedata(self, filename=self.filename, csv_file=True)
+							'''
+								Zero out data
+							'''
 							self.name: str = ""
 							self.type_name: str = ''  # тип - под названием
 							self.reiting: str = ""  # Рейтинг
@@ -162,10 +133,16 @@ class ScraperEachAddress(ScraperInnerPage, BasicDataArray):
 							self.ok: str = ''  # OK
 							self.website: str = ''
 							self.info: str = ""
-							self.subcategory: str = "" # подкатегория
+							self.subcategory: str = ""  # подкатегория
 
 							self.snijgp: list = []  # Комментарий
 							self.pictures: list = []  # фото из комментариев
+
+	def get_sortedata(self, filename:str, csv_file = False):
+		if bool(filename):
+			ScraperEachAddress.get_basic_data(self, filename, csv_file)
+
+
 
 
 

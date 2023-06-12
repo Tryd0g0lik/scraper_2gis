@@ -258,7 +258,7 @@ class ScraperInnerPage(Gis_page):
 
 				if re.search('tel:', str(page)) \
 					and bool(re.search(get_phone, str(page))):
-					url = self.nameCompanys2Gis
+					url = self.title_link_company
 
 					html = getHtmlOfDriverChrome(
 						url,
