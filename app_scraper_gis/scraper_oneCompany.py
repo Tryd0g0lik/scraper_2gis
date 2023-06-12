@@ -108,6 +108,7 @@ class ScraperInnerPage(Gis_page):
 		self.snijgp: list = []  # Комментарий [{'user_ball': snijgp_ball}, {'user_fdsdsd':snijgp_comment}]
 		self.pictures_feedback: list = []  # фото из комментариев
 		self.photo_comapny: list = []
+
 	def open_inner_page_company(self, data_url):
 		'''
 
@@ -466,8 +467,8 @@ class ScraperInnerPage(Gis_page):
 				Collecting before the 4 pictures
 			'''
 			for i in range(0, len(photo_page[:4])):
-				if bool(photo_page[i]['srcset']): src = photo_page[i]['srcset']
-				elif bool(photo_page[i]['src']): src = photo_page[i]['src']
+				if 'srcset' in str(photo_page[i]): src = photo_page[i]['srcset']
+				elif 'src' in str(photo_page[i]): src = photo_page[i]['src']
 				else: self.photo_comapny.append('NaN')
 
 				'''

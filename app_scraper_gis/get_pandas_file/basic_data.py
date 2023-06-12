@@ -4,9 +4,9 @@ import numpy as np
 import scv
 import pprint
 import os
+import datetime
 import csv
 
-from app_scraper_gis.scraper_basic import Basic_gis
 PATH_img = str(os.path.dirname(os.path.abspath(__file__)))
 
 class BasicDataArray():
@@ -33,7 +33,7 @@ class BasicDataArray():
 		self.subcategory: str = ""  # подкатегория
 
 		self.snijgp: list = []  # Комментарий
-		self.pictures: list = []  # фото из комментариев
+		self.pictures_feedback: list = []  # фото из комментариев
 		'''
 
 		self.name = ''
@@ -44,10 +44,11 @@ class BasicDataArray():
 		self.lat = '',
 		self.lon = '',
 		self.phone = '',
+		# self.search_word = ''
 		self.email = '',
 		self.work_mode = [],
 		self.vk = '',
-		self.td = '',
+		self.tg = '',
 		self.wa = '',
 		self.ok = '',
 		self.website = '',
@@ -55,10 +56,41 @@ class BasicDataArray():
 		self.subcategory = '',
 		self.snijgp = [],
 		self.pictures_feedback = []
-		self.photo_comapny: list = []
+		self.photo_comapny: list = []#
+		self.city:str = ''
 		
 
-	def get_basic_data(self, filename:str, csv_file:bool = False):
+	def get_basic_data(self, filename:str, csv_file:bool = False,
+	                   city_name:str = '',
+	                   search_word=''):
+
+		date_ = str(datetime.date.today())
+		filename = date_+ "_" + city_name + '_' + filename
+
+		self.basic_series = pd.Series({
+			'Название':str(self.name),
+			'Населенный': str(city_name),
+			'Рубрика':str(self.type_name),
+			'Подраздел': str(self.subcategory),
+			'Рейтинг': str(self.reiting),
+			'Количество  Отзывов': str(self.count),
+			'Ключевое слово': search_word, # ОБАВИТЬ на страницы - слова для поиска
+			'Адрес': str(self.geometry_name),
+			'X-lat': str(self.lat),
+			'Y-lon': str(self.lon),
+			'Телефоны':str(self.phone),
+			'Email': str(self.email),
+			'Время Работы':str(self.work_mode),
+			'Vk.com': str(self.vk),
+			'Telegram': str(self.tg),
+			'WatsApp': str(self.wa),
+			'Ok': str(self.ok),
+			'Сайт': str(self.website),
+			'Информация': str(self.info),
+			'snijgp': list(self.snijgp),
+			'pictures_feedback': list(self.pictures_feedback),
+
+		})
 		'''
 		:param csv_file: It's a bool value. It's a properties has the False value by default.
 			 True - create the CSV-file
@@ -66,31 +98,12 @@ class BasicDataArray():
 
 		:return:
 		'''
-		self.basic_series = pd.Series({
-			'name':str(self.name),
-			'type_name':str(self.type_name),
-			'reiting': str(self.reiting),
-			'count': str(self.count),
-			'geometry_name': str(self.geometry_name),
-			'lat': str(self.lat),
-			'lon': str(self.lon),
-			'phone':str(self.phone),
-			'email': str(self.email),
-			'work_mode':str(self.work_mode),
-			'vk': str(self.vk),
-			#'tg': str(self.td),
-			'wa': str(self.wa),
-			'ok': str(self.ok),
-			'website': str(self.website),
-			'info': str(self.info),
-			'subcategory': str(self.subcategory),
-			'snijgp': list(self.snijgp),
-			'pictures_feedback': list(self.pictures_feedback),
-
-		})
+		# df =  pd.DataFrame({
+		# 	self.basic_series[0]: list(self.basic_series[1:].values)
+		# }, index=list(self.basic_series[1:].keys()))
 		df =  pd.DataFrame({
-			self.basic_series[0]: list(self.basic_series[1:].values)
-		}, index=list(self.basic_series[1:].keys()))
+					self.basic_series[0]: list(self.basic_series[1:].values)
+				}, index=list(self.basic_series[1:].keys()))
 
 		if csv_file == True and len(filename) > 0:
 			BasicDataArray.create_csv(self, filename=filename, df_data=df)

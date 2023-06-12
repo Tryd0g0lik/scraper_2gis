@@ -1,3 +1,4 @@
+import datetime
 import re
 
 from app_scraper_gis.get_pandas_file.basic_data import BasicDataArray
@@ -10,7 +11,7 @@ class ScraperEachAddress(ScraperInnerPage, BasicDataArray):
 	"""
 		TODO: viewing each geometry_name
 		:param 'name' it's the name company;
-
+		:param search_word: it's the word or phrases for the search categories
 		:param 'lat' it's the data coordinates about the width
 		:param 'lon' it's the data coordinates about the long
 		:param title_link_company: reference on the 2gis's column company from the title
@@ -25,8 +26,9 @@ class ScraperEachAddress(ScraperInnerPage, BasicDataArray):
 		self.count: str = ""  # кол-во
 		self.geometry_name: str = ""  # Адрес/местонахождения
 		self.subcategory: str = "" # (подкатегория
-
+		#search_word Слово, фраза для поиска рубрики/категории
 		self.snijgp: list = []  # (Комментарий)
+
 		self.geometry_name: str = ''
 		self.title_link_company: str = ''  # ссылка на страницу кмпании
 		self.filename = (filename).strip()
@@ -140,7 +142,9 @@ class ScraperEachAddress(ScraperInnerPage, BasicDataArray):
 
 	def get_sortedata(self, filename:str, csv_file = False):
 		if bool(filename):
-			ScraperEachAddress.get_basic_data(self, filename, csv_file)
+			search_word = ScraperEachAddress.get_search_word(self)
+			city_name = ScraperEachAddress.get_city_name(self)
+			ScraperEachAddress.get_basic_data(self, filename, city_name, csv_file, search_word)
 
 
 
