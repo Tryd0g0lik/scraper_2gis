@@ -1,5 +1,5 @@
 # This is a sample Python script.
-from scrape_paginator import Gis_paginator
+from app_scraper_gis.scrape_paginator import Gis_paginator
 from app_scraper_gis.scraper_address import ScraperEachAddress
 import time
 
@@ -13,12 +13,16 @@ import time
 
 # Press the green button in the gutter to run the script.
 if __name__ == "__main__":
-    city: str = "irkutsk"
-    thema: str = "животные центры"
+    city: str = "abakan"
+    thema: str = "Морги"
+    returned_file_name = 'test_csv'
     paginator = Gis_paginator(city=city, search_word=thema)
-    map = ScraperEachAddress(city=city, search_word=thema, page_list=paginator.paginator_reference)
+    map = ScraperEachAddress(city=city, filename=returned_file_name, search_word=thema, references=paginator.paginator_reference)
+    page = map.object_soup
+    map.scraper_companies(page)
     i = 0
-    while i < len(map.page_list):
+
+    while i < len(map.references):
         page = map.start_working()
         map.scraper_companies(page)
         i +=1
