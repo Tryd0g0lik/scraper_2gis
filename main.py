@@ -12,8 +12,8 @@ import time
 
 # Press the green button in the gutter to run the script.
 if __name__ == "__main__":
-    city: str = "abakan"
-    thema: str = "Морги"
+    city: str = "omsk"
+    thema: str = "Животные"
     returned_file_name = 'test_csv'
     paginator = Gis_paginator(city=city, search_word=thema)
     map = ScraperEachAddress(city=city, filename=returned_file_name, search_word=thema, references=paginator.paginator_reference)

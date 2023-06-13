@@ -32,7 +32,6 @@ class ScraperEachAddress(ScraperInnerPage, BasicDataArray):
 		self.geometry_name: str = ''
 		self.title_link_company: str = ''  # ссылка на страницу кмпании
 		self.filename = (filename).strip()
-		# ScraperEachAddress.scraper_companies(self, page=self.object_soup, )
 
 	def scraper_companies(self, page, ):
 		'''
@@ -48,12 +47,13 @@ class ScraperEachAddress(ScraperInnerPage, BasicDataArray):
 		lstrip_text = rf'({strip_text_separator})'
 
 		if len(str(page)) > 0:
-			match_list = str(page).strip()
-			match_list = match_list.lstrip(lstrip_text).lstrip(">")
-			reg_text_separator = re.match(reg_text, str(match_list)).group()
-
-			match_list = match_list.replace(str(reg_text_separator), '_none_')
-			match_list = (match_list.split("_none_"))[1:]
+			match_list = str(page).strip() \
+				.lstrip(lstrip_text).lstrip(">")
+			reg_text_separator = re.match(reg_text, str(match_list)).group()			#
+			# match_list = (match_list.replace(str(reg_text_separator), '_none_') \
+			# 	.split("_none_"))[1:]
+			match_list = ((re.sub(str(reg_text_separator), '_none_', str(match_list))) \
+			              .split("_none_"))[1:]
 
 			for one_company in match_list:
 				for one_separate in one_company.split("</div><div"):
@@ -75,26 +75,28 @@ class ScraperEachAddress(ScraperInnerPage, BasicDataArray):
 					if bool(re.search(reg_name, str(one_separate))):
 						name = str(re.search(reg_name, str(one_separate)).group())
 						self.name = "{}".format(
-							(name.lstrip(r'''(<span class=[\"|\']_\w{5,10}[\"|\']>)''').lstrip('f"><span>')).replace('</span>', ""))
-						# print("self.name: ", self.name)
+							(name.lstrip(r'''(<span class=[\"|\']_\w{5,10}[\"|\']>)''') \
+							 .lstrip('f"><span>')).replace('</span>', ""))
 
 					if bool(re.search(reg_type_name, str(one_separate))):
-						type_name = str(re.search(reg_type_name, str(one_separate)).group())
-						type_name = re.search(r"([\w|\W]{3,100}<)", type_name).group().rstrip("<").strip()
-						type_name_separator = re.search(
-							r"""(^class=[\"|\']_\w{3,10}[\"|\']><span class=[\"|\']_\w{3,10}[\"|\']>)""", type_name).group().__str__()
-						self.type_name = "{}".format(type_name.lstrip(str(type_name_separator)))
+						try:
+							type_name = str(re.search(reg_type_name, str(one_separate)).group())
+							type_name = re.search(r"([\w|\W]{3,100}<)", type_name).group().rstrip("<").strip()
+							type_name_separator = re.search(
+								r"""(^class=[\"|\']_\w{3,10}[\"|\']><span class=[\"|\']_\w{3,10}[\"|\']>)""", type_name).group().__str__()
+							self.type_name = "{}".format(type_name.lstrip(str(type_name_separator)))
+						except AttributeError:
+							break
+					if bool(re.search(r'(class=\"_\w{3,10}\">[0-5]{1,2}.?[0-9]{0,2}[^ оценокиблва<\W]*)', str(one_separate))):
+						#if bool(re.search(r'(^class=\"_\w{3,10}\">[0-5]{1}.?[0-9]{0,2}[^( \W)])', one_separate)):
+						reiting_separator = re.search(r'(^class=\"_\w{3,10}\">[0-5]{1}.?[0-9]{0,2}[^ оценокиблва<\W]*)', one_separate).group() \
 
-					if bool(re.search(r'(class=\"_\w{3,10}\">[0-5]{1,2}.?[0-9]{0,2}[^ оценокиблва]*)', str(one_separate))):
-						if bool(re.search(r'(^class=\"_\w{3,10}\">[0-5]{1}.?[0-9]{0,2}[^( \W)])', one_separate)):
-							reiting_separator = re.search(r'(^class=\"_\w{3,10}\">[0-5]{1}.?[0-9]{0,2}[^( \W)])', one_separate).group() \
-
-							p = 0.0
-							if bool(re.search(r'([0-5][.|,]?[0-9]{0,2})', str(reiting_separator))):
-								p = float(re.search(r'([0-5][.|,]?[0-9]{0,2})', str(reiting_separator)).group())
-								if p <= 5.0:
-									self.reiting = "{}".format(p)
-									p = 0.0
+						p = 0.0
+						if bool(re.search(r'([0-5][.|,]?[0-9]{0,2}$)', str(reiting_separator))):
+							p = float(re.search(r'([0-5][.|,]?[0-9]{0,2}$)', str(reiting_separator)).group())
+							if p <= 5.0:
+								self.reiting = "_{}".format(p)
+						p = 0.0
 
 					if bool(re.search(r'(>([0-9]{0,4} [оценокиблва]{0,10}))', str(one_separate))):
 						self.count = "{}".format(
@@ -119,32 +121,57 @@ class ScraperEachAddress(ScraperInnerPage, BasicDataArray):
 							'''
 								Zero out data
 							'''
-							self.name: str = ""
-							self.type_name: str = ''  # тип - под названием
-							self.reiting: str = ""  # Рейтинг
-							self.count: str = ""  # кол-во
-							self.geometry_name: str = ""  # Адрес/местонахождения
-							self.lat: str = ''  # широта
-							self.lon: str = ''  # долгота
-							self.phone: str = ''
-							self.email: str = ''
-							self.work_mode = []
-							self.vk: str = ''  # ВКонтакте
-							self.tg: str = ''  # Telegram
-							self.wa: str = ''  # WhatsApp
-							self.ok: str = ''  # OK
-							self.website: str = ''
-							self.info: str = ""
-							self.subcategory: str = ""  # подкатегория
-
-							self.snijgp: list = []  # Комментарий
-							self.pictures_feedback: list = []  # фото из комментариев
+							self.name = ''
+							self.type_name=''
+							self.reiting = ''
+							self.count = ''
+							self.geometry_name = ''
+							self.lat = ''
+							self.lon = ''
+							self.phone = ''
+							self.email = ''
+							self.vk = ''
+							self.tg = ''
+							self.wa = ''
+							self.ok = ''
+							self.website = ''
+							self.info = ''
+							self.subcategory = ''
+							self.work_mode=[]
+							self.snijgp=[]
+							self.src_img_feedback=[]
+							self.src_img_company = []
 
 	def get_sortedata(self, filename:str, csv_file = False):
 		if bool(filename):
 			search_word = ScraperEachAddress.get_search_word(self)
 			city_name = ScraperEachAddress.get_city_name(self)
-			ScraperEachAddress.get_basic_data(self, filename, city_name, csv_file, search_word)
+			data_to_File = {
+				'Название': re.sub('\xa0', '', str(self.name)),
+				'Населенный пункт': str(city_name),
+				'Рубрика': str(self.type_name),
+				'Подраздел': re.sub(r'[( {2,4}//{1,2}){1,}|(>){1,}]', ' ', str(self.subcategory)),
+				'Ключевое слово': search_word,  # ОБАВИТЬ на страницы - слова для поиска
+				'Рейтинг': str(self.reiting),
+				'Количество отзывов': str(self.count),
+				'Адрес': str(self.geometry_name),
+				'X-lat': str(self.lat),
+				'Y-lon': str(self.lon),
+				'Время Работы': [self.work_mode],
+				'Телефоны': str(self.phone),
+				'Email': str(self.email),
+				'Vk.com': str(self.vk),
+				'Telegram': str(self.tg),
+				'WatsApp': str(self.wa),
+				'Ok': str(self.ok),
+				'Сайт': str(self.website),
+				'Информация': str(self.info),
+				'Фото': [list(self.src_img_company)],
+				'Комментарии': [list(self.snijgp)],
+				'Фото-комментарии': [list(self.src_img_feedback)]
+			}
+
+			ScraperEachAddress.get_basic_data(self, filename, csv_file=csv_file, **data_to_File)
 
 
 
