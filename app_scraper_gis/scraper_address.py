@@ -156,7 +156,7 @@ class ScraperEachAddress(ScraperInnerPage, BasicDataArray):
 				'Адрес': str(self.geometry_name),
 				'X-lat': str(self.lat),
 				'Y-lon': str(self.lon),
-				'Время Работы': str(self.work_mode),
+				'Время Работы': [self.work_mode],
 				'Телефоны': str(self.phone),
 				'Email': str(self.email),
 				'Vk.com': str(self.vk),
@@ -165,9 +165,9 @@ class ScraperEachAddress(ScraperInnerPage, BasicDataArray):
 				'Ok': str(self.ok),
 				'Сайт': str(self.website),
 				'Информация': str(self.info),
-				'Фото': str(self.src_img_company),
-				'Комментарии': str(self.snijgp),
-				'Фото-комментарии': str(self.src_img_feedback)
+				'Фото': [list(self.src_img_company)],
+				'Комментарии': [list(self.snijgp)],
+				'Фото-комментарии': [list(self.src_img_feedback)]
 			}
 
 			ScraperEachAddress.get_basic_data(self, filename, csv_file=True, **data_to_File)
