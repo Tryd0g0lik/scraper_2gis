@@ -421,6 +421,7 @@ class ScraperInnerPage(Gis_page):
 
 						self.src_img_feedback.append((snijgp_img_src).strip())
 						del snijgp_img_src
+						print('photo_feelback', self.src_img_feedback)
 
 				'''
 					Commits copy in the your db from the 2Gis 

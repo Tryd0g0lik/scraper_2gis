@@ -36,35 +36,9 @@ class BasicDataArray():
 		self.pictures_feedback: list = []  # фото из комментариев
 		'''
 
-		self.name = 'NaN'
-		self.type_name = 'NaN',
-		self.reiting = 'NaN',
-		self.count = 'NaN',
-		self.geometry_name = 'NaN',
-		self.lat = 'NaN',
-		self.lon = 'NaN',
-		self.phone = 'NaN',
-		# self.search_word = 'NaN'
-		self.email = 'NaN',
-		self.work_mode = [],
-		self.vk = 'NaN',
-		self.tg = 'NaN',
-		self.wa = 'NaN',
-		self.ok = 'NaN',
-		self.website = 'NaN',
-		self.info = 'NaN',
-		self.subcategory = 'NaN',
-		self.snijgp = [],
-		self.src_img_feedback = []
-		self.src_img_company: list = []#
-		self.city:str = 'NaN'
-		
-
 	def get_basic_data(self, filename:str, csv_file:bool = False, **kwargs):
 		date_ = str(datetime.date.today())
 		filename = date_+ "_" + kwargs['Населенный пункт'] + '_' + filename
-
- 		# self.basic_series = pd.Series(kwargs)
 		'''
 		:param csv_file: It's a bool value. It's a properties has the False value by default.
 			 True - create the CSV-file
@@ -72,16 +46,6 @@ class BasicDataArray():
 
 		:return:
 		'''
-		# df =  pd.DataFrame({
-		# 	self.basic_series[0]: list(self.basic_series[1:].values)
-		# }, index=list(self.basic_series[1:].keys()))
-		# s = pd.Series(data=list(kwargs.values()), index=list(kwargs.keys()))
-		# print("s")
-		# print(s)
-		col_ = list(kwargs.keys())[1:]
-		date_ = list(kwargs.values())[1:]
-		ind_ = list(kwargs.keys())[0]
-
 		df_new = pd.DataFrame(data=kwargs,
 		                  index=list(kwargs.values())[:1],
 		                  columns=list(kwargs.keys())[1:])
@@ -100,33 +64,22 @@ class BasicDataArray():
 			with open(PATH_img + "\\..\\..\\" + filename + ".csv", 'w', encoding=encoding) as file: file.close()
 
 		if os.stat(PATH_img + "\\..\\..\\" + filename + ".csv").st_size == 0:
-			file = open(PATH_img + "\\..\\..\\" + filename + ".csv", 'w', encoding=encoding)
-			file.close()
-			#
-			# df = pd.DataFrame(
-			# 	data= df_data.values,
-			# 	columns=list(df_data.columns),
-			# 	index=df_data.index,
-			#
-			# )
+			# file = open(PATH_img + "\\..\\..\\" + filename + ".csv", 'w', encoding=encoding)
+			# file.close()
+
 			df_data.to_csv(PATH_img + "\\..\\..\\" + filename + ".csv", mode="w",
 			          encoding=encoding,
 			          sep=';',
 			          )
 
-
 		else:
-			df = pd.read_csv(PATH_img + "\\..\\..\\" + filename + ".csv",
-			                 sep=';',
-			                 encoding="cp1251",
-			                 index_col=0
-			                 )
+			df = pd.read_csv(PATH_img + "\\..\\..\\" + filename + ".csv", sep=';', encoding="cp1251", index_col=0)
 
 			print("str(new_table.columns[0]): ", str(df_data.columns[0]))
-			# df[str(df_data.columns[0])] = df_data[0:]
 			df.loc[df_data.index[0]] = df_data.iloc[0]
+
 			try:
-				df.to_csv(PATH_img + "\\..\\..\\" + filename + ".csv", mode="w",
+				df.fillna('NaN').to_csv(PATH_img + "\\..\\..\\" + filename + ".csv", mode="w",
 				          encoding=encoding,
 				          sep=';',
 

@@ -12,7 +12,7 @@ import time
 
 # Press the green button in the gutter to run the script.
 if __name__ == "__main__":
-    city: str = "abakan"
+    city: str = "omsk"
     thema: str = "Животные"
     returned_file_name = 'test_csv'
     paginator = Gis_paginator(city=city, search_word=thema)
