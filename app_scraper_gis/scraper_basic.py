@@ -43,9 +43,13 @@ class Basic_gis():
 		:return: uploading the page from 2gis-url
 		'''
 
-		self.requests = urls.request("get", url=url,
-		                 decode_content=True,
-		                 timeout=3,
-		                 headers=head)
+		try:
+			self.requests = urls.request("get", url=url,
+			                 decode_content=True,
+			                 timeout=3,
+			                 headers=head)
+		except (UnicodeEncodeError, UnicodeError):
+			print('UnicodeEncodeError scraper_basic.py: Что-то не так с название города. ')
+			return
 		request_gis = "{}".format(self.requests, )
 		return request_gis
