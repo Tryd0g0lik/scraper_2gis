@@ -150,7 +150,7 @@ class ScraperEachAddress(ScraperInnerPage, BasicDataArray):
 				'Название': re.sub('\xa0', '', str(self.name)),
 				'Населенный пункт': str(city_name),
 				'Рубрика': str(self.type_name),
-				'Подраздел': re.sub(r'[( {2,4}//{1,2}){1,}|(>){1,}]', ' ', str(self.subcategory)),
+				'Подраздел': re.sub(r'( {2,})', ' / ', re.sub(r'[(>){1,}&(//){1,}]',' ', str(self.subcategory))),
 				'Ключевое слово': search_word,  # ОБАВИТЬ на страницы - слова для поиска
 				'Рейтинг': str(self.reiting),
 				'Количество отзывов': str(self.count),
@@ -158,7 +158,7 @@ class ScraperEachAddress(ScraperInnerPage, BasicDataArray):
 				'X-lat': str(self.lat),
 				'Y-lon': str(self.lon),
 				'Время Работы': [self.work_mode],
-				'Телефоны': str(self.phone),
+				'Телефоны': self.phone,
 				'Email': str(self.email),
 				'Vk.com': str(self.vk),
 				'Telegram': str(self.tg),

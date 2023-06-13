@@ -256,11 +256,12 @@ class ScraperInnerPage(Gis_page):
 				'''
 				if bool(re.search(r'(mailto:([.\w@-]{,50}){,2})', str(page))) \
 					and bool(re.search(get_mail, str(page))):
-					self.email += re.search( \
+					email = re.search( \
 						r'(mailto:([.\w@-]{,50}){,2})', \
 					  str(page)).group().lstrip("mailto") \
 						.lstrip(":") + ", "
-
+					self.email += email + ', ' if email not in self.email else '' \
+					                                                           ''
 				if re.search('tel:', str(page)) \
 					and bool(re.search(get_phone, str(page))):
 					url = self.title_link_company
@@ -282,29 +283,37 @@ class ScraperInnerPage(Gis_page):
 					'''
 						checking the what to me found
 					'''
+
 					if bool(phone_button) and len(phone_button) > 1:
 						for i in range(len(phone_button)):
-								self.phone += str((re.search(get_phone, str(phone_button)).group()).lstrip("tel:") \
-								              .lstrip('+')) +", "
+							phone = str((re.search(get_phone, str(phone_button)).group()).lstrip("tel:") \
+							             .lstrip('+'))
+							self.phone += phone + ", " if phone not in self.phone else ''
 
 					else:
-						self.phone += str((re.search(get_phone, str(page)).group()).lstrip("tel:") \
-						              .lstrip('+')) +", "
+						phone = str((re.search(get_phone, str(page)).group()).lstrip("tel:") \
+						                  .lstrip('+'))
+						self.phone += phone +", " if phone not in self.phone else ''
 
 				if bool(re.search(get_WhatsApp, str(page))):
-					self.wa += re.search(r'http(s){0,1}:\/\/wa.me\/[0-9]{1,20}', str(page)).group() + ", "
+					wa = re.search(r'http(s){0,1}:\/\/wa.me\/[0-9]{1,20}', str(page)).group() + ", "
+					self.wa += wa +', ' if wa not in self.wa else ''
 
 				if bool(re.search(get_ok, str(page))):
-					self.ok += re.search(get_ok, str(page)).group() + ", "
+					ok = re.search(get_ok, str(page)).group() + ", "
+					self.ok += ok + ', ' if ok not in self.ok else ''
 
 				if bool(re.search(get_tg, str(page))):
-					self.tg += re.search(rf'{get_tg}', str(page)).group().lstrip('href=').replace('"', "") + ", "
+					tg = re.search(rf'{get_tg}', str(page)).group().lstrip('href=').replace('"', "") + ", "
+					self.tg += tg + ', ' if tg not in self.tg else ''
 
 				if bool(re.search(r'(http(s{0,1}):\/\/vk\.com\/\w{1,21})', str(page))):
-					self.vk += re.search(r'(http(s{0,1}):\/\/vk\.com\/\w{1,21})', str(page)).group() + ", "
+					vk = re.search(r'(http(s{0,1}):\/\/vk\.com\/\w{1,21})', str(page)).group() + ", "
+					self.vk += vk + ', ' if vk not in self.vk else ''
 
 				if bool(re.search(get_website, str(page))):
-					self.website += re.search(get_website, str(page)).group() + ", "
+					website = re.search(get_website, str(page)).group() + ", "
+					self.website += website + ', ' if website not in self.website else ''
 
 				page_list.pop(0)
 		del page, page_list

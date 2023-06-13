@@ -13,9 +13,15 @@ class Gis_paginator(Basic_gis):
 		super().__init__(city, search_word)
 		self.paginator_reference = Gis_paginator.start_working(self)
 	def __scrap_gis(self):
-		city = "{}".format(Basic_gis.get_city_name(self), )
+		try:
+			city = "{}".format(Basic_gis.get_city_name(self), )
+		except ValueError:
+			print('scraper_address.py: Что то не так с названием города!')
+			return
+
 		requ_word = quote("{}".format(Basic_gis.get_search_word(self)))
 		Basic_gis.get_header(self)
+
 		self.headers.add('Referer', f"https://2gis.ru/{city}/search/{requ_word}")
 
 		url = self.headers['Referer']
@@ -39,7 +45,8 @@ class Gis_paginator(Basic_gis):
 				.contents[0].contents[1].contents[0].contents[0] \
 				.contents[0].contents[1].contents[1].contents[0] \
 				.contents[0].contents[0].contents[0].contents[2].find_all(name="a")
-
+		else:
+			print('scraper_address.py: requests.status != 200')
 
 	def sraper_paginator(self):
 		'''
