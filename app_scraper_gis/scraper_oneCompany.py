@@ -9,14 +9,17 @@ from urllib3 import request
 import re, os, time
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
+from selenium.common.exceptions import NoSuchElementException, InvalidArgumentException
+import logging
 from PIL import Image
 from io import BytesIO
 import requests
+
 PATH = os.path.dirname(os.path.abspath(__file__)) + "\\chromedriver\\chromedriver.exe"
 PATH_img = str(os.path.dirname(os.path.abspath(__file__))) + '\\file'
 
 
-def makeFolder(name:str, path:str = "./"):
+def makeFolder(name: str, path: str = "./"):
 	if path == "./":
 		name = os.path.dirname(os.path.abspath(__file__)) + '\\file\\' + name
 		if not os.path.isdir(str(name)):
@@ -29,7 +32,7 @@ def makeFolder(name:str, path:str = "./"):
 	return
 
 
-def getHtmlOfDriverChrome(url: str, selector: str = '', scroll:bool = False, click:bool = False):
+def getHtmlOfDriverChrome(url: str, selector: str = '', scroll: bool = False, click: bool = False):
 	'''
 		If we want make the click-action, means the XPATH format-SELECTOR inserting
 		:param url: data-source
@@ -39,6 +42,8 @@ def getHtmlOfDriverChrome(url: str, selector: str = '', scroll:bool = False, cli
 	'''
 	path_chrome: str = "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe"
 
+
+
 	browser = Options()
 	browser.binary_location = path_chrome
 	driver = webdriver.Chrome(
@@ -47,16 +52,16 @@ def getHtmlOfDriverChrome(url: str, selector: str = '', scroll:bool = False, cli
 	)
 	driver.get(str(url))
 	time.sleep(3)
-	if selector == '':
-		html = driver.page_source
-	elif selector != '':
-		if scroll==True:
+
+	if selector != '':
+		if scroll == True:
 			'''
 				JS  - scrolling the browser's window
 			'''
 
 			js_elem = "document.querySelector('" + (selector).strip() + "')"
-			driver.execute_script(js_elem + '.scrollBy({top:' + js_elem + '.scrollHeight' + ', left: 0, behavior: "smooth"});')
+			driver.execute_script(
+				js_elem + '.scrollBy({top:' + js_elem + '.scrollHeight' + ', left: 0, behavior: "smooth"});')
 			del selector, js_elem
 
 		elif click == True:
@@ -65,11 +70,29 @@ def getHtmlOfDriverChrome(url: str, selector: str = '', scroll:bool = False, cli
 				create the click-action for an element   
 			'''
 
-			element = driver.find_element(By.XPATH, selector)
-			ActionChains(driver).click(element).perform()
+			# Определяем формат селектора
+			by_format = None
+			try:
+				'''
+					Проверка формата selector  на By.XPATH  
+				'''
+				element = driver.find_element(By.XPATH, selector)
+				ActionChains(driver).click(element).perform()
 
-		time.sleep(5)
-		html = driver.page_source
+			except (NoSuchElementException, InvalidArgumentException):
+				'''
+					Реализовать проверку на определение формата selector
+					NAME = "name"
+					TAG_NAME = "tag name"
+					CLASS_NAME = "class name"
+					CSS_SELECTOR = "css selector"
+				'''
+				print('Для реализации клика на странице Selector не найден или Selector не в формате - XPATH')
+
+			time.sleep(5)
+
+	html = driver.page_source
+
 	driver.close()
 	return html
 
@@ -122,11 +145,11 @@ class ScraperInnerPage(Gis_page):
 		header = "{}".format(self.headers)
 
 		pages = request("get", url=data_url,
-		                     decode_content=True,
-		                     timeout=3)
+		                decode_content=True,
+		                timeout=3)
 		return pages
 
-	def scrap_gis_inner(self, url,):
+	def scrap_gis_inner(self, url:str, ):
 		'''
 		This's the analog the '__scrap_gis' only for a inner page company/. We got it's page when push
 		title/name company from the 'object_soup'
@@ -135,9 +158,17 @@ class ScraperInnerPage(Gis_page):
 		:return: Datas about the one company
 		'''
 
-		response_inner = ScraperInnerPage.open_inner_page_company(self, url)
-		if response_inner.status == 200:
-			ScraperInnerPage.pages = unquote(response_inner.data)
+		# Открываем страницу
+		try:
+			response_inner =getHtmlOfDriverChrome(url=url, click=True,
+			                      selector='//*[@id="root"]/div/div/div[1]/div[1]/div[2]/div/div/div[2]/div/div/div[2]/div[2]/div/div[1]/div/div/div/div/div[2]/div[2]/div[1]/div[1]/div/div[2]')
+		except AttributeError:
+
+			print('AttributeError scraper_oneCompany.py: Что не так с атрибутами из scrap_gis_inner()' + str(logging.exception("message")))
+			return
+
+		if type(response_inner) == str and len(response_inner) > 100:
+			ScraperInnerPage.pages = unquote(response_inner)
 
 			if len(ScraperInnerPage.pages) > 0:
 				response_text = "{}".format(ScraperInnerPage.pages)
@@ -156,10 +187,10 @@ class ScraperInnerPage(Gis_page):
 				page = [page[0].replace("|", "")]
 				ScraperInnerPage.scraper_continues_data_company(self, page)
 
-				"""There  down is we search the time mode for the works and 
+				"""There  down is search the time mode (self.work_mode) for the works and 
 				self.name,      self.type_name,     self.reiting,   self.count,  
 				self.geometry_name,   self.lat,	          self.lon,	      self.phone,
-				self.email,	    self.work_mode,	    self.vk:str,	  self.tg:str, 
+				self.email,	    	    self.vk:str,	  self.tg:str, 
 				self.wa:str,	  self.ok:str,	      website, 
 				"""
 				self.object_soup = ""
@@ -198,8 +229,7 @@ class ScraperInnerPage(Gis_page):
 			return
 
 		else:
-			print("t.data: ", ScraperInnerPage.pages.status)
-			return
+			None
 
 	def scraper_continues_data_company(self, page_list: list):
 		'''
@@ -219,14 +249,17 @@ class ScraperInnerPage(Gis_page):
 		get_website = r'http(s{0,1}):\/\/\w{0,25}.{0,1}\w{2,25}[^(2gis)|(w3)|vk.].ru'
 		get_time_list = [
 			r'(Ежедневно с [0-9]{2}:[0-9]{2} до [0-9]{2}:[0-9]{2})',
+			r'(((Вт)|(Пн)|(Ср)|(Чт)|(Пт)|(Сб)|(Вс))|([0-9]{2}:[0-9]{2}–[0-9]{2}:[0-9]{2}))',
 			r'(Круглосуточно)',
 			r'(Сегодня [c|с] [0-9]{2}:[0-9]{2} до [0-9]{2}:[0-9]{2})',
 			r'(Откроется [(завтра)|(через)]+ [в 0-9А-ЯЁа-яё]{0,32}[в 0-9:]{,10})',
 		]
-
+		# re.findall(r'(([(Вт)|(Пн)]{2}){1,}|([0-9]{2}:[0-9]{2}–[0-9]{2}:[0-9]{2}))',str(page))
+		'([([0-9]{2}])'
 		for page in page_list:
 			if len(str(page)) > 15:
-				if bool(re.search(get_points, str(page))) and self.lat == "" \
+				if bool(re.search(get_points, str(page))) \
+					and self.lat == "" \
 					and bool(re.search(r'points', str(page))):
 					page = page.replace("|", "")
 					lonLat = (re.search(get_points, str(page)).group())
@@ -238,18 +271,54 @@ class ScraperInnerPage(Gis_page):
 					continue
 
 				for get_text in get_time_list:
-					if bool(re.search(get_text, str(page))):
+					if bool(re.search(get_text, str(page))) \
+						and 'Пн' not in str(page) and 'Вт' not in str(page):
 
 						new_string = re.search(rf'{get_text}', str(page)).group()
 						if new_string not in str(self.work_mode):
-							self.work_mode.append(new_string.replace('\u200b',' ') \
+							self.work_mode.append(new_string.replace('\u200b', ' ') \
 							                      .replace(" ", ' ').replace('\U0001f60a', ''))
 
+							continue
 						else:
 							None
 
-						del new_string
-						continue
+						'''
+							Поиск рабочего времени в Пн, Вт - Вс
+						'''
+					elif 'Пн' in str(page) and 'Вт' in str(page):
+						new_string = re.findall(get_text, str(page))
+						new_list = re.findall(r'([ПВСЧП][нтртбс]|([0-9]{2}:[0-9]{2}–[0-9]{2}:[0-9]{2})){1,}', str(new_string))
+						list_ = []
+						for elem in new_list:
+							reg_day = re.search(r'[ПВСЧПнтртбс]{2}', str(elem)) # Проверяем дублиррование дней недели в list_
+							reg_time = re.search(r'[0-9]{2}:[0-9]{2}', str(elem)) # Проверяем дублиррование рабочего времени в list_
+
+							if bool(reg_day) \
+								and reg_day.group() not in str(list_) \
+								and reg_day.group() not in str(self.work_mode): \
+								list_.append(reg_day.group())
+
+							elif bool(reg_time) \
+								and reg_time.group() not in str(list_): \
+								list_.append(re.search('(([0-9]{2}:[0-9]{2})[-|–]([0-9]{2}:[0-9]{2}))', str(elem)).group())
+
+							elif bool(reg_time) == False  \
+								and bool(reg_day) == False \
+								and bool(re.search(r'[-|–]', str(elem))):  list_.append(re.search(r'[-|–]', str(elem)).group())
+
+
+							if len(list_) == 2 \
+								and bool(re.search(r'[ПВСЧПнтртбс]{2}', str(list_[0]))): self.work_mode.append(list_)
+
+							if len(list_) > 0 \
+								and bool(re.search(r'[ПВСЧПнтртбс]{2}', str(list_[0]))) == False \
+								or len(list_) >= 2: list_ = []
+
+
+
+
+
 
 				'''
 					getting the info-that from the one company, It's a common column from the basic page/
@@ -258,8 +327,8 @@ class ScraperInnerPage(Gis_page):
 					and bool(re.search(get_mail, str(page))):
 					email = re.search( \
 						r'(mailto:([.\w@-]{,50}){,2})', \
-					  str(page)).group().lstrip("mailto") \
-						.lstrip(":") + ", "
+						str(page)).group().lstrip("mailto") \
+						        .lstrip(":") + ", "
 					self.email += email + ', ' if email not in self.email else '' \
 					                                                           ''
 				if re.search('tel:', str(page)) \
@@ -287,17 +356,17 @@ class ScraperInnerPage(Gis_page):
 					if bool(phone_button) and len(phone_button) > 1:
 						for i in range(len(phone_button)):
 							phone = str((re.search(get_phone, str(phone_button)).group()).lstrip("tel:") \
-							             .lstrip('+'))
+							            .lstrip('+'))
 							self.phone += phone + ", " if phone not in self.phone else ''
 
 					else:
 						phone = str((re.search(get_phone, str(page)).group()).lstrip("tel:") \
-						                  .lstrip('+'))
-						self.phone += phone +", " if phone not in self.phone else ''
+						            .lstrip('+'))
+						self.phone += phone + ", " if phone not in self.phone else ''
 
 				if bool(re.search(get_WhatsApp, str(page))):
 					wa = re.search(r'http(s){0,1}:\/\/wa.me\/[0-9]{1,20}', str(page)).group() + ", "
-					self.wa += wa +', ' if wa not in self.wa else ''
+					self.wa += wa + ', ' if wa not in self.wa else ''
 
 				if bool(re.search(get_ok, str(page))):
 					ok = re.search(get_ok, str(page)).group() + ", "
@@ -333,7 +402,9 @@ class ScraperInnerPage(Gis_page):
 			'''
 			info_page = "{}".format(unquote(info_page.data), )
 			soup = beauty(info_page, 'html.parser')
-			response_text = soup.find(id="root").find(text="Контакты").find_parent("a").parent.parent.find_parents("div")[4].contents[1].contents[0].contents[0].select('div[data-divider="true"]')
+			response_text = \
+			soup.find(id="root").find(text="Контакты").find_parent("a").parent.parent.find_parents("div")[4].contents[
+				1].contents[0].contents[0].select('div[data-divider="true"]')
 
 			for i in range(len(response_text) - 1):
 				tag_reg = r'((<a)[, \/\w="А-ЯЁа-яё]+[\w{2,10}="-: ]*"?>?)'
@@ -362,7 +433,7 @@ class ScraperInnerPage(Gis_page):
 
 					text = response_text[i].find(name="span")
 					if text != None:
-						while index and i <= len(response_text) - 1 :
+						while index and i <= len(response_text) - 1:
 							if bool(re.search(tag_reg1, str(text))):
 								text = re.sub(tag_reg1, ' // ', str(text))
 
@@ -373,11 +444,11 @@ class ScraperInnerPage(Gis_page):
 								text = re.sub(tag_reg2, '', str(text))
 
 							index = False if 'class' not in text \
-								and 'button' not in text  and 'span' not in text \
-								and 'div' not in text  and '<a ' not in text else True
+							                 and 'button' not in text and 'span' not in text \
+							                 and 'div' not in text and '<a ' not in text else True
 
 						self.subcategory += text.replace('​', "").replace('\u200b', '') \
-						.replace('\U0001f60a', '')
+							.replace('\U0001f60a', '')
 						self.subcategory = str(self.subcategory).replace(r" {2,}[A-ZА-ЯЁ]", ", ")
 
 					del text, index
@@ -397,18 +468,23 @@ class ScraperInnerPage(Gis_page):
 		html = getHtmlOfDriverChrome(url, selector, scroll=True)
 		soup = beauty(str(html), 'html.parser')
 		if len(soup.find(id="root").select('input[value="all"]')) > 0:
-			response_text_common = soup.find(id="root").select('input[value="all"]')[0].find_parent("div").find_parents('div')[1].contents[2:]
+			response_text_common = \
+			soup.find(id="root").select('input[value="all"]')[0].find_parent("div").find_parents('div')[1].contents[2:]
 			for i in range(0, len(response_text_common) - 1):
 
 				'''
 					pictures checking from feedback
 				'''
 				snijgp_img = "NAN" if len(response_text_common[i].contents) <= 2 \
-					or bool(response_text_common[i].contents[len(response_text_common[i].contents)-2]) == False \
-					or bool(response_text_common[i].contents[len(response_text_common[i].contents)-2].contents) == False \
-					or bool(response_text_common[i].contents[len(response_text_common[i].contents)-2].contents[0]) == False \
-					or bool(response_text_common[i].contents[len(response_text_common[i].contents)-2].contents[0].find("img")) == False \
-					else response_text_common[i].contents[len(response_text_common[i].contents)-2].contents[0].find_all("img")
+				                      or bool(
+					response_text_common[i].contents[len(response_text_common[i].contents) - 2]) == False \
+				                      or bool(
+					response_text_common[i].contents[len(response_text_common[i].contents) - 2].contents) == False \
+				                      or bool(
+					response_text_common[i].contents[len(response_text_common[i].contents) - 2].contents[0]) == False \
+				                      or bool(
+					response_text_common[i].contents[len(response_text_common[i].contents) - 2].contents[0].find("img")) == False \
+					else response_text_common[i].contents[len(response_text_common[i].contents) - 2].contents[0].find_all("img")
 				if 'img' in str(snijgp_img):
 					'''
 						This's code (for in) it's IMG-file loading into folder from-the 2gis
@@ -436,7 +512,7 @@ class ScraperInnerPage(Gis_page):
 					Commits copy in the your db from the 2Gis 
 				'''
 				snijgp_comment_link = "NAN" if len(response_text_common[i].contents) <= 2 \
-					else response_text_common[i].contents[len(response_text_common[i].contents)-1].contents[0].find("a") \
+					else response_text_common[i].contents[len(response_text_common[i].contents) - 1].contents[0].find("a") \
 					.text.replace(" ", ' ')
 
 				'''
@@ -454,7 +530,7 @@ class ScraperInnerPage(Gis_page):
 		else:
 			return
 
-	def scraper_photo_company(self, url, selector: str =''):
+	def scraper_photo_company(self, url, selector: str = ''):
 		'''
 		:param url:  the source company's block-foto
 		:param selector: it's the path with the html-element for will be work with the JavaScript
@@ -471,11 +547,13 @@ class ScraperInnerPage(Gis_page):
 			''' Collecting before the 4 pictures '''
 
 			for i in range(0, len(src_img_company[:4])):
-				if 'srcset' in str(src_img_company[i]): self.src_img_company.append(src_img_company[i]['srcset'])
-				elif 'src' in str(src_img_company[i]): self.src_img_company.append(src_img_company[i]['src'])
-				else: break
+				if 'srcset' in str(src_img_company[i]):
+					self.src_img_company.append(src_img_company[i]['srcset'])
+				elif 'src' in str(src_img_company[i]):
+					self.src_img_company.append(src_img_company[i]['src'])
+				else:
+					break
 		del src_img_company
-
 
 
 '''
@@ -483,7 +561,7 @@ class ScraperInnerPage(Gis_page):
 	from io import BytesIO
 	# Getting pictures from the source
 	url = requests.get(str(src))
-	
+
 	img = Image.open(BytesIO(url.content))
 
 '''

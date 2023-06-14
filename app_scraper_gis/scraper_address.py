@@ -77,7 +77,7 @@ class ScraperEachAddress(ScraperInnerPage, BasicDataArray):
 						self.name = "{}".format(
 							(name.lstrip(r'''(<span class=[\"|\']_\w{5,10}[\"|\']>)''') \
 							 .lstrip('f"><span>')).replace('</span>', ""))
-
+						print(self.name, 'Старт')
 					if bool(re.search(reg_type_name, str(one_separate))):
 						try:
 							type_name = str(re.search(reg_type_name, str(one_separate)).group())

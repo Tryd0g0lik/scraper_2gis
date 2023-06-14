@@ -47,6 +47,7 @@ class Gis_paginator(Basic_gis):
 				.contents[0].contents[0].contents[0].contents[2].find_all(name="a")
 		else:
 			print('scraper_address.py: requests.status != 200')
+			return
 
 	def sraper_paginator(self):
 		'''
