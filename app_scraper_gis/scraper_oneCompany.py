@@ -209,8 +209,7 @@ class ScraperInnerPage(Gis_page):
 				From the content the information block
 				There  down is from the content the information block
 			'''
-			self.object_soup = self.object_soup[0].find_parents("div")[3] \
-				.contents[0].contents[0].contents[0].contents[0].find_all(name='a')
+			self.object_soup = self.object_soup[0].find_parents("div")[3].contents[0].find_all(name='a')
 			url = "https://2gis.ru" + self.object_soup[1]['href']
 			ScraperInnerPage.scraper_info(self, url)
 

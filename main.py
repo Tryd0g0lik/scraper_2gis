@@ -2,6 +2,7 @@
 from app_scraper_gis.scrape_paginator import Gis_paginator
 from app_scraper_gis.scraper_address import ScraperEachAddress
 import time
+
 # Press Shift+F10 to execute it or replace it with your code.
 # Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
 
@@ -29,19 +30,11 @@ if __name__ == "__main__":
         break
 
 
-
-
-
-
-
-
-
 """"
-Динамичный постер 2gis.
+    Динамичный постер 2gis.
 
-ДобавитьЖ
-	self.snijgp :str = '' #  краткое описание См. "описание.png"
+    ДобавитьЖ
     self.geometry_name :str = ''
- + проверить ПОЛУЧЕННЫЕ данные на уникальность 
- + подкатегории
+    + проверить ПОЛУЧЕННЫЕ данные на уникальность 
+    + подкатегории
 """
