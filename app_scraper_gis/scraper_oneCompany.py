@@ -245,15 +245,17 @@ class ScraperInnerPage(Gis_page):
 		'''
 		get_phone = r'(tel:[(\+7)|(8)|(\+8)]{1}[0-9]{5,12})'
 		# get_WhatsApp = r'("WhatsApp" class="\w{3,10}" href="https:\/\/wa.me\/[0-9]{6,13})'
-		get_WhatsApp = r'("WhatsApp" class="\w{3,10}" href="https:\/\/(wa.me\/[0-9]{6,13})|(href="https\/\/link.2gis.ru)[\w.\/]{10,})'
-		get_WhatsApp = r'("WhatsApp" class="\w{3,10}" (href="https:\/\/(wa.me\/[0-9]{6,13})|(https\/\/link.2gis.ru)[\w.\/]{10,}))'
-		get_viber = r'("Viber" class="\w{3,10}" (href="https:\/\/(wa.me\/[0-9]{6,13})|(href="https\/\/link.2gis.ru)[\w.\/]{10,}))'
-		get_vk = r'("ВКонтакте" class="\w{3,10}" (href="https\/\/link.2gis.ru)[\w.\/%]{10,})'
-		get_vk = r'("Telegram" class="\w{3,10}" (href="https\/\/link.2gis.ru)[\w.\/%]{10,})'
+		# get_WhatsApp = r'("WhatsApp" class="\w{3,10}" href="https:\/\/(wa.me\/[0-9]{6,13})|(href="https:\/\/link.2gis.ru)[\w.\/]{10,})'
+		get_WhatsApp = r'("WhatsApp" class="\w{3,10}" (href="https://link.2gis.ru[\w.\/]{10,}){1,}){1,}'
+		#
+		get_viber = r'("Viber" class="\w{3,10}" (href="https://link.2gis.ru[\w.\/]{10,}){1,}){1,}'
+		get_vk = r'("ВКонтакте" class="\w{3,10}" (href="https:\/\/link.2gis.ru)[\w.\/%]{10,})'
+
 		# get_mail = r'(mailto:\w{1,15}@\w{3,15}.\w{2,3})'
 		get_mail = r'(mailto:(\w{1,}.){1,}@\w{3,15}.\w{2,3})'
 		get_ok = r'(https:\/\/ok\.ru\/group\/[0-9]{1,21})'
-		get_tg = r'(href="https:\/\/t\.me/\+[0-9]{6,12}")|("Telegram" class="\w{3,10}" (href="https\/\/link.2gis.ru)[\w.\/%]{10,})'
+		# get_tg = r'("Telegram" class="\w{3,10}" (href="https:\/\/link.2gis.ru)[\w.\/%]{10,})'
+		get_tg = r'(href="https:\/\/t\.me/\+[0-9]{6,12}")|("Telegram" class="\w{3,10}" (href="https:\/\/link.2gis.ru)[\w.\/%]{10,})'
 		get_points = r'(points\/[0-9]{1,3}.[0-9]{1,10},?[0-9]{,3}.{1}[0-9]{1,10})'
 		get_website = r'http(s{0,1}):\/\/\w{0,25}.{0,1}\w{2,25}[^(2gis)|(w3)|vk.].ru'
 		# re.findall(r'(([(Вт)|(Пн)]{2}){1,}|([0-9]{2}:[0-9]{2}–[0-9]{2}:[0-9]{2}))',str(page))
@@ -371,31 +373,31 @@ class ScraperInnerPage(Gis_page):
 						            .lstrip('+'))
 						self.phone += phone + ", " if phone not in self.phone else ''
 
-				if bool(re.search(get_WhatsApp, str(page))):
+				if bool(re.search(get_WhatsApp, str(page))) and self.wa == '':
 					# wa = re.search(r'http(s){0,1}:\/\/wa.me\/[0-9]{1,20}', str(page)).group() + ", "
-					wa = re.search(get_WhatsApp, str(page)).group() + ", "
+					wa = re.search(r'(href="https:\/\/link.2gis.ru)[\w.\/%]{10,}', str(page)).group().lstrip('href=').replace('"', "") + ", " + ", "
 					self.wa += wa + ', ' if wa not in self.wa else ''
 
-				if bool(re.search(get_viber, str(page))):
+				if bool(re.search(get_viber, str(page))) and self.vib == '':
 					# wa = re.search(r'http(s){0,1}:\/\/wa.me\/[0-9]{1,20}', str(page)).group() + ", "
-					vib = re.search(get_viber, str(page)).group() + ", "
+					vib = re.search(r'(href="https:\/\/link.2gis.ru)[\w.\/%]{10,}', str(page)).group().lstrip('href=').replace('"', "") + ", " + ", "
 					self.vib += vib + ', ' if vib not in self.vib else ''
 
-				if bool(re.search(get_vk, str(page))):
-					# wa = re.search(r'http(s){0,1}:\/\/wa.me\/[0-9]{1,20}', str(page)).group() + ", "
-					vib = re.search(get_vk, str(page)).group() + ", "
-					self.vk += vk + ', ' if vk not in self.vk else ''
+				# if bool(re.search(get_vk, str(page))) and self.vk == '':
+				# 	# wa = re.search(r'http(s){0,1}:\/\/wa.me\/[0-9]{1,20}', str(page)).group() + ", "
+				# 	vib = re.search(r'(href="https:\/\/link.2gis.ru)[\w.\/%]{10,}', str(page)).group().lstrip('href=').replace('"', "") + ", " + ", "
+				# 	self.vk += vk + ', ' if vk not in self.vk else ''
 
-				if bool(re.search(get_ok, str(page))):
-					ok = re.search(get_ok, str(page)).group() + ", "
+				if bool(re.search(get_ok, str(page))) and self.ok == '':
+					ok = re.search(r'(href="https:\/\/link.2gis.ru)[\w.\/%]{10,}', str(page)).group().lstrip('href=').replace('"', "") + ", " + ", "
 					self.ok += ok + ', ' if ok not in self.ok else ''
 
-				if bool(re.search(get_tg, str(page))):
-					tg = re.search(rf'{get_tg}', str(page)).group().lstrip('href=').replace('"', "") + ", "
+				if bool(re.search(get_tg, str(page))) and self.tg == '':
+					tg = re.search(r'(href="https:\/\/link.2gis.ru)[\w.\/%]{10,}', str(page)).group().lstrip('href=').replace('"', "") + ", "
 					self.tg += tg + ', ' if tg not in self.tg else ''
 
-				if bool(re.search(r'(http(s{0,1}):\/\/vk\.com\/\w{1,21})', str(page))):
-					vk = re.search(r'(http(s{0,1}):\/\/vk\.com\/\w{1,21})', str(page)).group() + ", "
+				if bool(re.search(get_vk, str(page))) and self.vk == '':
+					vk = re.search(r'(href="https:\/\/link.2gis.ru)[\w.\/%]{10,}', str(page)).group().lstrip('href=').replace('"', "") + ", "
 					self.vk += vk + ', ' if vk not in self.vk else ''
 
 				if bool(re.search(get_website, str(page))):
