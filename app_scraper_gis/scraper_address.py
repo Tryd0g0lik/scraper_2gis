@@ -100,11 +100,11 @@ class ScraperEachAddress(ScraperInnerPage, BasicDataArray):
 						self.count = "{}".format(
 							re.search(r'(>([0-9]{0,4} [оценокблва]{0,10}))', str(one_separate)).group().lstrip(">"))
 
-					'''page-date from the comnon column. It's has a many links.
-					 Everyone links referencing into the page. This's the page has the description only
-						one company'''
+					'''page-data from the comnon column. It's has a many links.
+					 Everyone links referencing into the page company. This's the page has the description only
+						single company'''
 					if bool(re.search(r'(^[А-ЯЁ]{1}[а-яА-ЯёЁ]{3,50})', str(one_separate[71:]))):
-						ScraperInnerPage.scrap_gis_inner(self, self.title_link_company)
+
 
 						'''
 						TODO: Thi's a 
@@ -115,30 +115,31 @@ class ScraperEachAddress(ScraperInnerPage, BasicDataArray):
 							geometry_name_separator = re.search(rf'''{get_geometry_name}''', str(one_separate[index_1:]))
 
 							self.geometry_name = "{}".format(geometry_name_separator.group().rstrip("<"))
-							ScraperEachAddress.get_sortedata(self, filename=self.filename, csv_file=True)
-							'''
-								Zero out data
-							'''
-							self.name = ''
-							self.type_name=''
-							self.reiting = ''
-							self.count = ''
-							self.geometry_name = ''
-							self.lat = ''
-							self.lon = ''
-							self.phone = ''
-							self.email = ''
-							self.vk = ''
-							self.tg = ''
-							self.wa = ''
-							self.ok = ''
-							self.website = ''
-							self.info = ''
-							self.subcategory = ''
-							self.work_mode=[]
-							self.snijgp=[]
-							self.src_img_feedback=[]
-							self.src_img_company = []
+				ScraperInnerPage.scrap_gis_inner(self, self.title_link_company)
+				ScraperEachAddress.get_sortedata(self, filename=self.filename, csv_file=True)
+				'''
+					Zero out data
+				'''
+				self.name = ''
+				self.type_name=''
+				self.reiting = ''
+				self.count = ''
+				self.geometry_name = ''
+				self.lat = ''
+				self.lon = ''
+				self.phone = ''
+				self.email = ''
+				self.vk = ''
+				self.tg = ''
+				self.wa = ''
+				self.ok = ''
+				self.website = ''
+				self.info = ''
+				self.subcategory = ''
+				self.work_mode=[]
+				self.snijgp=[]
+				self.src_img_feedback=[]
+				self.src_img_company = []
 			print('Страница обработана, должна быть запись')
 	def get_sortedata(self, filename:str, csv_file = False):
 		if bool(filename):
