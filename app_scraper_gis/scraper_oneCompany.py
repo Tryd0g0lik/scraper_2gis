@@ -9,6 +9,8 @@ from urllib3 import request
 import re, os, time
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
+from selenium.common.exceptions import NoSuchElementException, InvalidArgumentException
+import logging
 from PIL import Image
 from io import BytesIO
 import requests
@@ -40,6 +42,8 @@ def getHtmlOfDriverChrome(url: str, selector: str = '', scroll: bool = False, cl
 	'''
 	path_chrome: str = "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe"
 
+
+
 	browser = Options()
 	browser.binary_location = path_chrome
 	driver = webdriver.Chrome(
@@ -48,9 +52,8 @@ def getHtmlOfDriverChrome(url: str, selector: str = '', scroll: bool = False, cl
 	)
 	driver.get(str(url))
 	time.sleep(3)
-	if selector == '':
-		html = driver.page_source
-	elif selector != '':
+
+	if selector != '':
 		if scroll == True:
 			'''
 				JS  - scrolling the browser's window
@@ -67,11 +70,29 @@ def getHtmlOfDriverChrome(url: str, selector: str = '', scroll: bool = False, cl
 				create the click-action for an element   
 			'''
 
-			element = driver.find_element(By.XPATH, selector)
-			ActionChains(driver).click(element).perform()
+			# Определяем формат селектора
+			by_format = None
+			try:
+				'''
+					Проверка формата selector  на By.XPATH  
+				'''
+				element = driver.find_element(By.XPATH, selector)
+				ActionChains(driver).click(element).perform()
 
-		time.sleep(5)
-		html = driver.page_source
+			except (NoSuchElementException, InvalidArgumentException):
+				'''
+					Реализовать проверку на определение формата selector
+					NAME = "name"
+					TAG_NAME = "tag name"
+					CLASS_NAME = "class name"
+					CSS_SELECTOR = "css selector"
+				'''
+				print('Для реализации клика на странице Selector не найден или Selector не в формате - XPATH')
+
+			time.sleep(5)
+
+	html = driver.page_source
+
 	driver.close()
 	return html
 
@@ -128,7 +149,7 @@ class ScraperInnerPage(Gis_page):
 		                timeout=3)
 		return pages
 
-	def scrap_gis_inner(self, url, ):
+	def scrap_gis_inner(self, url:str, ):
 		'''
 		This's the analog the '__scrap_gis' only for a inner page company/. We got it's page when push
 		title/name company from the 'object_soup'
@@ -137,15 +158,16 @@ class ScraperInnerPage(Gis_page):
 		:return: Datas about the one company
 		'''
 
-		# response_inner = ScraperInnerPage.open_inner_page_company(self, url)
+		# Открываем страницу
 		try:
 			response_inner =getHtmlOfDriverChrome(url=url, click=True,
 			                      selector='//*[@id="root"]/div/div/div[1]/div[1]/div[2]/div/div/div[2]/div/div/div[2]/div[2]/div/div[1]/div/div/div/div/div[2]/div[2]/div[1]/div[1]/div/div[2]')
 		except AttributeError:
-			print('AttributeError scraper_oneCompany.py: Что не так с атрибутами из scrap_gis_inner()' )
+
+			print('AttributeError scraper_oneCompany.py: Что не так с атрибутами из scrap_gis_inner()' + str(logging.exception("message")))
 			return
 
-		if type(response_inner) == str and len(response_inner) > 300:
+		if type(response_inner) == str and len(response_inner) > 100:
 			ScraperInnerPage.pages = unquote(response_inner)
 
 			if len(ScraperInnerPage.pages) > 0:
@@ -227,15 +249,17 @@ class ScraperInnerPage(Gis_page):
 		get_website = r'http(s{0,1}):\/\/\w{0,25}.{0,1}\w{2,25}[^(2gis)|(w3)|vk.].ru'
 		get_time_list = [
 			r'(Ежедневно с [0-9]{2}:[0-9]{2} до [0-9]{2}:[0-9]{2})',
+			r'(((Вт)|(Пн)|(Ср)|(Чт)|(Пт)|(Сб)|(Вс))|([0-9]{2}:[0-9]{2}–[0-9]{2}:[0-9]{2}))',
 			r'(Круглосуточно)',
 			r'(Сегодня [c|с] [0-9]{2}:[0-9]{2} до [0-9]{2}:[0-9]{2})',
 			r'(Откроется [(завтра)|(через)]+ [в 0-9А-ЯЁа-яё]{0,32}[в 0-9:]{,10})',
 		]
-		# r'([[(Пн)&(Вт)&(Ср)&(Чт)&(Пт)&(Сб)&(Bc)]&[([0-9]{2}:[0-9]{2}[( до )|-][0-9]{2}:[0-9]{2})|-]){1,}',
-
+		# re.findall(r'(([(Вт)|(Пн)]{2}){1,}|([0-9]{2}:[0-9]{2}–[0-9]{2}:[0-9]{2}))',str(page))
+		'([([0-9]{2}])'
 		for page in page_list:
 			if len(str(page)) > 15:
-				if bool(re.search(get_points, str(page))) and self.lat == "" \
+				if bool(re.search(get_points, str(page))) \
+					and self.lat == "" \
 					and bool(re.search(r'points', str(page))):
 					page = page.replace("|", "")
 					lonLat = (re.search(get_points, str(page)).group())
@@ -247,18 +271,54 @@ class ScraperInnerPage(Gis_page):
 					continue
 
 				for get_text in get_time_list:
-					if bool(re.search(get_text, str(page))):
+					if bool(re.search(get_text, str(page))) \
+						and 'Пн' not in str(page) and 'Вт' not in str(page):
 
 						new_string = re.search(rf'{get_text}', str(page)).group()
 						if new_string not in str(self.work_mode):
 							self.work_mode.append(new_string.replace('\u200b', ' ') \
 							                      .replace(" ", ' ').replace('\U0001f60a', ''))
 
+							continue
 						else:
 							None
 
-						del new_string
-						continue
+						'''
+							Поиск рабочего времени в Пн, Вт - Вс
+						'''
+					elif 'Пн' in str(page) and 'Вт' in str(page):
+						new_string = re.findall(get_text, str(page))
+						new_list = re.findall(r'([ПВСЧП][нтртбс]|([0-9]{2}:[0-9]{2}–[0-9]{2}:[0-9]{2})){1,}', str(new_string))
+						list_ = []
+						for elem in new_list:
+							reg_day = re.search(r'[ПВСЧПнтртбс]{2}', str(elem)) # Проверяем дублиррование дней недели в list_
+							reg_time = re.search(r'[0-9]{2}:[0-9]{2}', str(elem)) # Проверяем дублиррование рабочего времени в list_
+
+							if bool(reg_day) \
+								and reg_day.group() not in str(list_) \
+								and reg_day.group() not in str(self.work_mode): \
+								list_.append(reg_day.group())
+
+							elif bool(reg_time) \
+								and reg_time.group() not in str(list_): \
+								list_.append(re.search('(([0-9]{2}:[0-9]{2})[-|–]([0-9]{2}:[0-9]{2}))', str(elem)).group())
+
+							elif bool(reg_time) == False  \
+								and bool(reg_day) == False \
+								and bool(re.search(r'[-|–]', str(elem))):  list_.append(re.search(r'[-|–]', str(elem)).group())
+
+
+							if len(list_) == 2 \
+								and bool(re.search(r'[ПВСЧПнтртбс]{2}', str(list_[0]))): self.work_mode.append(list_)
+
+							if len(list_) > 0 \
+								and bool(re.search(r'[ПВСЧПнтртбс]{2}', str(list_[0]))) == False \
+								or len(list_) >= 2: list_ = []
+
+
+
+
+
 
 				'''
 					getting the info-that from the one company, It's a common column from the basic page/
