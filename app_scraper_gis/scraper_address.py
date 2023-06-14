@@ -132,6 +132,7 @@ class ScraperEachAddress(ScraperInnerPage, BasicDataArray):
 				self.vk = ''
 				self.tg = ''
 				self.wa = ''
+				self.vib = ''
 				self.ok = ''
 				self.website = ''
 				self.info = ''
@@ -164,6 +165,8 @@ class ScraperEachAddress(ScraperInnerPage, BasicDataArray):
 				'Vk.com': str(self.vk),
 				'Telegram': str(self.tg),
 				'WatsApp': str(self.wa),
+				'Viber': str(self.vib),
+				'ВКонтакте': str(self.vk),
 				'Ok': str(self.ok),
 				'Сайт': str(self.website),
 				'Информация': str(self.info),
