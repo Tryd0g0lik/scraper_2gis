@@ -49,7 +49,7 @@ class BasicDataArray():
 		df_new = pd.DataFrame(data=kwargs,
 		                  index=list(kwargs.values())[:1],
 		                  columns=list(kwargs.keys())[1:])
-		print(df_new)
+
 		if csv_file == True and len(filename) > 0:
 			BasicDataArray.create_csv(self, filename=filename, df_data=df_new)
 
@@ -75,7 +75,7 @@ class BasicDataArray():
 		else:
 			df = pd.read_csv(PATH_img + "\\..\\..\\" + filename + ".csv", sep=';', encoding="cp1251", index_col=0)
 
-			print("str(new_table.columns[0]): ", str(df_data.columns[0]))
+			# print("str(new_table.columns[0]): ", str(df_data.columns[0]))
 			df.loc[df_data.index[0]] = df_data.iloc[0]
 
 			try:
@@ -89,6 +89,7 @@ class BasicDataArray():
 				err = 'PermissionError: Кажется файл, в который должен записаться результат - открыт. Закройте. Метод  "create_csv"'
 				print(err)
 				return
+		print("END")
 	# def creted_tabale_onCompany(self):
 	# 	self.name_comany = self.basic_series[0]
 	# 	data_company_keys = list(self.basic_series[1:].keys())

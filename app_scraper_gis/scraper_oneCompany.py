@@ -209,6 +209,9 @@ class ScraperInnerPage(Gis_page):
 				From the content the information block
 				There  down is from the content the information block
 			'''
+
+			# self.object_soup = self.object_soup[0].find_parents("div")[3] \
+			# 	.contents[0].contents[0].contents[0].contents[0].find_all(name='a')
 			self.object_soup = self.object_soup[0].find_parents("div")[3].contents[0].find_all(name='a')
 			url = "https://2gis.ru" + self.object_soup[1]['href']
 			ScraperInnerPage.scraper_info(self, url)
@@ -223,7 +226,7 @@ class ScraperInnerPage(Gis_page):
 					else None
 				if url != None: ScraperInnerPage.scraper_photo_company(self, url, '')
 				del url
-			print("END")
+
 			del response_inner
 			return
 
@@ -246,14 +249,14 @@ class ScraperInnerPage(Gis_page):
 		get_tg = r'(href="https:\/\/t\.me/\+[0-9]{6,12}")'
 		get_points = r'(points\/[0-9]{1,3}.[0-9]{1,10},?[0-9]{,3}.{1}[0-9]{1,10})'
 		get_website = r'http(s{0,1}):\/\/\w{0,25}.{0,1}\w{2,25}[^(2gis)|(w3)|vk.].ru'
+		# re.findall(r'(([(Вт)|(Пн)]{2}){1,}|([0-9]{2}:[0-9]{2}–[0-9]{2}:[0-9]{2}))',str(page))
 		get_time_list = [
 			r'(Ежедневно с [0-9]{2}:[0-9]{2} до [0-9]{2}:[0-9]{2})',
-			r'(((Вт)|(Пн)|(Ср)|(Чт)|(Пт)|(Сб)|(Вс))|([0-9]{2}:[0-9]{2}–[0-9]{2}:[0-9]{2}))',
 			r'(Круглосуточно)',
 			r'(Сегодня [c|с] [0-9]{2}:[0-9]{2} до [0-9]{2}:[0-9]{2})',
 			r'(Откроется [(завтра)|(через)]+ [в 0-9А-ЯЁа-яё]{0,32}[в 0-9:]{,10})',
+			r'(((Вт)|(Пн)|(Ср)|(Чт)|(Пт)|(Сб)|(Вс))|([0-9]{2}:[0-9]{2}–[0-9]{2}:[0-9]{2}))',
 		]
-		# re.findall(r'(([(Вт)|(Пн)]{2}){1,}|([0-9]{2}:[0-9]{2}–[0-9]{2}:[0-9]{2}))',str(page))
 		'([([0-9]{2}])'
 		for page in page_list:
 			if len(str(page)) > 15:
@@ -302,10 +305,13 @@ class ScraperInnerPage(Gis_page):
 								and reg_time.group() not in str(list_): \
 								list_.append(re.search('(([0-9]{2}:[0-9]{2})[-|–]([0-9]{2}:[0-9]{2}))', str(elem)).group())
 
-							elif bool(reg_time) == False  \
-								and bool(reg_day) == False \
-								and bool(re.search(r'[-|–]', str(elem))):  list_.append(re.search(r'[-|–]', str(elem)).group())
-
+							if len(list_) == 2 \
+								and bool(re.search(r'[ПВСЧПнтртбс]{2}', str(list_[0])))  \
+								and bool(re.search(r'[ПВСЧПнтртбс]{2}', str(list_[1]))):
+								self.work_mode.append([list_[0], '-'])
+								self.work_mode.append([list_[1], 'Уточните данные!'])
+								list_ = []
+								continue
 
 							if len(list_) == 2 \
 								and bool(re.search(r'[ПВСЧПнтртбс]{2}', str(list_[0]))): self.work_mode.append(list_)
@@ -313,11 +319,6 @@ class ScraperInnerPage(Gis_page):
 							if len(list_) > 0 \
 								and bool(re.search(r'[ПВСЧПнтртбс]{2}', str(list_[0]))) == False \
 								or len(list_) >= 2: list_ = []
-
-
-
-
-
 
 				'''
 					getting the info-that from the one company, It's a common column from the basic page/

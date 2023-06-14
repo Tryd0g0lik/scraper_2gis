@@ -12,12 +12,32 @@ import time
 #     print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
 
 # Press the green button in the gutter to run the script.
+def return_sity_name(name:(str, list)):
+    response = ''
+    if type(name) == str:
+      name = [name]
+    for elem in name:
+      response = elem
+      name.pop()
+      break
+    return response
+def return_rubric_name(name:(str, list)):
+    response = ''
+    if type(name) == str:
+      name = [name]
+    for elem in name:
+      response = elem
+      name.pop()
+      break
+    return response
+
 if __name__ == "__main__":
-    city: str = "armawir"
-    thema: str = "Животные"
-    returned_file_name = 'test_csv'
+    city: str = "irkutsk" # return_sity_name(["irkutsk", 'armawir'])# "irkutsk" # armawir
+    thema: str = "кладбище" # return_rubric_name(["кладбище", 'морг'])
+    returned_file_name = thema
+
     paginator = Gis_paginator(city=city, search_word=thema)
-    map = ScraperEachAddress(city=city, filename=returned_file_name, search_word=thema, references=paginator.paginator_reference)
+    map = ScraperEachAddress(city=city, filename=returned_file_name,  search_word=thema, references=paginator.paginator_reference)
     page = map.object_soup
     map.scraper_companies(page)
     i = 0

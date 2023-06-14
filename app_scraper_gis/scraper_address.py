@@ -49,9 +49,7 @@ class ScraperEachAddress(ScraperInnerPage, BasicDataArray):
 		if len(str(page)) > 0:
 			match_list = str(page).strip() \
 				.lstrip(lstrip_text).lstrip(">")
-			reg_text_separator = re.match(reg_text, str(match_list)).group()			#
-			# match_list = (match_list.replace(str(reg_text_separator), '_none_') \
-			# 	.split("_none_"))[1:]
+			reg_text_separator = re.match(reg_text, str(match_list)).group()
 			match_list = ((re.sub(str(reg_text_separator), '_none_', str(match_list))) \
 			              .split("_none_"))[1:]
 
@@ -141,17 +139,19 @@ class ScraperEachAddress(ScraperInnerPage, BasicDataArray):
 							self.snijgp=[]
 							self.src_img_feedback=[]
 							self.src_img_company = []
-
+			print('Страница обработана, должна быть запись')
 	def get_sortedata(self, filename:str, csv_file = False):
 		if bool(filename):
 			search_word = ScraperEachAddress.get_search_word(self)
 			city_name = ScraperEachAddress.get_city_name(self)
 			data_to_File = {
+				'№': self.title_link_company,
+				'Дата Добавления': datetime.date.today(),
+				'Ключевое слово': search_word,  # ОБАВИТЬ на страницы - слова для поиска
 				'Название': re.sub('\xa0', '', str(self.name)),
 				'Населенный пункт': str(city_name),
 				'Рубрика': str(self.type_name),
 				'Подраздел': re.sub(r'( {2,})', ' / ', re.sub(r'[(>){1,}&(//){1,}]',' ', str(self.subcategory))),
-				'Ключевое слово': search_word,  # ОБАВИТЬ на страницы - слова для поиска
 				'Рейтинг': str(self.reiting),
 				'Количество отзывов': str(self.count),
 				'Адрес': str(self.geometry_name),
