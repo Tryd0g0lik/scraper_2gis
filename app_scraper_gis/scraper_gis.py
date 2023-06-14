@@ -46,8 +46,6 @@ class Gis_page(Basic_gis):
 		TODO:  viewing/uploading the basis column
 		:return:
 		'''
-		tes = None
-		tes  = None
 
 		Gis_page.search_church(self)
 		city = (self.сity_name).lower()
@@ -70,4 +68,3 @@ class Gis_page(Basic_gis):
 
 	def start_working(self):
 		return Gis_page.__scrap_gis(self)
-

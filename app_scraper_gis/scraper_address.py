@@ -147,11 +147,13 @@ class ScraperEachAddress(ScraperInnerPage, BasicDataArray):
 			search_word = ScraperEachAddress.get_search_word(self)
 			city_name = ScraperEachAddress.get_city_name(self)
 			data_to_File = {
+				'№': self.title_link_company,
+				'Дата Добавления': datetime.date.today(),
+				'Ключевое слово': search_word,  # ОБАВИТЬ на страницы - слова для поиска
 				'Название': re.sub('\xa0', '', str(self.name)),
 				'Населенный пункт': str(city_name),
 				'Рубрика': str(self.type_name),
 				'Подраздел': re.sub(r'( {2,})', ' / ', re.sub(r'[(>){1,}&(//){1,}]',' ', str(self.subcategory))),
-				'Ключевое слово': search_word,  # ОБАВИТЬ на страницы - слова для поиска
 				'Рейтинг': str(self.reiting),
 				'Количество отзывов': str(self.count),
 				'Адрес': str(self.geometry_name),
