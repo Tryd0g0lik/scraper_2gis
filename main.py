@@ -49,7 +49,13 @@ if __name__ == "__main__":
         i +=1
         time.sleep(1)
         break
+'''
 
+soup.find(id="root") \
+.contents[0].contents[0] \
+.contents[0].contents[0].contents[1].contents[0] \
+.contents[0].contents[1].contents[0].find(text="Инфо")
+'''
 
 """"
     Динамичный постер 2gis.

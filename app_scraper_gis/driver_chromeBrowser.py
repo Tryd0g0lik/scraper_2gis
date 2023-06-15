@@ -48,7 +48,7 @@ class ActionDriverChrome:
 		if self.selector != '' \
 			and scroll == True:
 			js_elem = "document.querySelector('" + (self.selector).strip() + "')"
-			self.page_loadeing()
+			# self.page_loadeing()
 
 			self.driver.execute_script(
 				js_elem + '.scrollBy({top:' + js_elem + '.scrollHeight' + ', left: 0, behavior: "smooth"});')
@@ -68,7 +68,7 @@ class ActionDriverChrome:
 				'''
 					Проверка формата self.selector  на By.XPATH  
 				'''
-				self.page_loadeing()
+				# self.page_loadeing()
 				element = self.driver.find_element(By.XPATH, self.selector)
 				ActionChains(self.driver).click(element).perform()
 
