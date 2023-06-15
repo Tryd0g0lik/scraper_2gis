@@ -145,63 +145,41 @@ class ScraperInnerPage(Gis_page):
 					self.wa:str,	  self.ok:str,	      website, 
 			"""
 			self.object_soup = ""
-			# self.object_soup = soup.find(id="root") \
-			# 	.contents[0].contents[0] \
-			# 	.contents[0].contents[0].contents[1].contents[0] \
-			# 	.contents[0].contents[1].contents[0].select("div[data-rack='true']")
-
-
 			self.object_soup = soup.find(text="Инфо")
 			if bool(self.object_soup):
 
 				if soup.find(text="Контакты"):
+					'''
+						пАрсим онфо из контактов
+					'''
 					object_soup = self.object_soup.parent.parent.parent.parent.parent.parent.parent.parent \
 						.contents[1].contents[0].contents[0].contents[0]
 					page = []
 					for elem in object_soup.descendants: page.append(elem)
 					ScraperInnerPage.scraper_continues_data_company(self, page)
 					del object_soup, page
-			# '''
-			# 	For a content from the information block
-			# '''
-			# self.object_soup = self.object_soup[0].find_parents("div")[3] \
-			# 	.contents[0].contents[0].contents[0].contents[0].find_all(name='a')
 
 			'''
 				getting references for blocks: info, feedback,photo, ...
 			'''
-			# .parent.parent.parent.parent
-			object_soup = self.object_soup.parent.parent.parent.parent.find_all(name='a')
-			if soup.find(text="Контакты"):
-				url = "https://2gis.ru" + object_soup[1]['href']
+			if bool(soup.find(text='Инфо')):
+				url = "https://2gis.ru" + soup.find(text='Инфо').parent['href']
 				ScraperInnerPage.scraper_info(self, url)
+				del url
 
-				url = "https://2gis.ru" + object_soup[2]['href']
+			if bool(soup.find(text='Отзывы')):
+				url = "https://2gis.ru" + soup.find(text='Отзывы').parent['href']
 				selector = """#root > div > div > div:nth-child(1) > div:nth-child(1) > div:nth-child(2) > div > div > div:nth-child(2) > div > div > div:nth-child(2) > div:nth-child(2) > div > div:nth-child(1) > div > div"""
 				ScraperInnerPage.scraper_snijgp(self, url, selector)
 				del url, selector
 
-			elif soup.find(text="Контакты") == False \
-				and soup.find(text='Инфо'):
-				url = "https://2gis.ru" + object_soup[0]['href']
-				ScraperInnerPage.scraper_info(self, url)
-
-				url = "https://2gis.ru" + object_soup[1]['href']
-				selector = """#root > div > div > div:nth-child(1) > div:nth-child(1) > div:nth-child(2) > div > div > div:nth-child(2) > div > div > div:nth-child(2) > div:nth-child(2) > div > div:nth-child(1) > div > div"""
-				ScraperInnerPage.scraper_snijgp(self, url, selector)
-				del url, selector
-
-			for i in range(0, len(object_soup)):
-				url = "https://2gis.ru" + object_soup[i]['href'] if 'gallery/firm' in str(object_soup[i]) \
-					else None
+			if bool(soup.find(text='Фото')):
+				url = "https://2gis.ru" + soup.find(text='Фото').parent['href']
 				if url != None: ScraperInnerPage.scraper_photo_company(self, url, '')
 				del url
 
 		del html
 		return
-
-		# else:
-		# 	None
 
 	def scraper_continues_data_company(self, page_list: list):
 		'''
