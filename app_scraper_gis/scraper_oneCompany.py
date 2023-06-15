@@ -1,15 +1,16 @@
 import datetime
 
+from selenium import webdriver
 from selenium.webdriver import ActionChains
 from selenium.webdriver.common.by import By
+from selenium.webdriver.chrome.options import Options
 from app_scraper_gis.scraper_gis import Gis_page
 from bs4 import BeautifulSoup as beauty
 from urllib.parse import unquote
 from urllib3 import request
 import re, os, time
-from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
-from selenium.common.exceptions import NoSuchElementException, InvalidArgumentException
+
+from selenium.common.exceptions import NoSuchElementException, InvalidArgumentException, InvalidSelectorException
 import logging
 from PIL import Image
 from io import BytesIO
@@ -79,7 +80,7 @@ def getHtmlOfDriverChrome(url: str, selector: str = '', scroll: bool = False, cl
 				element = driver.find_element(By.XPATH, selector)
 				ActionChains(driver).click(element).perform()
 
-			except (NoSuchElementException, InvalidArgumentException):
+			except (NoSuchElementException, InvalidArgumentException, InvalidSelectorException):
 				'''
 					Реализовать проверку на определение формата selector
 					NAME = "name"
@@ -87,7 +88,8 @@ def getHtmlOfDriverChrome(url: str, selector: str = '', scroll: bool = False, cl
 					CLASS_NAME = "class name"
 					CSS_SELECTOR = "css selector"
 				'''
-				print('Для реализации клика на странице Selector не найден или Selector не в формате - XPATH')
+				print('Для реализации клика на странице Selector не найден или Selector в формате - XPATH' )
+				print('Проблема в  getHtmlOfDriverChrome() из scraper_oneCompany.py')
 
 			time.sleep(5)
 
@@ -138,7 +140,7 @@ class ScraperInnerPage(Gis_page):
 	def open_inner_page_company(self, data_url):
 		'''
 
-		:param data_url: URL from inner page company
+		:param data_url: URL for inner page company
 		:return: Opening and load the html-page from the single company's page
 		'''
 		import urllib3 as urls
@@ -161,6 +163,9 @@ class ScraperInnerPage(Gis_page):
 
 		# Открываем страницу
 		try:
+			'''
+				Click on woking mode time
+			'''
 			response_inner =getHtmlOfDriverChrome(url=url, click=True,
 			                      selector='//*[@id="root"]/div/div/div[1]/div[1]/div[2]/div/div/div[2]/div/div/div[2]/div[2]/div/div[1]/div/div/div/div/div[2]/div[2]/div[1]/div[1]/div/div[2]')
 		except AttributeError:
@@ -168,78 +173,81 @@ class ScraperInnerPage(Gis_page):
 			print('AttributeError scraper_oneCompany.py: Что не так с атрибутами из scrap_gis_inner()' + str(logging.exception("message")))
 			return
 
-		if type(response_inner) == str and len(response_inner) > 100:
+		if type(response_inner) == str and len(response_inner) > 100: # checking a symbol count
 			ScraperInnerPage.pages = unquote(response_inner)
 
-			if len(ScraperInnerPage.pages) > 0:
-				response_text = "{}".format(ScraperInnerPage.pages)
-				soup = beauty(response_text, features="html.parser")
 
-				'''
-				 There is the Lon/lat attributes
-			 '''
-				self.object_soup = ""
-				self.object_soup = soup.find(id="root") \
-					.contents[0].contents[0] \
-					.contents[0].contents[0].contents[1].contents[0] \
-					.contents[0].contents[1].contents[0].contents[0].find(name="a")
+			# if len(ScraperInnerPage.pages) > 0:
+			response_text = "{}".format(ScraperInnerPage.pages)
+			soup = beauty(response_text, features="html.parser")
 
-				page = ["{}".format(self.object_soup)]
-				page = [page[0].replace("|", "")]
+			'''
+			 :param Lon and lat: There is params the longitude and latitude 
+		  '''
+			self.object_soup = ""
+			self.object_soup = soup.find(id="root") \
+				.contents[0].contents[0] \
+				.contents[0].contents[0].contents[1].contents[0] \
+				.contents[0].contents[1].contents[0].contents[0].find(name="a")
+
+			page = ["{}".format(self.object_soup)]
+			page = [page[0].replace("|", "")]
+			ScraperInnerPage.scraper_continues_data_company(self, page)
+
+			"""
+				:param self.work_mode: it's time mode search a work day. Plus such means, how:
+					self.name,      self.type_name,     self.reiting,   self.count,  
+					self.geometry_name,   self.lat,	          self.lon,	      self.phone,
+					self.email,	    	    self.vk:str,	  self.tg:str, 
+					self.wa:str,	  self.ok:str,	      website, 
+			"""
+			self.object_soup = ""
+			self.object_soup = soup.find(id="root") \
+				.contents[0].contents[0] \
+				.contents[0].contents[0].contents[1].contents[0] \
+				.contents[0].contents[1].contents[0].select("div[data-rack='true']")
+
+			if bool(self.object_soup):
+				page = []
+				for elem in self.object_soup[0].descendants: page.append(elem)
 				ScraperInnerPage.scraper_continues_data_company(self, page)
 
-				"""There  down is search the time mode (self.work_mode) for the works and 
-				self.name,      self.type_name,     self.reiting,   self.count,  
-				self.geometry_name,   self.lat,	          self.lon,	      self.phone,
-				self.email,	    	    self.vk:str,	  self.tg:str, 
-				self.wa:str,	  self.ok:str,	      website, 
-				"""
-				self.object_soup = ""
-				self.object_soup = soup.find(id="root") \
-					.contents[0].contents[0] \
-					.contents[0].contents[0].contents[1].contents[0] \
-					.contents[0].contents[1].contents[0].select("div[data-rack='true']")
+		# '''
+		# 	For a content from the information block
+		# '''
+		# self.object_soup = self.object_soup[0].find_parents("div")[3] \
+		# 	.contents[0].contents[0].contents[0].contents[0].find_all(name='a')
 
-				if bool(self.object_soup):
-					page = []
-					for elem in self.object_soup[0].descendants: page.append(elem)
+		'''
+			getting references for blocks: info, feedback,photo, ...
+		'''
+		self.object_soup = self.object_soup[0].find_parents("div")[3].contents[0].find_all(name='a')
+		url = "https://2gis.ru" + self.object_soup[1]['href']
+		ScraperInnerPage.scraper_info(self, url)
 
-					ScraperInnerPage.scraper_continues_data_company(self, page)
+		url = "https://2gis.ru" + self.object_soup[2]['href']
+		selector = """#root > div > div > div:nth-child(1) > div:nth-child(1) > div:nth-child(2) > div > div > div:nth-child(2) > div > div > div:nth-child(2) > div:nth-child(2) > div > div:nth-child(1) > div > div"""
+		ScraperInnerPage.scraper_snijgp(self, url, selector)
+		del url, selector
 
-			'''
-				From the content the information block
-				There  down is from the content the information block
-			'''
+		for i in range(0, len(self.object_soup)):
+			url = "https://2gis.ru" + self.object_soup[i]['href'] if 'gallery/firm' in str(self.object_soup[i]) \
+				else None
+			if url != None: ScraperInnerPage.scraper_photo_company(self, url, '')
+			del url
 
-			# self.object_soup = self.object_soup[0].find_parents("div")[3] \
-			# 	.contents[0].contents[0].contents[0].contents[0].find_all(name='a')
-			self.object_soup = self.object_soup[0].find_parents("div")[3].contents[0].find_all(name='a')
-			url = "https://2gis.ru" + self.object_soup[1]['href']
-			ScraperInnerPage.scraper_info(self, url)
+		del response_inner
+		return
 
-			url = "https://2gis.ru" + self.object_soup[2]['href']
-			selector = """#root > div > div > div:nth-child(1) > div:nth-child(1) > div:nth-child(2) > div > div > div:nth-child(2) > div > div > div:nth-child(2) > div:nth-child(2) > div > div:nth-child(1) > div > div"""
-			ScraperInnerPage.scraper_snijgp(self, url, selector)
-			del url, selector
-
-			for i in range(0, len(self.object_soup)):
-				url = "https://2gis.ru" + self.object_soup[i]['href'] if 'gallery/firm' in str(self.object_soup[i]) \
-					else None
-				if url != None: ScraperInnerPage.scraper_photo_company(self, url, '')
-				del url
-
-			del response_inner
-			return
-
-		else:
-			None
+		# else:
+		# 	None
 
 	def scraper_continues_data_company(self, page_list: list):
 		'''
 		TODO: continues scraper  target data
 		:param page_list: it's a list has  tags-html/  Everyone element from the list check -
 		 will be this element has the tadas or not. if yes, then this element cleaned using
-		  regular-regrowth. Will been get datas of the doata-sources
+		  regular-regrowth. Will been get datas of the data-sources
 		:param page: - html of the column  sigle company
 		:return: target data
 		'''

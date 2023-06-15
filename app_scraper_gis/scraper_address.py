@@ -71,12 +71,18 @@ class ScraperEachAddress(ScraperInnerPage, BasicDataArray):
 							(re.search(reg_nameCompanys2Gis, str(link_text)).group()).strip('"').strip("'"))
 
 					if bool(re.search(reg_name, str(one_separate))):
+						'''
+							Name company
+						'''
 						name = str(re.search(reg_name, str(one_separate)).group())
 						self.name = "{}".format(
 							(name.lstrip(r'''(<span class=[\"|\']_\w{5,10}[\"|\']>)''') \
 							 .lstrip('f"><span>')).replace('</span>', ""))
 						print(self.name, 'Старт')
 					if bool(re.search(reg_type_name, str(one_separate))):
+						'''
+							:param self.type_name: searching data by the type-function/business
+						'''
 						try:
 							type_name = str(re.search(reg_type_name, str(one_separate)).group())
 							type_name = re.search(r"([\w|\W]{3,100}<)", type_name).group().rstrip("<").strip()
@@ -86,6 +92,9 @@ class ScraperEachAddress(ScraperInnerPage, BasicDataArray):
 						except AttributeError:
 							break
 					if bool(re.search(r'(class=\"_\w{3,10}\">[0-5]{1,2}.?[0-9]{0,2}[^ оценокиблва<\W]*)', str(one_separate))):
+						'''
+							:param self.type_name: searching data by the rating 
+						'''
 						#if bool(re.search(r'(^class=\"_\w{3,10}\">[0-5]{1}.?[0-9]{0,2}[^( \W)])', one_separate)):
 						reiting_separator = re.search(r'(^class=\"_\w{3,10}\">[0-5]{1}.?[0-9]{0,2}[^ оценокиблва<\W]*)', one_separate).group() \
 
@@ -97,6 +106,9 @@ class ScraperEachAddress(ScraperInnerPage, BasicDataArray):
 						p = 0.0
 
 					if bool(re.search(r'(>([0-9]{0,4} [оценокиблва]{0,10}))', str(one_separate))):
+						'''
+							:param self.count: how many people to leave your voice   
+						'''
 						self.count = "{}".format(
 							re.search(r'(>([0-9]{0,4} [оценокблва]{0,10}))', str(one_separate)).group().lstrip(">"))
 
@@ -104,13 +116,11 @@ class ScraperEachAddress(ScraperInnerPage, BasicDataArray):
 					 Everyone links referencing into the page company. This's the page has the description only
 						single company'''
 					if bool(re.search(r'(^[А-ЯЁ]{1}[а-яА-ЯёЁ]{3,50})', str(one_separate[71:]))):
-
-
-						'''
-						TODO: Thi's a 
-						'''
 						get_geometry_name = r"(([0-9]{0,2}[-а-яё ]{0,4})?[а-яА-ЯёЁ -( )]{3,50}[, | ][а-яё ,( )0-9\/]{1,50}){1,}"
 						if bool(re.search(rf'''{get_geometry_name}''', str(one_separate))):
+							'''
+								:param self.geometry_name: it's the simply address location 
+							'''
 							index_1 = re.search(rf'''{get_geometry_name}''', str(one_separate)).span()[0]
 							geometry_name_separator = re.search(rf'''{get_geometry_name}''', str(one_separate[index_1:]))
 
