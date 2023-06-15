@@ -4,14 +4,17 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
 from selenium.common.exceptions import NoSuchElementException, InvalidArgumentException, InvalidSelectorException
 
-import time
-from app_scraper_gis.scraper_oneCompany import PATH
+import time, os
+PATH = os.path.dirname(os.path.abspath(__file__)) + "\\chromedriver\\chromedriver.exe"
+PATH_img = str(os.path.dirname(os.path.abspath(__file__))) + '\\file'
 path_chrome: str = "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe"
 
 class ActionDriverChrome:
-	def __init__(self, url: str, scroll:bool = False, click: bool = False, selector: str = '', ):
+	def __init__(self, url: str, selector: str = '', ):
 		'''
-			If we want make the click-action, means the XPATH format-SELECTOR inserting
+			TODO: Seleniume-Library If we want make the click-action or csoll, means the XPATH format-SELECTOR inserting
+
+
 			:param url: data-source
 			:param path_chrom: path to the Chrome.exe (from is the Program files folder)
 			:param selector: it's the path with the html-element for will be work with the JavaScript
@@ -19,12 +22,12 @@ class ActionDriverChrome:
 		'''
 		self.url = url
 		self.selector = selector
-		self.scroll = scroll
-		self.click = click
-		self.start_working(self)
 
 
-	def __page_loadeing(self):
+	def page_loadeing(self):
+		'''
+		:return:
+		'''
 		browser = Options()
 		browser.binary_location = path_chrome
 		self.driver = webdriver.Chrome(
@@ -32,35 +35,40 @@ class ActionDriverChrome:
 			chrome_options=browser
 		)
 		self.driver.get(str(self.url))
+		html = self.driver.page_source
+		pass
 		time.sleep(3)
+		return html
 	
-	def __action_acroll(self):
-		if self.selector != '':
-
-			'''
-				JS  - scrolling the browser's window
-			'''
-
+	def action_acroll(self, scroll:bool = False):
+		'''
+			TODO: JS  - scrolling the browser's window
+			 Page_loading() - method  don't forget to run before the scrolling start
+		'''
+		if self.selector != '' \
+			and scroll == True:
 			js_elem = "document.querySelector('" + (self.selector).strip() + "')"
-			self.driver = self.page_loadeing(self)
+			self.page_loadeing()
+
 			self.driver.execute_script(
 				js_elem + '.scrollBy({top:' + js_elem + '.scrollHeight' + ', left: 0, behavior: "smooth"});')
 			del js_elem
 
-	def __action_click(self):
-		if self.self.selector != '':
-			'''
-				Finding the html element and
-				create the click-action for an element   
-			'''
+	def action_click(self, click: bool = False):
+		'''
+			TODO: Finding the element-html and
+			 make the click-action for an element
+			 Page_loading() - method  don't forget to run before the scrolling start
 
-			# Определяем формат селектора
-			by_format = None
+		  :param click: this's False default
+		'''
+		if self.selector != '' \
+			and click == True:
 			try:
 				'''
 					Проверка формата self.selector  на By.XPATH  
 				'''
-				self.driver = self.page_loadeing(self)
+				self.page_loadeing()
 				element = self.driver.find_element(By.XPATH, self.selector)
 				ActionChains(self.driver).click(element).perform()
 
@@ -77,11 +85,5 @@ class ActionDriverChrome:
 
 			time.sleep(5)
 
-	def start_working(self):
-		self.__page_loadeing(self)
-		if self.scroll: self.__action_acroll(self)
-		if self.click: self.__action_click(self)
-		html = self.driver.page_source
-		self.driver.close()
 
-		return html
+
