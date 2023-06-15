@@ -1,16 +1,9 @@
-import datetime
-
-from selenium import webdriver
-from selenium.webdriver import ActionChains
-from selenium.webdriver.common.by import By
-from selenium.webdriver.chrome.options import Options
+from app_scraper_gis.driver_chromeBrowser import ActionDriverChrome
 from app_scraper_gis.scraper_gis import Gis_page
 from bs4 import BeautifulSoup as beauty
 from urllib.parse import unquote
 from urllib3 import request
-import re, os, time
-
-from selenium.common.exceptions import NoSuchElementException, InvalidArgumentException, InvalidSelectorException
+import re, os
 import logging
 from PIL import Image
 from io import BytesIO
@@ -21,6 +14,12 @@ PATH_img = str(os.path.dirname(os.path.abspath(__file__))) + '\\file'
 
 
 def makeFolder(name: str, path: str = "./"):
+	'''
+		Create the folder
+		:param name: Name folder/catalog
+		:param path: Path into the location for new folder/catalog
+		:return:
+	'''
 	if path == "./":
 		name = os.path.dirname(os.path.abspath(__file__)) + '\\file\\' + name
 		if not os.path.isdir(str(name)):
@@ -31,73 +30,6 @@ def makeFolder(name: str, path: str = "./"):
 			os.path.isdir(str(os.path.isdir(str(path) + str(name))))
 
 	return
-
-
-def getHtmlOfDriverChrome(url: str, selector: str = '', scroll: bool = False, click: bool = False):
-	'''
-		If we want make the click-action, means the XPATH format-SELECTOR inserting
-		:param url: data-source
-		:param path_chrom: path to the Chrome.exe (from is the Program files folder)
-		:param selector: it's the path with the html-element for will be work with the JavaScript
-		:return: page-html
-	'''
-	path_chrome: str = "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe"
-
-
-
-	browser = Options()
-	browser.binary_location = path_chrome
-	driver = webdriver.Chrome(
-		executable_path=str(PATH),
-		chrome_options=browser
-	)
-	driver.get(str(url))
-	time.sleep(3)
-
-	if selector != '':
-		if scroll == True:
-			'''
-				JS  - scrolling the browser's window
-			'''
-
-			js_elem = "document.querySelector('" + (selector).strip() + "')"
-			driver.execute_script(
-				js_elem + '.scrollBy({top:' + js_elem + '.scrollHeight' + ', left: 0, behavior: "smooth"});')
-			del selector, js_elem
-
-		elif click == True:
-			'''
-				Finding the html element and
-				create the click-action for an element   
-			'''
-
-			# Определяем формат селектора
-			by_format = None
-			try:
-				'''
-					Проверка формата selector  на By.XPATH  
-				'''
-				element = driver.find_element(By.XPATH, selector)
-				ActionChains(driver).click(element).perform()
-
-			except (NoSuchElementException, InvalidArgumentException, InvalidSelectorException):
-				'''
-					Реализовать проверку на определение формата selector
-					NAME = "name"
-					TAG_NAME = "tag name"
-					CLASS_NAME = "class name"
-					CSS_SELECTOR = "css selector"
-				'''
-				print('Для реализации клика на странице Selector не найден или Selector в формате - XPATH' )
-				print('Проблема в  getHtmlOfDriverChrome() из scraper_oneCompany.py')
-
-			time.sleep(5)
-
-	html = driver.page_source
-
-	driver.close()
-	return html
-
 
 class ScraperInnerPage(Gis_page):
 	def __init__(self, city, search_word, references):
@@ -166,15 +98,15 @@ class ScraperInnerPage(Gis_page):
 			'''
 				Click on woking mode time
 			'''
-			response_inner =getHtmlOfDriverChrome(url=url, click=True,
-			                      selector='//*[@id="root"]/div/div/div[1]/div[1]/div[2]/div/div/div[2]/div/div/div[2]/div[2]/div/div[1]/div/div/div/div/div[2]/div[2]/div[1]/div[1]/div/div[2]')
+			html =ActionDriverChrome(url=url, click=True,
+			                                   selector='//*[@id="root"]/div/div/div[1]/div[1]/div[2]/div/div/div[2]/div/div/div[2]/div[2]/div/div[1]/div/div/div/div/div[2]/div[2]/div[1]/div[1]/div/div[2]')
 		except AttributeError:
 
 			print('AttributeError scraper_oneCompany.py: Что не так с атрибутами из scrap_gis_inner()' + str(logging.exception("message")))
 			return
 
-		if type(response_inner) == str and len(response_inner) > 100: # checking a symbol count
-			ScraperInnerPage.pages = unquote(response_inner)
+		if len(html.start_working()) > 100: # checking a symbol count
+			ScraperInnerPage.pages = unquote(html.start_working())
 
 
 			# if len(ScraperInnerPage.pages) > 0:
@@ -236,7 +168,7 @@ class ScraperInnerPage(Gis_page):
 			if url != None: ScraperInnerPage.scraper_photo_company(self, url, '')
 			del url
 
-		del response_inner
+		del html
 		return
 
 		# else:
@@ -355,7 +287,7 @@ class ScraperInnerPage(Gis_page):
 					'''
 						Selenium - driver Chrome
 					'''
-					html = getHtmlOfDriverChrome(
+					html = ActionDriverChrome(
 						url,
 						selector='//*[@id="root"]/div/div/div[1]/div[1]/div[2]/div/div/div[2]/div/div/div[2]/div[2]/div/div[1]/div/div/div/div/div[2]/div[2]/div[1]/div[1]/div/div[3]/div[2]/div/button',
 						click=True
@@ -363,7 +295,7 @@ class ScraperInnerPage(Gis_page):
 					'''
 						find a[href='tel:']
 					'''
-					phone_button = beauty(html, 'html.parser').find(text="Контакты").find_parents(name="div")[6] \
+					phone_button = beauty(html.start_working(), 'html.parser').find(text="Контакты").find_parents(name="div")[6] \
 						.contents[0].parent.contents[1].contents[0].contents[0].contents[0].contents[2].find_all("a")
 
 					'''
@@ -493,8 +425,8 @@ class ScraperInnerPage(Gis_page):
 		:return snijgp: Feedback from people about the one company
 		'''
 
-		html = getHtmlOfDriverChrome(url, selector, scroll=True)
-		soup = beauty(str(html), 'html.parser')
+		html = ActionDriverChrome(url, selector, scroll=True)
+		soup = beauty(str(html.start_working()), 'html.parser')
 		if len(soup.find(id="root").select('input[value="all"]')) > 0:
 			response_text_common = \
 			soup.find(id="root").select('input[value="all"]')[0].find_parent("div").find_parents('div')[1].contents[2:]
@@ -564,8 +496,8 @@ class ScraperInnerPage(Gis_page):
 		:param selector: it's the path with the html-element for will be work with the JavaScript
 		:return: the folder where id saving foto-files
 		'''
-		html = getHtmlOfDriverChrome(url, selector, click=True)
-		soup = beauty(str(html), 'html.parser')
+		html = ActionDriverChrome(url, selector, click=True)
+		soup = beauty(str(html.start_working()), 'html.parser')
 		src_img_company = soup.find_all("img")
 
 		'''
