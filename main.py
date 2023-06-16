@@ -2,6 +2,7 @@
 from app_scraper_gis.scrape_paginator import Gis_paginator
 from app_scraper_gis.scraper_address import ScraperEachAddress
 import time
+
 # Press Shift+F10 to execute it or replace it with your code.
 # Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
 
@@ -31,8 +32,9 @@ def return_rubric_name(name:(str, list)):
     return response
 
 if __name__ == "__main__":
-    city: str = "irkutsk" # return_sity_name(["irkutsk", 'armawir'])# "irkutsk" # armawir
-    thema: str = "кладбище" # return_rubric_name(["кладбище", 'морг'])
+
+    city: str = "armawir" # return_sity_name(["irkutsk", 'armawir'])# "irkutsk" # armawir
+    thema: str = "животные" # return_rubric_name(["кладбище", 'морг']) животные
     returned_file_name = thema
 
     paginator = Gis_paginator(city=city, search_word=thema)
@@ -47,40 +49,19 @@ if __name__ == "__main__":
         i +=1
         time.sleep(1)
         break
+'''
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+soup.find(id="root") \
+.contents[0].contents[0] \
+.contents[0].contents[0].contents[1].contents[0] \
+.contents[0].contents[1].contents[0].find(text="Инфо")
+'''
 
 """"
-Динамичный постер 2gis.
+    Динамичный постер 2gis.
 
-ДобавитьЖ
-	self.snijgp :str = '' #  краткое описание См. "описание.png"
+    ДобавитьЖ
     self.geometry_name :str = ''
- + проверить ПОЛУЧЕННЫЕ данные на уникальность 
- + подкатегории
+    + проверить ПОЛУЧЕННЫЕ данные на уникальность 
+    + подкатегории
 """
