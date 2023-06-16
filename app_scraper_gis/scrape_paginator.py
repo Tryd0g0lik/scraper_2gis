@@ -6,8 +6,8 @@ from bs4 import BeautifulSoup as beauty
 class Gis_paginator(Basic_gis):
 	def __init__(self, city:str, search_word:str):
 		'''
-		TODO: Scraping a 2gis-page for to getting the pagination
-		:param city:
+		TODO: Scraping a 2gis-page for to get the paginated list-reference
+		:param city: city name which you want  receive paginated-pages
 		:param search_word:
 		'''
 		super().__init__(city, search_word)
@@ -47,6 +47,7 @@ class Gis_paginator(Basic_gis):
 				.contents[0].contents[0].contents[0].contents[2].find_all(name="a")
 		else:
 			print('scraper_address.py: requests.status != 200')
+			return
 
 	def sraper_paginator(self):
 		'''
