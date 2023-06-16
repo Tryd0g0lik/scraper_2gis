@@ -24,7 +24,7 @@ class ActionDriverChrome:
 		self.selector = selector
 
 
-	def page_loadeing(self):
+	def page_loading(self):
 		'''
 		:return:
 		'''
@@ -34,8 +34,11 @@ class ActionDriverChrome:
 			executable_path=str(PATH),
 			chrome_options=browser
 		)
-		self.driver.get(str(self.url))
-		html = self.driver.page_source
+		self.driver.get(str(self.url)) # open url
+
+	def get_page(self):
+		html = self.driver.page_source # get html-page
+
 		pass
 		time.sleep(3)
 		return html
@@ -53,6 +56,7 @@ class ActionDriverChrome:
 			self.driver.execute_script(
 				js_elem + '.scrollBy({top:' + js_elem + '.scrollHeight' + ', left: 0, behavior: "smooth"});')
 			del js_elem
+
 
 	def action_click(self, click: bool = False):
 		'''
@@ -84,6 +88,9 @@ class ActionDriverChrome:
 				print('Проблема в  getHtmlOfDriverChrome() из scraper_oneCompany.py')
 
 			time.sleep(5)
+
+	def closed_browser(self):
+		self.driver.close()
 
 
 

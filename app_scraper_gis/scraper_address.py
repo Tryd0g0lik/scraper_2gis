@@ -137,7 +137,7 @@ class ScraperEachAddress(ScraperInnerPage, BasicDataArray):
 				self.geometry_name = ''
 				self.lat = ''
 				self.lon = ''
-				self.phone = ''
+				self.phone = []
 				self.email = ''
 				self.vk = ''
 				self.tg = ''
@@ -163,7 +163,7 @@ class ScraperEachAddress(ScraperInnerPage, BasicDataArray):
 				'Ключевое слово': search_word,  # ОБАВИТЬ на страницы - слова для поиска
 				'Населенный пункт': str(city_name),
 				'Рубрика': str(self.type_name),
-				'Подраздел': re.sub(r'( {2,})', ' / ', re.sub(r'[(>){1,}&(//){1,}]',' ', str(self.subcategory))),
+				'Подраздел': self.subcategory,
 				'Рейтинг': str(self.reiting),
 				'Количество отзывов': str(self.count),
 				'Адрес': str(self.geometry_name),
