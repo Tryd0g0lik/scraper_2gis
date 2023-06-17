@@ -71,11 +71,11 @@ class ScraperInnerPage(Gis_page):
 	def parser_page(self, html_page):
 		'''
 		TODO:
-		:param html_page: it's has tag-html got after action the event  - request to url
+		:param html_page: it's has tag-html got after action by request to url
 		:return: page parsed
 		'''
 		page = html_page
-		response_text = "{}".format(unquote(page)).unicode('cp1251', error='replace')
+		response_text = "{}".format(unquote(page))#.encode('utf-8', error='ignore').decode('utf-8')
 		return beauty(response_text, features="html.parser")
 	def open_inner_page_company(self, data_url):
 		'''
@@ -110,6 +110,7 @@ class ScraperInnerPage(Gis_page):
 			html.page_loading()
 			html_page = html.get_page()
 			soup = ScraperInnerPage.parser_page(self, html_page=html_page)
+			html.closed_browser()
 		except AttributeError:
 
 			print('AttributeError scraper_oneCompany.py: Что не так с атрибутами из scrap_gis_inner()' + str(logging.exception("message")))
@@ -119,12 +120,23 @@ class ScraperInnerPage(Gis_page):
 			'''
 				only making a check
 			'''
+			'''
+				 :param Lon and lat: There is params the longitude and latitude 
+			  '''
 
-			checking = bool(soup.find_all(id='root')[0] \
-			     .find(name="div") \
-			     .find(name="div") \
-			     .find_all(name="div")[0] \
-			     .find(name="div").find(text='Контакты'))
+			object_soup = soup.find(text="Проехать").find_parent('a')
+			lonLat = re.search(r'[0-9]{1,2}.{1}[0-9]{1,10},{0,1}[0-9]{1,2}.{1}[0-9]{1,10}', str(object_soup)).group() \
+				.strip().split(",")
+			self.lon = lonLat[1]
+			self.lat = lonLat[0]
+			del object_soup
+
+			# checking = bool(soup.find_all(id='root')[0] \
+			#      .find(name="div") \
+			#      .find(name="div") \
+			#      .find_all(name="div")[0] \
+			#      .find(name="div").find(text='Контакты'))
+			checking = bool(soup.find(id='root').find(text='Контакты'))
 			del soup
 
 			if checking:
@@ -141,47 +153,24 @@ class ScraperInnerPage(Gis_page):
 				soup = ScraperInnerPage.parser_page(self, html_page)
 				html.closed_browser()
 
-				'''
-				 :param Lon and lat: There is params the longitude and latitude 
-			  '''
-				object_soup = soup.find(text="Проехать").find_parent('a')
-				lonLat = re.search(r'[0-9]{1,2}.{1}[0-9]{1,10},{0,1}[0-9]{1,2}.{1}[0-9]{1,10}', str(object_soup)).group() \
-					.strip().split(",")
-				self.lon = lonLat[1]
-				self.lat = lonLat[0]
-				del object_soup
+
 
 				'''
 					:param work_mode: time's work mode + WWW + social-networks + Email + Phone's number ...
 				'''
+				soup = ScraperInnerPage.parser_page(self, html_page)
 				ScraperInnerPage.scrap_contacts(self, soup)
 
 			'''
 				working with info-block
 			'''
-			if bool(soup.find(text='Инфо')):
-				url = "https://2gis.ru" + soup.find(text='Инфо').parent['href']
-				del soup
-				html = ActionDriverChrome(url)
-				html.page_loading()
-				html_page = html.get_page()
+			soup = ScraperInnerPage.parser_page(self, html_page)
+			ScraperInnerPage.scraper_info(self, soup)
+			# del url, html_page
 
-				soup = ScraperInnerPage.parser_page(self, html_page)
-				html.closed_browser()
 
-				ScraperInnerPage.scraper_info(self, soup)
-				del url, html_page
-
-			if bool(soup.find(text='Отзывы')):
-				url = "https://2gis.ru" +  soup.find(text='Отзывы').parent['href']
-
-				# if len(soup.find(text='Отзывы').parent.find_parents('div')[6].contents) > 1:
-				selector = """#root > div > div > div:nth-child(1) > div:nth-child(1) > div:nth-child(2) > div > div > div:nth-child(2) > div > div > div:nth-child(2) > div:nth-child(2) > div > div:nth-child(1) > div > div"""
-				html = ActionDriverChrome(url, selector)
-				html.page_loading()
-				html_page = html.get_page()
-				soup = ScraperInnerPage.parser_page(self, html_page)
-				ScraperInnerPage.scraper_snijgp(self, html, soup)
+			soup = ScraperInnerPage.parser_page(self, html_page)
+			ScraperInnerPage.scraper_snijgp(self, html, soup)
 
 			"""
 				:param snijgp: it's feedback
@@ -257,64 +246,79 @@ class ScraperInnerPage(Gis_page):
 					self.vib = resp
 				elif elem == 'Telegram':
 					self.tg = resp
-
-		del resp, elem, \
-			get_phone, get_mail, get_website
+			del resp, elem
+		del get_phone, get_mail, get_website
 
 	def scraper_info(self, soup):
 		'''
 			Scrapering data-info from the info-html
 		'''
-		response_text = \
-			(soup.find(id="root").find(text="Инфо").find_parent("a").parent.parent.find_parents("div")[4].contents[
-				1].contents[0].contents[0].select('div[data-divider="true"]'))
+		if bool(soup.find(text='Инфо')):
+			url = "https://2gis.ru" + soup.find(text='Инфо').parent['href']
+			del soup
+			html = ActionDriverChrome(url)
+			html.page_loading()
+			html_page = html.get_page()
 
-		self.info = '{}'.format(response_text[0].text).encode('cp1251', errors='replace').decode('cp1251')
-		""" self.info = re.sub(u'(u[0-9]\w{1,5})', ' ', (self.info).encode('utf-8').decode('utf-8')).encode('cp1251', 'ignore').decode('cp1251') #.replace('\u200b', ' ') """
-		self.info = re.sub(r'[ |•]', ' ', (self.info)) #.encode('cp251').decode('cp1251'))
-			#.replace(" ", ' ').replace('\U0001f60a', '')
+			soup = ScraperInnerPage.parser_page(self, html_page)
+			html.closed_browser()
+			# ------------------------
+			response_text = \
+				(soup.find(id="root").find(text="Инфо").find_parent("a").parent.parent.find_parents("div")[4].contents[
+					1].contents[0].contents[0].select('div[data-divider="true"]'))
 
-		'''
-			sub-category
-		'''
-		for i in range(1,len(response_text)):
-			str__ = response_text[i].text
-			l = []
-			[l.append(v) for v in re.findall(r'[А-ЯЁ]', str__) if v not in str(l)]
-			for v in l:
-				str__ = str__.replace(v, ' // ' + v) #.replace('\u200b', ' ') \ .encode('utf-8', 'ignore').decode('cp1251') .replace(" ", ' ')
-					 #.replace('\U0001f60a', '')
-			# regex = re.compile("u'200b'", re.UNICODE)
-			self.subcategory += str__.encode('cp1251', errors='replace').decode('cp1251') #re.sub( re.compile("u'200b'", re.UNICODE), " ", str__).encode('cp1251').decode('cp1251')
-		del str__, l,v
+			self.info = '{}'.format(response_text[0].text).encode('cp1251', errors='replace').decode('cp1251')
+			self.info = re.sub(r'[ |•]', ' ', (self.info))
+
+			'''
+				sub-category
+			'''
+			for i in range(1,len(response_text)):
+				str__ = response_text[i].text
+				l = []
+				[l.append(v) for v in re.findall(r'[А-ЯЁ]', str__) if v not in str(l)]
+				for v in l:
+					str__ = str__.replace(v, ' // ' + v) #.replace('\u200b', ' ') \ .encode('utf-8', 'ignore').decode('cp1251') .replace(" ", ' ')
+						 #.replace('\U0001f60a', '')
+				# regex = re.compile("u'200b'", re.UNICODE)
+				self.subcategory += str__.encode('cp1251', errors='replace').decode('cp1251') #re.sub( re.compile("u'200b'", re.UNICODE), " ", str__).encode('cp1251').decode('cp1251')
+			del str__, l,v
 
 	def scraper_snijgp(self, html, soup):
-		resp = (soup.find(text='Отзывы').parent.find_parents('div')[6].contents[1].contents)
-		html.action_acroll(scroll=True)
+		if bool(soup.find(text='Отзывы')):
+			url = "https://2gis.ru" + soup.find(text='Отзывы').parent['href']
 
-		while True:
+			# if len(soup.find(text='Отзывы').parent.find_parents('div')[6].contents) > 1:
+			selector = """#root > div > div > div:nth-child(1) > div:nth-child(1) > div:nth-child(2) > div > div > div:nth-child(2) > div > div > div:nth-child(2) > div:nth-child(2) > div > div:nth-child(1) > div > div"""
+			html = ActionDriverChrome(url, selector)
+			html.page_loading()
 			html_page = html.get_page()
-			html_page = ('{}'.format(html_page)).encode('cp1251', errors='replace').decode('cp1251')
+			# ------------------
+			resp = (soup.find(text='Отзывы').parent.find_parents('div')[6].contents[1].contents)
+			html.action_acroll(scroll=True)
+
+			while True:
+				html_page = html.get_page()
+				html_page = ('{}'.format(html_page)).encode('cp1251', errors='replace').decode('cp1251')
+				soup = ScraperInnerPage.parser_page(self, html_page)
+				resp2 = (soup.find(text='Отзывы').parent.find_parents('div')[6].contents[1].contents)
+				if len(resp2) > len(resp):
+					html.action_acroll(scroll=True)
+					resp = resp2
+					continue
+				break
+			del soup, resp
+
+			html_page = html.get_page()
 			soup = ScraperInnerPage.parser_page(self, html_page)
 			resp2 = (soup.find(text='Отзывы').parent.find_parents('div')[6].contents[1].contents)
-			if len(resp2) > len(resp):
-				html.action_acroll(scroll=True)
-				resp = resp2
-				continue
-			break
-		del soup, resp
-# str(elem.text).encode('utf-8').decode('utf-8'))
-		html_page = html.get_page()
-		soup = ScraperInnerPage.parser_page(self, html_page)
-		resp2 = (soup.find(text='Отзывы').parent.find_parents('div')[6].contents[1].contents)
-		for elem in resp2[2:]:
-			# regex = re.compile("u'200b'", re.UNICODE)
-			# elem = re.sub(r'[ |•]', ' ', str(elem.text).encode('utf-8').decode('utf-8')).encode('cp1251', 'ignore').decode('cp1251') #re.sub(regex, ' ', str(elem.text)).encode('utf-8', 'ignore').decode('cp1251') #.decode('cp1251').replace('\u200b', ' ') \
-				#.replace(" ", ' ').replace('\U0001f60a', ''). u200b
-			str_ = '{}'.format(elem.text.encode('cp1251', errors="replace").decode('cp1251'))
-			self.snijgp.append([str_])
-		del resp2, elem
-		html.closed_browser()
+
+			for elem in resp2[2:]:
+				str_ = '{}'.format(elem.text.encode('cp1251', errors="replace").decode('cp1251'))
+				self.snijgp.append([str_])
+				del elem
+			del resp2
+			html.closed_browser()
 
 
 	def scraper_photo_company(self, url, selector: str = ''):

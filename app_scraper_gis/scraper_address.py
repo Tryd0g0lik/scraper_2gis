@@ -160,7 +160,7 @@ class ScraperEachAddress(ScraperInnerPage, BasicDataArray):
 				'Название': re.sub('\xa0', '', str(self.name)),
 				'№': self.title_link_company,
 				'Дата Добавления': datetime.date.today(),
-				'Ключевое слово': search_word,  # ОБАВИТЬ на страницы - слова для поиска
+				'Ключевое слово': str(search_word),  # ОБАВИТЬ на страницы - слова для поиска
 				'Населенный пункт': str(city_name),
 				'Рубрика': str(self.type_name),
 				'Подраздел': self.subcategory,
@@ -169,8 +169,8 @@ class ScraperEachAddress(ScraperInnerPage, BasicDataArray):
 				'Адрес': str(self.geometry_name),
 				'X-lat': str(self.lat),
 				'Y-lon': str(self.lon),
-				'Время Работы': [self.work_mode],
-				'Телефоны': self.phone,
+				'Время Работы': str(self.work_mode),
+				'Телефоны': str(self.phone),
 				'Email': str(self.email),
 				'Vk.com': str(self.vk),
 				'Telegram': str(self.tg),
@@ -180,11 +180,11 @@ class ScraperEachAddress(ScraperInnerPage, BasicDataArray):
 				'Ok': str(self.ok),
 				'Сайт': str(self.website),
 				'Информация': str(self.info),
-				'Фото': [list(self.src_img_company)],
-				'Комментарии': [list(self.snijgp)],
-				'Фото-комментарии': [list(self.src_img_feedback)]
+				'Фото': str(self.src_img_company),
+				'Комментарии': str(self.snijgp),
+				'Фото-комментарии': str(self.src_img_feedback)
 			}
-
+			len(data_to_File)
 			ScraperEachAddress.get_basic_data(self, filename, csv_file=csv_file, **data_to_File)
 
 
