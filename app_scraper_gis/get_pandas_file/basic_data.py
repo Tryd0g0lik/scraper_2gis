@@ -3,7 +3,7 @@ pd.set_option('display.width', 98)
 import numpy as np
 import scv
 import pprint
-import os
+import os, re
 import datetime
 import csv
 
@@ -66,6 +66,8 @@ class BasicDataArray():
 		if os.stat(PATH_img + "\\..\\..\\" + filename + ".csv").st_size == 0:
 			# file = open(PATH_img + "\\..\\..\\" + filename + ".csv", 'w', encoding=encoding)
 			# file.close()
+			df_data['Информация'] = re.sub(u'\(u[0-9]\w{1,5})', ' ', df_data['Информация'])
+			df_data['Комментарии'] = re.sub(u'\(u[0-9]\w{1,5})', ' ', df_data['Комментарии'])
 
 			df_data.to_csv(PATH_img + "\\..\\..\\" + filename + ".csv", mode="w",
 			          encoding=encoding,

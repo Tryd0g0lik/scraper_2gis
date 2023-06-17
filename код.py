@@ -6,3 +6,7 @@
 	# result = "тут_строка".encode('cp1251', 'ignore').decode('cp1251')
 	# или через регулярки
 
+
+# encode() и decode()
+# Источник: https://pythononline.ru/osnovy/encode-decode
+# https://www.tutorialspoint.com/python/string_decode.htm

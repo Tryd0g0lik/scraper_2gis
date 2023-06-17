@@ -74,8 +74,8 @@ class ScraperInnerPage(Gis_page):
 		:param html_page: it's has tag-html got after action the event  - request to url
 		:return: page parsed
 		'''
-		page = unquote(html_page)
-		response_text = "{}".format(unquote(page))
+		page = html_page
+		response_text = "{}".format(unquote(page)).unicode('cp1251', error='replace')
 		return beauty(response_text, features="html.parser")
 	def open_inner_page_company(self, data_url):
 		'''
@@ -216,7 +216,8 @@ class ScraperInnerPage(Gis_page):
 		del resp, get_time_list
 
 		for elem in ['Пн', 'Вт', 'Пн', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс']:
-			self.work_mode.append( elem + ': ' + soup.find(text=elem).parent.parent.contents[1].text)
+			if bool(soup.find(text=elem)) and len(soup.find(text=elem).parent.parent.contents) > 0:
+				self.work_mode.append( elem + ': ' + soup.find(text=elem).parent.parent.contents[1].text)
 		del elem
 
 		'''
@@ -265,10 +266,13 @@ class ScraperInnerPage(Gis_page):
 			Scrapering data-info from the info-html
 		'''
 		response_text = \
-			soup.find(id="root").find(text="Инфо").find_parent("a").parent.parent.find_parents("div")[4].contents[
-				1].contents[0].contents[0].select('div[data-divider="true"]')
+			(soup.find(id="root").find(text="Инфо").find_parent("a").parent.parent.find_parents("div")[4].contents[
+				1].contents[0].contents[0].select('div[data-divider="true"]'))
 
-		self.info = '{}'.format(unquote(response_text[0].text))
+		self.info = '{}'.format(response_text[0].text).encode('cp1251', errors='replace').decode('cp1251')
+		""" self.info = re.sub(u'(u[0-9]\w{1,5})', ' ', (self.info).encode('utf-8').decode('utf-8')).encode('cp1251', 'ignore').decode('cp1251') #.replace('\u200b', ' ') """
+		self.info = re.sub(r'[ |•]', ' ', (self.info)) #.encode('cp251').decode('cp1251'))
+			#.replace(" ", ' ').replace('\U0001f60a', '')
 
 		'''
 			sub-category
@@ -278,31 +282,37 @@ class ScraperInnerPage(Gis_page):
 			l = []
 			[l.append(v) for v in re.findall(r'[А-ЯЁ]', str__) if v not in str(l)]
 			for v in l:
-				str__ = str__.replace(v, ' // ' + v)
-
-			self.subcategory += str__
+				str__ = str__.replace(v, ' // ' + v) #.replace('\u200b', ' ') \ .encode('utf-8', 'ignore').decode('cp1251') .replace(" ", ' ')
+					 #.replace('\U0001f60a', '')
+			# regex = re.compile("u'200b'", re.UNICODE)
+			self.subcategory += str__.encode('cp1251', errors='replace').decode('cp1251') #re.sub( re.compile("u'200b'", re.UNICODE), " ", str__).encode('cp1251').decode('cp1251')
 		del str__, l,v
 
 	def scraper_snijgp(self, html, soup):
-		resp = soup.find(text='Отзывы').parent.find_parents('div')[6].contents[1].contents
+		resp = (soup.find(text='Отзывы').parent.find_parents('div')[6].contents[1].contents)
 		html.action_acroll(scroll=True)
+
 		while True:
 			html_page = html.get_page()
+			html_page = ('{}'.format(html_page)).encode('cp1251', errors='replace').decode('cp1251')
 			soup = ScraperInnerPage.parser_page(self, html_page)
-			resp2 = soup.find(text='Отзывы').parent.find_parents('div')[6].contents[1].contents
+			resp2 = (soup.find(text='Отзывы').parent.find_parents('div')[6].contents[1].contents)
 			if len(resp2) > len(resp):
 				html.action_acroll(scroll=True)
 				resp = resp2
 				continue
 			break
 		del soup, resp
-
+# str(elem.text).encode('utf-8').decode('utf-8'))
 		html_page = html.get_page()
 		soup = ScraperInnerPage.parser_page(self, html_page)
-		resp2 = soup.find(text='Отзывы').parent.find_parents('div')[6].contents[1].contents
+		resp2 = (soup.find(text='Отзывы').parent.find_parents('div')[6].contents[1].contents)
 		for elem in resp2[2:]:
-			elem = unquote(elem.text.replace('\u200b', ''))
-			self.snijgp.append([elem])
+			# regex = re.compile("u'200b'", re.UNICODE)
+			# elem = re.sub(r'[ |•]', ' ', str(elem.text).encode('utf-8').decode('utf-8')).encode('cp1251', 'ignore').decode('cp1251') #re.sub(regex, ' ', str(elem.text)).encode('utf-8', 'ignore').decode('cp1251') #.decode('cp1251').replace('\u200b', ' ') \
+				#.replace(" ", ' ').replace('\U0001f60a', ''). u200b
+			str_ = '{}'.format(elem.text.encode('cp1251', errors="replace").decode('cp1251'))
+			self.snijgp.append([str_])
 		del resp2, elem
 		html.closed_browser()
 
@@ -348,3 +358,4 @@ class ScraperInnerPage(Gis_page):
 	img = Image.open(BytesIO(url.content))
 
 '''
+

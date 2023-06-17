@@ -34,7 +34,7 @@ def return_rubric_name(name:(str, list)):
 if __name__ == "__main__":
 
     city: str = "armawir" # return_sity_name(["irkutsk", 'armawir'])# "irkutsk" # armawir
-    thema: str = "животные" # return_rubric_name(["кладбище", 'морг']) животные
+    thema: str = "кладбище" # return_rubric_name(["кладбище", 'морг']) животные
     returned_file_name = thema
 
     paginator = Gis_paginator(city=city, search_word=thema)
