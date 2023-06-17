@@ -36,7 +36,6 @@ class ScraperInnerPage(Gis_page):
 		TODO: viewing each geometry_name
 		:param references: list links on pages
 		:param 'snijgp' it's the comments/reviews for a company
-		:param 'geometry_name' it's  the companu's geometry_name
 		:param 'phone' it's the company number phone
 		:param 'email' it's the e-mail geometry_name
 		:param 'work_mode' it's the time by which the company is working
@@ -83,9 +82,9 @@ class ScraperInnerPage(Gis_page):
 		:param data_url: URL for inner page company
 		:return: Opening and load the html-page from the single company's page
 		'''
-		import urllib3 as urls
+		# import urllib3 as urls
 		self.headers['Referer'] = data_url
-		header = "{}".format(self.headers)
+		# header = "{}".format(self.headers)
 
 		pages = request("get", url=data_url,
 		                decode_content=True,

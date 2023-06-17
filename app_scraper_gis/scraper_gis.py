@@ -27,17 +27,17 @@ class Gis_page(Basic_gis):
 		self.headers.add('Referer', f"https://2gis.ru/{city}/search/{requ_word}")
 		header = self.headers
 
-		for link in self.references:
-			print("link: ", link)
+		for i in range(len(self.references)):
+			print("i: ", self.references[i])
 			Basic_gis.get_url(self,
-				url= link, #f"https://2gis.ru/{city}/search/{requ_word}",
+				url= self.references[i], #f"https://2gis.ru/{city}/search/{requ_word}",
 				head=header
 			)
 
 			break
 
 		self.pages:str = ''
-		self.references.pop(0)
+		# self.references.pop(0)
 		if self.requests.status == 200:
 			self.pages = "{}".format(unquote(self.requests.data), )
 
@@ -63,8 +63,9 @@ class Gis_page(Basic_gis):
 				.contents[0].contents[0].contents[1].contents[1].contents[0] \
 				.contents[0].find(name="a").find_parent("div").find_parent("div") \
 				.find_parent('div').find_parent("div")
-		page = "{}".format(self.object_soup, )
-		return page
+		# page = "{}".format(self.object_soup, )
+
+		return self.object_soup
 
 	def start_working(self):
 		return Gis_page.__scrap_gis(self)

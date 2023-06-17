@@ -38,17 +38,21 @@ if __name__ == "__main__":
     returned_file_name = thema
 
     paginator = Gis_paginator(city=city, search_word=thema)
-    map = ScraperEachAddress(city=city, filename=returned_file_name,  search_word=thema, references=paginator.paginator_reference)
-    page = map.object_soup
-    map.scraper_companies(page)
+    # map = ScraperEachAddress(city=city, filename=returned_file_name,  search_word=thema, references=paginator.paginator_reference)
+    # # page = map.object_soup
+    # map.scraper_companies(map.object_soup)
     i = 0
 
-    while i < len(map.references):
-        page = map.start_working()
-        map.scraper_companies(page)
-        i +=1
+    while i != len(paginator.paginator_reference):
+        # page = map.start_working()
+        page = ScraperEachAddress(city=city, filename=returned_file_name, search_word=thema,
+                           references=paginator.paginator_reference)
+        # map.scraper_companies(map.object_soup)
+        page.scraper_companies(page.object_soup)
+        paginator.paginator_reference.pop(0)
+
         time.sleep(1)
-        break
+
 '''
 
 soup.find(id="root") \

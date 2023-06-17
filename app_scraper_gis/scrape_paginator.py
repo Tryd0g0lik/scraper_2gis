@@ -21,10 +21,9 @@ class Gis_paginator(Basic_gis):
 
 		requ_word = quote("{}".format(Basic_gis.get_search_word(self)))
 		Basic_gis.get_header(self)
-
 		self.headers.add('Referer', f"https://2gis.ru/{city}/search/{requ_word}")
-
 		url = self.headers['Referer']
+
 		Basic_gis.get_url(self, url, self.headers)
 
 
@@ -57,10 +56,15 @@ class Gis_paginator(Basic_gis):
 		main_page = self.headers['Referer']
 		paginator_reference: list = [main_page,]
 		for i in range(0, len(self.paginator_list) - 1):
-			word_ru: str = re.search(r"([а-яё%20 -]{3,40}){1,3}", self.paginator_list[i]['href']).group()
-			word_ru_unicode = quote(word_ru)
-			href_unicode = str(self.paginator_list[i]['href']).replace(str(word_ru), word_ru_unicode)
-			paginator_reference.append("https://2gis.ru" + href_unicode) if bool(self.paginator_list[i]) else None
+			# word_ru: str = re.search(r"([а-яё%20 -]{3,40}){1,3}", self.paginator_list[i]['href']).group()
+			# word_ru_unicode = quote(word_ru)
+			# href_unicode = str(self.paginator_list[i]['href']).replace(str(word_ru), word_ru_unicode)
+			# paginator_reference.append("https://2gis.ru" + href_unicode) if bool(self.paginator_list[i]) else None
+			for i in range(len(self.paginator_list)):
+				word_ru: str = re.search(r"([а-яё%20 -]{3,40}){1,3}", self.paginator_list[i]['href']).group()
+				word_ru_unicode = quote(word_ru)
+				href_unicode = str(self.paginator_list[i]['href']).replace(str(word_ru), word_ru_unicode)
+				paginator_reference.append('https://2gis.ru' + href_unicode)
 		del self.paginator_list
 		return paginator_reference
 

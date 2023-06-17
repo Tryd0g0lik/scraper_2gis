@@ -52,4 +52,4 @@ class Basic_gis():
 			print('UnicodeEncodeError scraper_basic.py: Что-то не так с название города. ')
 			return
 		request_gis = "{}".format(self.requests, )
-		return request_gis
+		# return self.requests
