@@ -39,7 +39,8 @@ class ScraperCompanies(Company, PandasWork):
 		for ind in range(len(page.contents) -1):
 			if self.name != '': ScraperCompanies.get_sortedata(self, filename=self.filename, csv_file=True)
 			# id=3
-			if bool(page.contents[ind].find('a')): # 'Реклама' not in str(page.contents[ind].find('a').parent.parent)
+			if bool(page.contents[ind].find('a')) \
+					and 'redirect.2gis' not in str(page.contents[ind].find('a')['href']) : # 'Реклама' not in str(page.contents[ind].find('a').parent.parent)
 				self.title_link_company = "https://2gis.ru" + page.contents[ind].find('a')['href']
 				self.name = page.contents[ind].find('span').text
 
