@@ -5,8 +5,6 @@ from selenium.webdriver import ActionChains
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
 from selenium.common.exceptions import NoSuchElementException, InvalidArgumentException, InvalidSelectorException
-from lxml import etree
-from lxml.html import fromstring
 import time, os
 PATH = os.path.dirname(os.path.abspath(__file__)) + "\\chromedriver\\chromedriver.exe"
 PATH_img = str(os.path.dirname(os.path.abspath(__file__))) + '\\file'

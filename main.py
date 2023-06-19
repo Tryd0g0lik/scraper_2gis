@@ -33,14 +33,19 @@ def return_rubric_name(name:(str, list)):
 
 if __name__ == "__main__":
 
-    city: str = "abakan" # return_sity_name(["irkutsk", 'armawir'])# "irkutsk" # armawir
-    thema: str = "Крематории" # return_rubric_name(["кладбище", 'морг']) животные церкви Помощь в организации похорон
+
+    city: str =  return_sity_name(['Abakan','Almetyevsk','Anadyr','Armavir','Arkhangelsk','Astrakhan','Balakovo','Barnaul','Belgorod','Beloretsk','Biysk'])#"abakan" # return_sity_name(["irkutsk", 'armawir'])# "irkutsk" # armawir
+    thema: str = return_rubric_name(['Морги', 'Кладбища', 'Церкви', 'Храмы', 'Соборы', 'Колумбарии', 'Крематории', 'Помощь в организации похорон', 'Памятники надгробия', 'Ритуальные услуги для животных']) # "Крематории" # return_rubric_name(["кладбище", 'морг']) животные церкви Помощь в организации похорон
+    """
+       Морги, Кладбища, Церкви, Храмы, Соборы, Колумбарии, Крематории, Помощь в организации похорон, Памятники надгробия, Ритуальные услуги для животных
+     """
     returned_file_name = thema
 
     paginator = Gis_paginator(city=city, search_word=thema)
     i = 0
 
     while i != len(paginator.paginator_reference):
+
         page = ScraperCompanies(city=city, filename=returned_file_name, search_word=thema,
                            references=paginator.paginator_reference)
 
