@@ -9,7 +9,7 @@ import csv
 
 PATH_img = str(os.path.dirname(os.path.abspath(__file__)))
 
-class BasicDataArray():
+class PandasWork():
 	def __init__(self,):
 
 		'''
@@ -36,7 +36,7 @@ class BasicDataArray():
 		self.pictures_feedback: list = []  # фото из комментариев
 		'''
 
-	def get_basic_data(self, filename:str, csv_file:bool = False, **kwargs):
+	def get_data(self, filename:str, csv_file:bool = False, **kwargs):
 		date_ = str(datetime.date.today())
 		filename = date_+ "_" + kwargs['Населенный пункт'] + '_' + filename
 		len(kwargs)
@@ -57,7 +57,7 @@ class BasicDataArray():
 		                  columns=list(kwargs.keys())[1:])
 
 		if csv_file == True and len(filename) > 0:
-			BasicDataArray.create_csv(self, filename=filename, df_data=df_new)
+			PandasWork.create_csv(self, filename=filename, df_data=df_new)
 
 	def create_csv(self, df_data, filename:str, encoding:str="cp1251"):
 		'''

@@ -11,7 +11,7 @@ class Basic_gis():
 		'''
 		self.сity_name = city;
 		self.search_word = search_word;
-		self.total_table = []
+		# self.total_table = []
 
 
 	def get_header(self):
@@ -28,13 +28,6 @@ class Basic_gis():
 		self.headers.add('sec-ch-ua', '"Chromium";v="110", "Not A(Brand";v="24", "YaBrowser";v="23"')
 		header_gis = "{}".format(self.headers, )
 		return header_gis
-	def get_city_name(self):
-		city_gis = "{}".format(self.сity_name.__str__().strip())
-		return city_gis
-
-	def get_search_word(self):
-		word_gis = "{}".format(self.search_word.__str__().strip(), )
-		return word_gis
 
 	def get_url(self, url,  head):
 		'''
@@ -51,5 +44,3 @@ class Basic_gis():
 		except (UnicodeEncodeError, UnicodeError):
 			print('UnicodeEncodeError scraper_basic.py: Что-то не так с название города. ')
 			return
-		request_gis = "{}".format(self.requests, )
-		# return self.requests
