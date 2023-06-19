@@ -1,9 +1,12 @@
+from urllib.parse import unquote
+
 from selenium import webdriver
 from selenium.webdriver import ActionChains
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
 from selenium.common.exceptions import NoSuchElementException, InvalidArgumentException, InvalidSelectorException
-
+from lxml import etree
+from lxml.html import fromstring
 import time, os
 PATH = os.path.dirname(os.path.abspath(__file__)) + "\\chromedriver\\chromedriver.exe"
 PATH_img = str(os.path.dirname(os.path.abspath(__file__))) + '\\file'
@@ -24,7 +27,7 @@ class ActionDriverChrome:
 		self.selector = selector
 
 
-	def page_loadeing(self):
+	def page_loading(self):
 		'''
 		:return:
 		'''
@@ -34,8 +37,11 @@ class ActionDriverChrome:
 			executable_path=str(PATH),
 			chrome_options=browser
 		)
-		self.driver.get(str(self.url))
-		html = self.driver.page_source
+		self.driver.get(str(self.url)) # open url
+
+	def get_page(self):
+		html = self.driver.page_source # get html-page
+
 		pass
 		time.sleep(3)
 		return html
@@ -54,7 +60,8 @@ class ActionDriverChrome:
 				js_elem + '.scrollBy({top:' + js_elem + '.scrollHeight' + ', left: 0, behavior: "smooth"});')
 			del js_elem
 
-	def action_click(self, click: bool = False):
+
+	def action_click(self, click: bool = False, i:int = 0, name:str = ''):
 		'''
 			TODO: Finding the element-html and
 			 make the click-action for an element
@@ -62,14 +69,26 @@ class ActionDriverChrome:
 
 		  :param click: this's False default
 		'''
-		if self.selector != '' \
-			and click == True:
+		by=''
+		atr=''
+		if click == True:
+			if self.selector != '':
+				'''
+					Searching - By.XPATH  
+				'''
+				by = By.XPATH
+				atr = self.selector
+
+			if i != 0 and name != '': # and self.selector == ''
+				'''
+					Selenium + JS
+					self.page_loadeing() self.driver.execute_script('return document.getElementsByTagName("span")[23].setAttribute("name", "selectomatic")'),self.driver.find_element(By.NAME, "selectomatic")
+				'''
+				by = By.NAME
+				atr = name
+
 			try:
-				'''
-					Проверка формата self.selector  на By.XPATH  
-				'''
-				# self.page_loadeing()
-				element = self.driver.find_element(By.XPATH, self.selector)
+				element = self.driver.find_element(by, atr)
 				ActionChains(self.driver).click(element).perform()
 
 			except (NoSuchElementException, InvalidArgumentException, InvalidSelectorException):
@@ -81,9 +100,10 @@ class ActionDriverChrome:
 					CSS_SELECTOR = "css selector"
 				'''
 				print('Для реализации клика на странице Selector не найден или Selector в формате - XPATH' )
-				print('Проблема в  getHtmlOfDriverChrome() из scraper_oneCompany.py')
+				print('Проблема в  getHtmlOfDriverChrome() из scraper_сompany.py')
+
 
 			time.sleep(5)
 
-
-
+	def closed_browser(self):
+		self.driver.close()

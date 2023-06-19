@@ -1,6 +1,6 @@
 # This is a sample Python script.
 from app_scraper_gis.scrape_paginator import Gis_paginator
-from app_scraper_gis.scraper_address import ScraperEachAddress
+from app_scraper_gis.scraper_companies import ScraperCompanies
 import time
 
 # Press Shift+F10 to execute it or replace it with your code.
@@ -33,22 +33,22 @@ def return_rubric_name(name:(str, list)):
 
 if __name__ == "__main__":
 
-    city: str = "armawir" # return_sity_name(["irkutsk", 'armawir'])# "irkutsk" # armawir
-    thema: str = "животные" # return_rubric_name(["кладбище", 'морг']) животные
+    city: str = "abakan" # return_sity_name(["irkutsk", 'armawir'])# "irkutsk" # armawir
+    thema: str = "Крематории" # return_rubric_name(["кладбище", 'морг']) животные церкви Помощь в организации похорон
     returned_file_name = thema
 
     paginator = Gis_paginator(city=city, search_word=thema)
-    map = ScraperEachAddress(city=city, filename=returned_file_name,  search_word=thema, references=paginator.paginator_reference)
-    page = map.object_soup
-    map.scraper_companies(page)
     i = 0
 
-    while i < len(map.references):
-        page = map.start_working()
-        map.scraper_companies(page)
-        i +=1
-        time.sleep(1)
-        break
+    while i != len(paginator.paginator_reference):
+        page = ScraperCompanies(city=city, filename=returned_file_name, search_word=thema,
+                           references=paginator.paginator_reference)
+
+        page.scraper_companies(page.soup_main)
+        paginator.paginator_reference.pop(0)
+        print(i)
+        time.sleep(2)
+
 '''
 
 soup.find(id="root") \

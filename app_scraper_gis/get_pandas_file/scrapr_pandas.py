@@ -3,13 +3,13 @@ pd.set_option('display.width', 98)
 import numpy as np
 import scv
 import pprint
-import os
+import os, re
 import datetime
 import csv
 
 PATH_img = str(os.path.dirname(os.path.abspath(__file__)))
 
-class BasicDataArray():
+class PandasWork():
 	def __init__(self,):
 
 		'''
@@ -36,9 +36,10 @@ class BasicDataArray():
 		self.pictures_feedback: list = []  # фото из комментариев
 		'''
 
-	def get_basic_data(self, filename:str, csv_file:bool = False, **kwargs):
+	def get_data(self, filename:str, csv_file:bool = False, **kwargs):
 		date_ = str(datetime.date.today())
 		filename = date_+ "_" + kwargs['Населенный пункт'] + '_' + filename
+		len(kwargs)
 		'''
 		:param csv_file: It's a bool value. It's a properties has the False value by default.
 			 True - create the CSV-file
@@ -46,12 +47,17 @@ class BasicDataArray():
 
 		:return:
 		'''
+		# if kwargs['Время Работы'] == [[]]: kwargs['Время Работы'] = ''
+		# if kwargs['Фото'] == [[]]: kwargs['Фото'] = 'NaN'
+		# if kwargs['Комментарии'] == [[]]: kwargs['Комментарии'] = ''
+		# if kwargs['Фото-комментарии'] == [[]]: kwargs['Фото-комментарии'] = ''
+		len(kwargs)
 		df_new = pd.DataFrame(data=kwargs,
 		                  index=list(kwargs.values())[:1],
 		                  columns=list(kwargs.keys())[1:])
 
 		if csv_file == True and len(filename) > 0:
-			BasicDataArray.create_csv(self, filename=filename, df_data=df_new)
+			PandasWork.create_csv(self, filename=filename, df_data=df_new)
 
 	def create_csv(self, df_data, filename:str, encoding:str="cp1251"):
 		'''
@@ -66,6 +72,8 @@ class BasicDataArray():
 		if os.stat(PATH_img + "\\..\\..\\" + filename + ".csv").st_size == 0:
 			# file = open(PATH_img + "\\..\\..\\" + filename + ".csv", 'w', encoding=encoding)
 			# file.close()
+			# df_data['Информация'] = re.sub(u'u[0-9]\w{1,5}', ' ', df_data['Информация'])
+			# df_data['Комментарии'] = re.sub(u'u[0-9]\w{1,5}', ' ', df_data['Комментарии'])
 
 			df_data.to_csv(PATH_img + "\\..\\..\\" + filename + ".csv", mode="w",
 			          encoding=encoding,
