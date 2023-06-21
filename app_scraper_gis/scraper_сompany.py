@@ -212,7 +212,7 @@ class Company(Gis_main):
 		self.work_mode = []
 		self.phone = []
 		get_phone = r'(tel:[(\+7)|(8)|(\+8)]{1}[0-9]{5,12})'
-		get_mail = r'(mailto:(\w{1,}_{,2}.){1,}@\w{3,15}.\w{2,3})'
+		get_mail = r'(mailto:([0-9\w\_\+]{1,}_{,2}\.?){1,}@\w{3,15}.\w{2,3})'
 		get_website = r'[^а-яё](https?:\/\/)?((www.)?[a-z0-9])*\-?[a-z0-9]+[^(2gis)|(w3)|(vk.)|(а-яё)+]\.[a-z]{2,5}'
 		get_time_list = [
 			r'(Ежедневно с [0-9]{2}:[0-9]{2} до [0-9]{2}:[0-9]{2})',
