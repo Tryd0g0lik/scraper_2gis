@@ -11,8 +11,6 @@ class Basic_gis():
 		'''
 		self.сity_name = city.lower();
 		self.search_word = search_word.lower();
-		# self.total_table = []
-
 
 	def get_header(self):
 		"""

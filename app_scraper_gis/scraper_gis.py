@@ -1,21 +1,23 @@
 from bs4 import BeautifulSoup as beauty
 from urllib.parse import unquote, quote
-
 from app_scraper_gis.scraper_basic import Basic_gis
 
 
 class Gis_main(Basic_gis):
-	def __init__(self, city: str = '', search_word: str = '', references: list = []):
+	def __init__(self, city: str = '', search_word: str = '', references: list = [], start_page: int = 0):
 		'''
 		Scraping common pages from the 2gis
 		:param city: it's city with which your work
 		:param search_word: this's theme's words by which the company search based on the city
 		:param references: this's the list links to pages with a many companies
+		:param start_page: this's the start-page of the paginator's lit
+
 		'''
 		super().__init__(city, search_word)
 		self.references = references
+		self.start_page = 0 if start_page == 0 else start_page - 1
 
-	def search_companies(self): # search the word
+	def search_companies(self):
 		'''
 		search the words - theme's category
 		:return:
@@ -23,19 +25,21 @@ class Gis_main(Basic_gis):
 		Basic_gis.get_header(self)
 		requ_word = quote(self.search_word)
 		self.headers.add('Referer', f"https://2gis.ru/{self.сity_name}/search/{requ_word}")
-
+		for ind in range(0, self.start_page): self.references.pop(0)
 		for i in range(len(self.references)):
 			print("i: ", self.references[i])
 			Basic_gis.get_url(self,
-				url= self.references[i], #f"https://2gis.ru/{city}/search/{requ_word}",
+				url= self.references[i],
 				head=self.headers
 			)
 			break
+		try:
+			if self.requests.status >= 200 and self.requests.status < 400:
+				self.pages = "{}".format(unquote(self.requests.data), )
 
-		if self.requests.status >= 200 and self.requests.status < 400:
-			self.pages = "{}".format(unquote(self.requests.data), )
-		else:
+		except AttributeError:
 			print('Error search_companies: request вернул страницу имеющую статус 300+ ')
+			self.pages = ''
 
 	def __scrap_companies(self):
 		'''
@@ -58,4 +62,6 @@ class Gis_main(Basic_gis):
 
 	def start_working(self):
 		Gis_main.search_companies(self)
-		return Gis_main.__scrap_companies(self)
+
+		if self.pages != '':
+			return Gis_main.__scrap_companies(self)

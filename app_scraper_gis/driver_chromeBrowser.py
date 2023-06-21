@@ -1,5 +1,3 @@
-from urllib.parse import unquote
-
 from selenium import webdriver
 from selenium.webdriver import ActionChains
 from selenium.webdriver.common.by import By
@@ -52,12 +50,10 @@ class ActionDriverChrome:
 		if self.selector != '' \
 			and scroll == True:
 			js_elem = "document.querySelector('" + (self.selector).strip() + "')"
-			# self.page_loadeing()
 
 			self.driver.execute_script(
 				js_elem + '.scrollBy({top:' + js_elem + '.scrollHeight' + ', left: 0, behavior: "smooth"});')
 			del js_elem
-
 
 	def action_click(self, click: bool = False, i:int = 0, name:str = ''):
 		'''
@@ -77,7 +73,7 @@ class ActionDriverChrome:
 				by = By.XPATH
 				atr = self.selector
 
-			if i != 0 and name != '': # and self.selector == ''
+			if i != 0 and name != '':
 				'''
 					Selenium + JS
 					self.page_loadeing() self.driver.execute_script('return document.getElementsByTagName("span")[23].setAttribute("name", "selectomatic")'),self.driver.find_element(By.NAME, "selectomatic")

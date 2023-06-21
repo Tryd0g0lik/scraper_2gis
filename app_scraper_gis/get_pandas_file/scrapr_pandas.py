@@ -52,9 +52,8 @@ class PandasWork():
 		# if kwargs['Комментарии'] == [[]]: kwargs['Комментарии'] = ''
 		# if kwargs['Фото-комментарии'] == [[]]: kwargs['Фото-комментарии'] = ''
 		len(kwargs)
-		df_new = pd.DataFrame(data=kwargs,
-		                  index=list(kwargs.values())[:1],
-		                  columns=list(kwargs.keys())[1:])
+		# df_new = pd.DataFrame(data=kwargs, index=0, columns=list(kwargs.keys()))
+		df_new = pd.DataFrame(data=kwargs, index=range(1), columns=list(kwargs.keys()) )
 
 		if csv_file == True and len(filename) > 0:
 			PandasWork.create_csv(self, filename=filename, df_data=df_new)
@@ -79,24 +78,33 @@ class PandasWork():
 			          encoding=encoding,
 			          sep=';',
 			          )
+			print('Запись в новый файл')
 
 		else:
-			df = pd.read_csv(PATH_img + "\\..\\..\\" + filename + ".csv", sep=';', encoding="cp1251", index_col=0)
+			with open(PATH_img + "\\..\\..\\" + filename + ".csv", 'r', encoding=encoding) as f:
+				df = pd.read_csv(f, sep=';', index_col=0)
+				print('Открываем файл')
+				# print("str(new_table.columns[0]): ", str(df_data.columns[0]))
+				# df.loc[df_data.index[0]] = df_data.iloc[0]
+				# df.iloc[len(list(df_data.index))] = df_data.iloc[0]
+				df.loc[len(list(df.index))] = df_data.iloc[0]
 
-			# print("str(new_table.columns[0]): ", str(df_data.columns[0]))
-			df.loc[df_data.index[0]] = df_data.iloc[0]
+				try:
+					print('Начало записи')
+					df.fillna('NaN').to_csv(PATH_img + "\\..\\..\\" + filename + ".csv", mode="w",
+												          encoding=encoding,
+												          sep=';',
+												          )
+				except PermissionError:
+					err = 'PermissionError: Кажется файл, в который должен записаться результат - открыт. Закройте. Метод  "create_csv"'
+					print(err)
+					return
 
-			try:
-				df.fillna('NaN').to_csv(PATH_img + "\\..\\..\\" + filename + ".csv", mode="w",
-				          encoding=encoding,
-				          sep=';',
+			with open(PATH_img + "\\..\\..\\" + filename + ".csv", 'r') as f:
+				df = pd.read_csv(f, sep=';', encoding=encoding, index_col=0)
+				# print(df.head())
+			print('Запись: ')
 
-				          )
-			except PermissionError:
-
-				err = 'PermissionError: Кажется файл, в который должен записаться результат - открыт. Закройте. Метод  "create_csv"'
-				print(err)
-				return
 		print("END")
 	# def creted_tabale_onCompany(self):
 	# 	self.name_comany = self.basic_series[0]
