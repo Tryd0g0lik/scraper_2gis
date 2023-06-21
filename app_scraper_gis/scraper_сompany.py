@@ -4,10 +4,8 @@ from bs4 import BeautifulSoup as beauty
 from urllib.parse import unquote
 from urllib3 import request
 import re, os, logging
-from collections import Counter
-from io import BytesIO
-import requests
-
+#from collections import Counter
+#from io import BytesIO
 
 
 
@@ -29,8 +27,9 @@ def makeFolder(name: str, path: str = "./"):
 
 	return
 
+
 class Company(Gis_main):
-	def __init__(self, city, search_word, references):
+	def __init__(self, city, search_word, references, start_page):
 		'''
 		TODO: viewing each geometry_name
 		:param references: list links on pages
@@ -47,8 +46,9 @@ class Company(Gis_main):
 		:param search_word:
 		:param src_img_feedback: it's the image-src from the feedback-block
 		:param src_img_company: it's the image-src from the company info-block
+		:param start_page: this's the start-page of the paginator's list
 		'''
-		super().__init__(city, search_word, references)
+		super().__init__(city, search_word, references, start_page)
 		self.work_mode = []
 		self.email = ''
 		self.info = ''
@@ -64,7 +64,6 @@ class Company(Gis_main):
 		self.comment = []
 		self.src_img_feedback = []
 
-
 	def parser_page(self, html_page):
 		'''
 		TODO:
@@ -72,6 +71,7 @@ class Company(Gis_main):
 		:return: page parsed
 		'''
 		return beauty(unquote(html_page), features="html.parser")
+
 	def request_page_company(self, url, headers=True):
 		'''
 		TODO: Opening and uploading www-page for the single company's page
@@ -97,7 +97,6 @@ class Company(Gis_main):
 		:param url: data-source
 		:return: Datas about the one company
 		'''
-		print('Компания: ', url)
 
 		# Открываем страницу
 		try:
@@ -112,7 +111,6 @@ class Company(Gis_main):
 		except AttributeError:
 			print('AttributeError scraper_сompany.py: Что не так с атрибутами из scrap_gis_inner()' + str(logging.exception("message")))
 			return
-
 
 		'''
 			only making a check
@@ -136,36 +134,49 @@ class Company(Gis_main):
 				r'(Ежедневно с [0-9]{2}:[0-9]{2} до [0-9]{2}:[0-9]{2})',
 				r'(Круглосуточно)',
 				r'(Сегодня [c|с] [0-9]{2}:[0-9]{2} до [0-9]{2}:[0-9]{2})',
-				r'(Откроется [(завтра)|(через)]+ [в 0-9А-ЯЁа-яё]{0,32}[в 0-9:]{,10})', ]
+				r'(Откроется [(завтра)|(через)]+ [в 0-9А-ЯЁа-яё]{0,32}[в 0-9:]{,10})' ]
 			print('click by work-mode time')
-			list_element =  html.driver.execute_script('return document.getElementsByTagName("span")')
-			for i in range(len(list_element)):
-				for reg in get_time_list:
-					if len(list_element) > 0 \
-						and bool(re.search(reg,str(list_element[i].text))):
-						# Selenium + JS
-						html.driver.execute_script(f'return document.getElementsByTagName("span")[{i}].setAttribute("name", "selectomatic{i}")')
+		div_list = soup_company.find(id='root').find(text='Контакты').find_parents('div')[6] \
+				.contents[1].contents[0].contents[0].contents[0].contents
 
-			# html.selector='//*[@id="root"]/div/div/div[1]/div[1]/div[2]/div/div/div[2]/div/div/div[2]/div[2]/div/div[1]/div/div/div/div/div[2]/div[2]/div[1]/div[1]/div/div[2]'
-						html.action_click(click=True, i=i, name=f"selectomatic{i}")
+		'''
+			find an index for the html-element 
+		'''
+		if len(div_list) > 0:
+			for i in range(0, len(div_list) - 1):
 
-						break
+				if i >= len(div_list): break
+				for ind in range(0,len(get_time_list) - 1):
+					print('get_time_list-ind: ', ind)
+					if re.search(get_time_list[ind], str(div_list[i])):
+						div_list = div_list[i].contents
+						get_time_str =  re.search(get_time_list[ind], str(div_list[i]))
+						div_list_className = div_list[i].attrs['class']
+						div_list = soup_company.find_all(name='div', attrs={'class':div_list_className[0]})
 
+		'''
+			With found html-element working through the JS + click-action 
+		'''
+		if len(div_list) > 0 and bool(get_time_str):
+			for i in range(len(div_list) -1 ):
+				if get_time_str.group() in str(div_list[i]):
+					print('Пошла РОДНАЯ')
+					javascript = f'return document.querySelectorAll("div.{div_list_className[0]}")[{i}].lastElementChild.lastElementChild.lastElementChild.setAttribute("name","selectomatic{i}")'
+					html.driver.execute_script(javascript)
+					html.action_click(click=True, i=1, name=f'selectomatic{i}')
 
 			'''
 				click by number phone
 			'''
-			print('click by number phone')
 			list_element = html.driver.execute_script('return document.getElementsByTagName("a")')
 			ind = [i for i in range(len(list_element)) if '+7 (' in str(list_element[i].accessible_name)]
 			if len(ind) > 0:
-				# html.selector = '//*[@id="root"]/div/div/div[1]/div[1]/div[2]/div/div/div[2]/div/div/div[2]/div[2]/div/div[1]/div/div/div/div/div[2]/div[2]/div[1]/div/div/div[3]/div[2]/div/a'
 				html.driver.execute_script(f'return document.getElementsByTagName("a")[{ind}].setAttribute("name", "selectomatic{ind}")')
 				html.action_click(click=True, i=ind, name=f"selectomatic{ind}")
-			# html.closed_browser()
+
 			del soup_company
 			html_page = html.get_page()
-			html.closed_browser()
+			# html.closed_browser()
 
 			'''
 				:param work_mode: time's work-MODE TIME + WWW + SOCIAL-networks + EMAIL + PHONE's number ...
@@ -201,9 +212,8 @@ class Company(Gis_main):
 		self.work_mode = []
 		self.phone = []
 		get_phone = r'(tel:[(\+7)|(8)|(\+8)]{1}[0-9]{5,12})'
-		get_mail = r'(mailto:(\w{1,}_{,2}.){1,}@\w{3,15}.\w{2,3})'
-		# get_website = r'http(s{0,1}):\/\/\w{0,25}.{0,1}\w{2,25}[^(2gis)|(w3)|vk.].\w{2,5}'
-		get_website = r'[^а-яё](https?:\/\/)?((www.)?[a-z0-9])*\-?[a-z0-9]+[^(2gis)|(w3)|(vk.)|(а-яё)+]\.[a-z]{2,5}'
+		get_mail = r'(mailto:([0-9\w\_\+]{1,}_{,2}\.?){1,}@\w{3,15}.\w{2,3})'
+		get_website = r'[^а-яё](https?:\/\/)?((www.)?[^(2gis)][a-z0-9])*\-?[a-z-0-9\.]+[^(w3)|(vk.)|(а-яё)+]\.[a-z]{2,5}'
 		get_time_list = [
 			r'(Ежедневно с [0-9]{2}:[0-9]{2} до [0-9]{2}:[0-9]{2})',
 			r'(Круглосуточно)',
@@ -307,13 +317,11 @@ class Company(Gis_main):
 							and 'Продукты' not in str__ and 'Автомойки' not in str__:
 							self.subcategory += str(str__.encode('cp1251', errors='replace').decode('cp1251')).lstrip(' // ')
 
-
 	def scraper_comment(self, html, soup):
 		self.comment = []
 		if bool(soup.find(text='Отзывы')):
 			url = "https://2gis.ru" + soup.find(text='Отзывы').parent['href']
 
-			# if len(soup.find(text='Отзывы').parent.find_parents('div')[6].contents) > 1:
 			selector = """#root > div > div > div:nth-child(1) > div:nth-child(1) > div:nth-child(2) > div > div > div:nth-child(2) > div > div > div:nth-child(2) > div:nth-child(2) > div > div:nth-child(1) > div > div"""
 			html = ActionDriverChrome(url, selector)
 			html.page_loading()
@@ -378,15 +386,3 @@ class Company(Gis_main):
 					else:
 						break
 			del src_img_company
-
-
-'''
-	from PIL import Image
-	from io import BytesIO
-	# Getting pictures from the source
-	url = requests.get(str(src))
-
-	img = Image.open(BytesIO(url.content))
-
-'''
-

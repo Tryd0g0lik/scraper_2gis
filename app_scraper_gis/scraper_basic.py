@@ -9,10 +9,8 @@ class Basic_gis():
 		:param city:
 		:param search_word: categories for to the search
 		'''
-		self.сity_name = city;
-		self.search_word = search_word;
-		# self.total_table = []
-
+		self.сity_name = city.lower();
+		self.search_word = search_word.lower();
 
 	def get_header(self):
 		"""

@@ -32,41 +32,27 @@ def return_rubric_name(name:(str, list)):
     return response
 
 if __name__ == "__main__":
+  city: str = ['Abakan', 'Almetyevsk', 'Anadyr', 'Armavir', 'Arkhangelsk', 'Astrakhan', 'Balakovo', 'Barnaul', 'Belgorod','Beloretsk', 'Biysk']
+  thema: str = ['Магазин', 'Кладбища', 'Церкви', 'Храмы', 'Соборы', 'Колумбарии', 'Крематории', 'Помощь в организации похорон',
+     'Памятники надгробия',
+     'Ритуальные услуги для животных']
+  start_page = 0 # с какой страницы (пагинации) начинать
 
+  for c in city:
+    for t in thema:
+      returned_file_name = t
+      paginator = Gis_paginator(city=c, search_word=t)
 
-    city: str =  return_sity_name(['Abakan','Almetyevsk','Anadyr','Armavir','Arkhangelsk','Astrakhan','Balakovo','Barnaul','Belgorod','Beloretsk','Biysk'])#"abakan" # return_sity_name(["irkutsk", 'armawir'])# "irkutsk" # armawir
-    thema: str = return_rubric_name(['Морги', 'Кладбища', 'Церкви', 'Храмы', 'Соборы', 'Колумбарии', 'Крематории', 'Помощь в организации похорон', 'Памятники надгробия', 'Ритуальные услуги для животных']) # "Крематории" # return_rubric_name(["кладбище", 'морг']) животные церкви Помощь в организации похорон
-    """
-       Морги, Кладбища, Церкви, Храмы, Соборы, Колумбарии, Крематории, Помощь в организации похорон, Памятники надгробия, Ритуальные услуги для животных
-     """
-    returned_file_name = thema
+      i = 0
 
-    paginator = Gis_paginator(city=city, search_word=thema)
-    i = 0
-
-    while i != len(paginator.paginator_reference):
-
-        page = ScraperCompanies(city=city, filename=returned_file_name, search_word=thema,
-                           references=paginator.paginator_reference)
-
+      while i != len(paginator.paginator_reference) - start_page:
+        page = ScraperCompanies(city=c, filename=returned_file_name, search_word=t,
+                           references=paginator.paginator_reference, start_page=start_page)
         page.scraper_companies(page.soup_main)
         paginator.paginator_reference.pop(0)
         print(i)
+        city.pop(0)
+        thema.pop(0)
+        start_page = 0
+        i+=1
         time.sleep(2)
-
-'''
-
-soup.find(id="root") \
-.contents[0].contents[0] \
-.contents[0].contents[0].contents[1].contents[0] \
-.contents[0].contents[1].contents[0].find(text="Инфо")
-'''
-
-""""
-    Динамичный постер 2gis.
-
-    ДобавитьЖ
-    self.geometry_name :str = ''
-    + проверить ПОЛУЧЕННЫЕ данные на уникальность 
-    + подкатегории
-"""

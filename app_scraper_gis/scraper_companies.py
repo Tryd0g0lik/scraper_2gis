@@ -1,10 +1,7 @@
 import datetime
 import re
-
 from app_scraper_gis.get_pandas_file.scrapr_pandas import PandasWork
 from app_scraper_gis.scraper_сompany import Company
-import pandas as pd
-import numpy as np
 
 
 class ScraperCompanies(Company, PandasWork):
@@ -15,10 +12,11 @@ class ScraperCompanies(Company, PandasWork):
 		:param 'lat' it's the data coordinates about the width
 		:param 'lon' it's the data coordinates about the long
 		:param title_link_company: reference on the 2gis's column company from the title
+		:param start_page: this's the start-page of the paginator's lit
 	"""
 
-	def __init__(self, filename:str, city: str = '', search_word: str = '', references = []):
-		super().__init__(city, search_word, references)
+	def __init__(self, filename:str, city: str = '', search_word: str = '', references = [], start_page: int = 0):
+		super().__init__(city, search_word, references, start_page)
 		ScraperCompanies.start_working(self)
 		self.filename = (filename).strip()
 
@@ -37,36 +35,42 @@ class ScraperCompanies(Company, PandasWork):
 		self.lon = ''
 		self.name = ''
 		for ind in range(len(page.contents) -1):
-			if self.name != '': ScraperCompanies.get_sortedata(self, filename=self.filename, csv_file=True)
-			# id=3
-			if bool(page.contents[ind].find('a')): # 'Реклама' not in str(page.contents[ind].find('a').parent.parent)
+			if self.name != '':
+				ScraperCompanies.get_sortedata(self, filename=self.filename, csv_file=True)
+
+			if bool(page.contents[ind].find('a')) \
+					and 'redirect.2gis' not in str(page.contents[ind].find('a')['href']) : # 'Реклама' not in str(page.contents[ind].find('a').parent.parent)
 				self.title_link_company = "https://2gis.ru" + page.contents[ind].find('a')['href']
 				self.name = page.contents[ind].find('span').text
 
 
 				resp = page.contents[ind].find('a').parent.parent.contents
-				if len(page.contents[ind].find('a').parent.parent.contents) > 1:
-					if resp[len(resp)-1].name == 'div' or resp[len(resp)-1].name == 'span' \
-						and 'Закр' not in resp[len(resp)-1].text and 'Откр' not in resp[len(resp)-1].text \
-						and 'Скор' not in resp[len(resp)-1].text:
-					  self.geometry_name = resp[len(resp)-1].text
+				if len(resp) > 1 :
+					# if resp[len(resp)-1].name == 'div' or resp[len(resp)-1].name == 'span' \
+					if bool(resp[-1].contents[0].name) \
+						and 'Реклама' not in str(resp[-1]) \
+						and 'Закр' not in resp[-1].text and 'Откр' not in resp[-1].text \
+						and 'Скор' not in resp[-1].text and bool(resp[-1].contents[0].name) \
+						and '<a' not in str(resp[-1]):
+					  self.geometry_name = resp[-1].text
 
-					elif resp[len(resp)-2].name == 'div' or resp[len(resp)-2].name == 'span' \
-						and 'Закр' not in resp[len(resp) - 2].text and 'Откр' not in resp[len(resp) - 2].text \
-						and 'Скор' not in resp[len(resp) - 2].text:
-					  self.geometry_name = resp[len(resp)-2].text
+					elif bool(resp[-2].contents[0].name) \
+						and 'Реклама' not in str(resp[-2]) \
+						and 'Закр' not in resp[-2].text and 'Откр' not in resp[-2].text \
+						and 'Скор' not in resp[-2].text\
+						and '<a' not in str(resp[-2]):
+					  self.geometry_name = resp[-2].text
+					else:
+					  self.geometry_name = resp[-3].text
 
-				if len(page.contents[ind].find('a').parent.parent.contents) >= 2 \
-					and len(page.contents[ind].find('a').parent.parent.contents[1]) == 1 \
-					and page.contents[ind].find('a').parent.parent.contents[1].contents[0].name == 'span' \
-					and len(page.contents[ind].find('a').parent.parent.contents[1].contents[0].contents[0].text) > 3:
-					self.type_name = page.contents[ind].find('a').parent.parent.contents[1].contents[0].contents[0].text
+				if len(resp) >= 2 \
+					and len(resp[1]) == 1 \
+					and resp[1].contents[0].name == 'span' \
+					and len(resp[1].contents[0].contents[0].text) >= 3:
+					self.type_name = resp[1].contents[0].contents[0].text
 
-				# if len(page.contents[ind].find('a').parent.parent.contents) == 3 \
-				# 	and bool(page.contents[ind].find('a').parent.parent.contants):
-				# 	self.geometry_name = page.contents[ind].find('a').parent.parent.contents[3].contents[0].contents[0].text
 
-				resp = page.contents[ind].find('a').parent.parent.contents
+				# resp = page.contents[ind].find('a').parent.parent.contents
 				if len(resp) >= 3 \
 					and len(resp[2].contents) >= 1:
 					if len(resp) == 3 and bool(re.search(r'[оценкиа]{5,}', str(resp[1].contents))):
@@ -77,21 +81,17 @@ class ScraperCompanies(Company, PandasWork):
 						self.reiting = '_' + resp[2].contents[0].contents[1].text
 						self.count = '_' + resp[2].contents[0].contents[2].text
 
-				# if
-				#self.title_link_company 'https://2gis.ru/armawir/firm/70000001017817085'
 				Company.scrap_page_company(self, self.title_link_company)
 
 
 	def get_sortedata(self, filename:str, csv_file = False):
 		if bool(filename):
-			# search_word = ScraperCompanies.get_search_word(self)
-			# city_name = ScraperCompanies.get_city_name(self)
-
+			# Задача! Разнести наполнение словоря по функциям. Базовую функцию вынести в шапку
 			data_to_File = {
 				'Название': re.sub('\xa0', '', str(self.name)),
 				'№': self.title_link_company.encode('cp1251', errors='replace').decode('cp1251'),
 				'Дата Добавления': datetime.date.today(),
-				'Ключевое слово': str(self.search_word).encode('cp1251', errors='replace').decode('cp1251'),  # ОБАВИТЬ на страницы - слова для поиска
+				'Ключевое слово': str(self.search_word).encode('cp1251', errors='replace').decode('cp1251'),
 				'Населенный пункт': str(self.сity_name).encode('cp1251', errors='replace').decode('cp1251'),
 				'Рубрика': str(self.type_name).encode('cp1251', errors='replace').decode('cp1251'),
 				'Подраздел': self.subcategory.encode('cp1251', errors='replace').decode('cp1251').lstrip('?').lstrip(' // '),
@@ -114,8 +114,7 @@ class ScraperCompanies(Company, PandasWork):
 				'Комментарии': str(self.comment).encode('cp1251', errors='replace').decode('cp1251'),
 
 			}
-			# 'Фото-комментарии': str(self.src_img_feedback)
-			print('get_sortedata: ', self.name)
+
 			ScraperCompanies.get_data(self, filename, csv_file=csv_file, **data_to_File)
 			'''
 				Zero out data
