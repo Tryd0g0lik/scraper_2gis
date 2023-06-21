@@ -1,11 +1,11 @@
 import pandas as pd
 pd.set_option('display.width', 98)
-import numpy as np
-import scv
-import pprint
 import os, re
 import datetime
-import csv
+#import numpy as np
+#import scv
+#import pprint
+#import csv
 
 PATH_img = str(os.path.dirname(os.path.abspath(__file__)))
 
@@ -47,12 +47,6 @@ class PandasWork():
 
 		:return:
 		'''
-		# if kwargs['Время Работы'] == [[]]: kwargs['Время Работы'] = ''
-		# if kwargs['Фото'] == [[]]: kwargs['Фото'] = 'NaN'
-		# if kwargs['Комментарии'] == [[]]: kwargs['Комментарии'] = ''
-		# if kwargs['Фото-комментарии'] == [[]]: kwargs['Фото-комментарии'] = ''
-		len(kwargs)
-		# df_new = pd.DataFrame(data=kwargs, index=0, columns=list(kwargs.keys()))
 		df_new = pd.DataFrame(data=kwargs, index=range(1), columns=list(kwargs.keys()) )
 
 		if csv_file == True and len(filename) > 0:
@@ -69,10 +63,6 @@ class PandasWork():
 			with open(PATH_img + "\\..\\..\\" + filename + ".csv", 'w', encoding=encoding) as file: file.close()
 
 		if os.stat(PATH_img + "\\..\\..\\" + filename + ".csv").st_size == 0:
-			# file = open(PATH_img + "\\..\\..\\" + filename + ".csv", 'w', encoding=encoding)
-			# file.close()
-			# df_data['Информация'] = re.sub(u'u[0-9]\w{1,5}', ' ', df_data['Информация'])
-			# df_data['Комментарии'] = re.sub(u'u[0-9]\w{1,5}', ' ', df_data['Комментарии'])
 
 			df_data.to_csv(PATH_img + "\\..\\..\\" + filename + ".csv", mode="w",
 			          encoding=encoding,
@@ -83,10 +73,6 @@ class PandasWork():
 		else:
 			with open(PATH_img + "\\..\\..\\" + filename + ".csv", 'r', encoding=encoding) as f:
 				df = pd.read_csv(f, sep=';', index_col=0)
-				print('Открываем файл')
-				# print("str(new_table.columns[0]): ", str(df_data.columns[0]))
-				# df.loc[df_data.index[0]] = df_data.iloc[0]
-				# df.iloc[len(list(df_data.index))] = df_data.iloc[0]
 				df.loc[len(list(df.index))] = df_data.iloc[0]
 
 				try:
@@ -102,22 +88,6 @@ class PandasWork():
 
 			with open(PATH_img + "\\..\\..\\" + filename + ".csv", 'r') as f:
 				df = pd.read_csv(f, sep=';', encoding=encoding, index_col=0)
-				# print(df.head())
-			print('Запись: ')
+				print('Запись прошла')
 
 		print("END")
-	# def creted_tabale_onCompany(self):
-	# 	self.name_comany = self.basic_series[0]
-	# 	data_company_keys = list(self.basic_series[1:].keys())
-	# 	data_company_values = list(self.basic_series[1:].values)
-	#
-	# 	new_table = pd.DataFrame({
-	# 		self.name_comany:data_company_values
-	# 	}, index=data_company_keys)
-	# 	print(new_table)
-	# 	# BasicDataArray.creted_tabale_total(self, new_table)
-	# 	total_table = pd.DataFrame().loc[:new_table.columns[0]] = new_table[1:].values
-	# def creted_tabale_total(self, table):
-	#
-	# 	total_table = pd.DataFrame().loc[:table.columns[0]] = table.values
-	# 	print(total_table)

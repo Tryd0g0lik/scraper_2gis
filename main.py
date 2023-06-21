@@ -32,8 +32,8 @@ def return_rubric_name(name:(str, list)):
     return response
 
 if __name__ == "__main__":
-  city: str = ['Abakan', 'Almetyevsk', 'Anadyr', 'Armavir', 'Arkhangelsk', 'Astrakhan', 'Balakovo', 'Barnaul', 'Belgorod','Beloretsk', 'Biysk']  # "abakan" # return_sity_name(["irkutsk", 'armawir'])# "irkutsk" # armawir
-  thema: str = ['Автосервис', 'Кладбища', 'Церкви', 'Храмы', 'Соборы', 'Колумбарии', 'Крематории', 'Помощь в организации похорон',
+  city: str = ['Abakan', 'Almetyevsk', 'Anadyr', 'Armavir', 'Arkhangelsk', 'Astrakhan', 'Balakovo', 'Barnaul', 'Belgorod','Beloretsk', 'Biysk']
+  thema: str = ['Магазин', 'Кладбища', 'Церкви', 'Храмы', 'Соборы', 'Колумбарии', 'Крематории', 'Помощь в организации похорон',
      'Памятники надгробия',
      'Ритуальные услуги для животных']
   start_page = 0

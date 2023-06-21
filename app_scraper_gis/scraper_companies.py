@@ -66,7 +66,7 @@ class ScraperCompanies(Company, PandasWork):
 				if len(resp) >= 2 \
 					and len(resp[1]) == 1 \
 					and resp[1].contents[0].name == 'span' \
-					and len(resp[1].contents[0].contents[0].text) > 3:
+					and len(resp[1].contents[0].contents[0].text) >= 3:
 					self.type_name = resp[1].contents[0].contents[0].text
 
 
