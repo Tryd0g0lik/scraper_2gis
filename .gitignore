@@ -8,3 +8,6 @@ test_file.txt
 **/file/*
 **/код.*
 **/*.csv
+CSV-примеры файлов
+**/RADME.txt
+*.png
