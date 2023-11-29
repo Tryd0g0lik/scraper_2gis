@@ -6,7 +6,7 @@ files_common
 test_file.txt
 **/file/*.*
 **/file/*
-**/код.*
+код.py
 **/*.csv
 CSV-примеры файлов
 **/RADME.txt
